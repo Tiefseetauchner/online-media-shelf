@@ -1,4 +1,7 @@
-namespace OnlineMediaShelf;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+
+namespace Tiefseetauchner.OnlineMediaShelf.Web;
 
 public class Startup
 {
@@ -18,5 +21,7 @@ public class Startup
     app.UseStaticFiles();
 
     app.MapControllers();
+
+    app.MapFallbackToFile("index.html");
   }
 }

@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
     <PropertyGroup>
+        <SpaRoot>$(MSBuildProjectDirectory)/clientapp</SpaRoot>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>aspnet-OnlineMediaShelf-907603C9-ECB4-4EE6-B256-47F82391E9A3</UserSecretsId>
+        <RootNamespace>Tiefseetauchner.OnlineMediaShelf.Web</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,7 +15,30 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+        <Folder Include="Controllers\" />
+        <None Update="$(SpaRoot)">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
+    <Target Name="CheckBunInstallation">
+        <Exec Command="bun -v" ContinueOnError="true">
+            <Output TaskParameter="ExitCode" PropertyName="BunExitCode"/>
+        </Exec>
+        
+        <Error Text="Bun was not found. Ensure bun is installed and in your path." Condition="'$(BunExitCode)' != '0'"/>
+    </Target>
+    
+    <Target Name="BuildTypescript" DependsOnTargets="CheckBunInstallation" BeforeTargets="Build">
+        <Exec Command="bun run build" WorkingDirectory="$(SpaRoot)" />
+    </Target>
+    
+    <Target Name="CopyTypeScriptBuild" AfterTargets="Build">
+        <ItemGroup>
+            <BuildOutput Include="$(SpaRoot)/dist/**/*.*" />
+        </ItemGroup>
+        
+        <Copy SourceFiles="@(BuildOutput)"
+              DestinationFolder="$(OutputPath)/wwwroot/%(RecursiveDir)" />
+    </Target>
 </Project>
