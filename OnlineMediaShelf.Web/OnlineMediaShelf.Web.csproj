@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="clientapp\public\" />
         <Folder Include="Controllers\" />
     </ItemGroup>
 
@@ -38,7 +39,6 @@
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
-        <!-- Ensure Node.js is installed -->
         <Exec Command="bun --version" ContinueOnError="true">
             <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
         </Exec>
@@ -48,11 +48,9 @@
     </Target>
 
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-        <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
         <Exec WorkingDirectory="$(SpaRoot)" Command="bun install" />
         <Exec WorkingDirectory="$(SpaRoot)" Command="bun run build" />
 
-        <!-- Include the newly-built files in the publish output -->
         <ItemGroup>
             <DistFiles Include="$(SpaRoot)dist\**" />
             <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
