@@ -10,7 +10,7 @@ public class Program
     var builder = WebApplication.CreateBuilder(args);
 
     ConfigureServices(builder.Services);
-
+    
     var app = builder.Build();
     
     new Startup().Configure(app);
@@ -21,7 +21,8 @@ public class Program
   private static void ConfigureServices(IServiceCollection services)
   {
     services.AddControllers();
+    
     services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen();
+    services.AddOpenApiDocument();
   }
 }

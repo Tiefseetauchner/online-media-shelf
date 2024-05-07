@@ -4,12 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "lint": "eslint ./src/"
   },
   "dependencies": {
-    "preact": "^10.19.6"
+    "@fluentui/react-components": "^9.49.2",
+    "preact": "^10.19.6",
+    "spa-proxy": "^1.0.8"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.2",

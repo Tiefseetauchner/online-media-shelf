@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
-        <SpaRoot>$(MSBuildProjectDirectory)/clientapp</SpaRoot>
+        <SpaRoot>$(MSBuildProjectDirectory)/clientapp/</SpaRoot>
+        <SpaProxyServerUrl>http://localhost:57687</SpaProxyServerUrl>
+        <SpaProxyLaunchCommand>bun start</SpaProxyLaunchCommand>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <RootNamespace>Tiefseetauchner.OnlineMediaShelf.Web</RootNamespace>
@@ -9,36 +11,55 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" NoWarn="NU1605"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.3" NoWarn="NU1605"/>
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.4" />
         <PackageReference Include="Microsoft.Identity.Web" Version="2.15.2"/>
         <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="2.15.2"/>
+        <PackageReference Include="NSwag.AspNetCore" Version="14.0.7" />
+        <PackageReference Include="NSwag.MSBuild" Version="14.0.7">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <Folder Include="Controllers\" />
-        <None Update="$(SpaRoot)">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 
-    <Target Name="CheckBunInstallation">
-        <Exec Command="bun -v" ContinueOnError="true">
-            <Output TaskParameter="ExitCode" PropertyName="BunExitCode"/>
+    <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">
+        <Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)" />
+    </Target>
+
+    <ItemGroup>
+        <!-- Don't publish the SPA source files, but do show them in the project files list -->
+        <Content Remove="$(SpaRoot)**" />
+        <None Remove="$(SpaRoot)**" />
+        <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**;$(SpaRoot)dist\**" />
+    </ItemGroup>
+
+    <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+        <!-- Ensure Node.js is installed -->
+        <Exec Command="bun --version" ContinueOnError="true">
+            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
         </Exec>
-        
-        <Error Text="Bun was not found. Ensure bun is installed and in your path." Condition="'$(BunExitCode)' != '0'"/>
+        <Error Condition="'$(ErrorCode)' != '0'" Text="bun is required to build and run this project." />
+        <Message Importance="high" Text="Restoring dependencies using 'bun'. This may take several minutes..." />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="bun install" />
     </Target>
-    
-    <Target Name="BuildTypescript" DependsOnTargets="CheckBunInstallation" BeforeTargets="Build">
-        <Exec Command="bun run build" WorkingDirectory="$(SpaRoot)" />
-    </Target>
-    
-    <Target Name="CopyTypeScriptBuild" AfterTargets="Build">
+
+    <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+        <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+        <Exec WorkingDirectory="$(SpaRoot)" Command="bun install" />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="bun run build" />
+
+        <!-- Include the newly-built files in the publish output -->
         <ItemGroup>
-            <BuildOutput Include="$(SpaRoot)/dist/**/*.*" />
+            <DistFiles Include="$(SpaRoot)dist\**" />
+            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+                <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>
         </ItemGroup>
-        
-        <Copy SourceFiles="@(BuildOutput)"
-              DestinationFolder="$(OutputPath)/wwwroot/%(RecursiveDir)" />
     </Target>
 </Project>

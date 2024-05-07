@@ -10,7 +10,7 @@ public class Startup
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
-      app.UseSwagger();
+      app.UseOpenApi();
       app.UseSwaggerUI();
     }
 
@@ -20,8 +20,10 @@ public class Startup
 
     app.UseStaticFiles();
 
+    app.UseRouting();
+   
     app.MapControllers();
-
+    app.MapSwagger();
     app.MapFallbackToFile("index.html");
   }
 }
