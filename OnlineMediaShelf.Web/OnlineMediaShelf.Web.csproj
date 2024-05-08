@@ -2,57 +2,63 @@
     <PropertyGroup>
         <SpaRoot>$(MSBuildProjectDirectory)/clientapp/</SpaRoot>
         <SpaProxyServerUrl>http://localhost:57687</SpaProxyServerUrl>
-        <SpaProxyLaunchCommand>bun start</SpaProxyLaunchCommand>
+        <SpaProxyLaunchCommand>bun dev</SpaProxyLaunchCommand>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <RootNamespace>Tiefseetauchner.OnlineMediaShelf.Web</RootNamespace>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" NoWarn="NU1605"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.3" NoWarn="NU1605"/>
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.4"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4"/>
         <PackageReference Include="Microsoft.Identity.Web" Version="2.15.2"/>
         <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="2.15.2"/>
-        <PackageReference Include="NSwag.AspNetCore" Version="14.0.7" />
+        <PackageReference Include="NSwag.AspNetCore" Version="14.0.7"/>
         <PackageReference Include="NSwag.MSBuild" Version="14.0.7">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="clientapp\public\" />
-        <Folder Include="Controllers\" />
+        <Folder Include="clientapp\public\"/>
     </ItemGroup>
 
     <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">
-        <Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)" />
+        <Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)"/>
     </Target>
 
     <ItemGroup>
         <!-- Don't publish the SPA source files, but do show them in the project files list -->
-        <Content Remove="$(SpaRoot)**" />
-        <None Remove="$(SpaRoot)**" />
-        <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**;$(SpaRoot)dist\**" />
+        <Content Remove="$(SpaRoot)**"/>
+        <None Remove="$(SpaRoot)**"/>
+        <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**;$(SpaRoot)dist\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\OnlineMediaShelf.Domain\OnlineMediaShelf.Domain.csproj"/>
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
         <Exec Command="bun --version" ContinueOnError="true">
-            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+            <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
         </Exec>
-        <Error Condition="'$(ErrorCode)' != '0'" Text="bun is required to build and run this project." />
-        <Message Importance="high" Text="Restoring dependencies using 'bun'. This may take several minutes..." />
-        <Exec WorkingDirectory="$(SpaRoot)" Command="bun install" />
+        <Error Condition="'$(ErrorCode)' != '0'" Text="bun is required to build and run this project."/>
+        <Message Importance="high" Text="Restoring dependencies using 'bun'. This may take several minutes..."/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="bun install"/>
     </Target>
 
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-        <Exec WorkingDirectory="$(SpaRoot)" Command="bun install" />
-        <Exec WorkingDirectory="$(SpaRoot)" Command="bun run build" />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="bun install"/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="bun run build"/>
 
         <ItemGroup>
-            <DistFiles Include="$(SpaRoot)dist\**" />
+            <DistFiles Include="$(SpaRoot)dist\**"/>
             <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
                 <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
