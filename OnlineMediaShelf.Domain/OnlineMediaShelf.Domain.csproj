@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Tiefseetauchner.OnlineMediaShelf.Domain</RootNamespace>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

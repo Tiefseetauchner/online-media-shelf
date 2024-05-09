@@ -8,7 +8,7 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
-export class ShelvesClient {
+export class ShelfClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -60,13 +60,94 @@ export class ShelvesClient {
         }
         return Promise.resolve<Shelf[]>(null as any);
     }
+
+    getShelf(id: number): Promise<Shelf[]> {
+        let url_ = this.baseUrl + "/shelves/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetShelf(_response);
+        });
+    }
+
+    protected processGetShelf(response: Response): Promise<Shelf[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Shelf.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Shelf[]>(null as any);
+    }
+
+    createShelf(shelf: Shelf): Promise<Shelf> {
+        let url_ = this.baseUrl + "/shelves/create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(shelf);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateShelf(_response);
+        });
+    }
+
+    protected processCreateShelf(response: Response): Promise<Shelf> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Shelf.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Shelf>(null as any);
+    }
 }
 
 export class Shelf implements IShelf {
-    shelfId?: number;
-    location?: string;
+    id?: number;
     userId?: number;
-    user?: User;
+    items?: Item[];
 
     constructor(data?: IShelf) {
         if (data) {
@@ -79,10 +160,13 @@ export class Shelf implements IShelf {
 
     init(_data?: any) {
         if (_data) {
-            this.shelfId = _data["shelfId"];
-            this.location = _data["location"];
+            this.id = _data["id"];
             this.userId = _data["userId"];
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Item.fromJS(item));
+            }
         }
     }
 
@@ -95,27 +179,29 @@ export class Shelf implements IShelf {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["shelfId"] = this.shelfId;
-        data["location"] = this.location;
+        data["id"] = this.id;
         data["userId"] = this.userId;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
         return data;
     }
 }
 
 export interface IShelf {
-    shelfId?: number;
-    location?: string;
+    id?: number;
     userId?: number;
-    user?: User;
+    items?: Item[];
 }
 
-export class User implements IUser {
-    userId?: number;
-    name?: string;
-    shelves?: Shelf[];
+export class Item implements IItem {
+    id?: number;
+    barcode?: number;
+    title?: string;
 
-    constructor(data?: IUser) {
+    constructor(data?: IItem) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -126,40 +212,32 @@ export class User implements IUser {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["shelves"])) {
-                this.shelves = [] as any;
-                for (let item of _data["shelves"])
-                    this.shelves!.push(Shelf.fromJS(item));
-            }
+            this.id = _data["id"];
+            this.barcode = _data["barcode"];
+            this.title = _data["title"];
         }
     }
 
-    static fromJS(data: any): User {
+    static fromJS(data: any): Item {
         data = typeof data === 'object' ? data : {};
-        let result = new User();
+        let result = new Item();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        data["name"] = this.name;
-        if (Array.isArray(this.shelves)) {
-            data["shelves"] = [];
-            for (let item of this.shelves)
-                data["shelves"].push(item.toJSON());
-        }
+        data["id"] = this.id;
+        data["barcode"] = this.barcode;
+        data["title"] = this.title;
         return data;
     }
 }
 
-export interface IUser {
-    userId?: number;
-    name?: string;
-    shelves?: Shelf[];
+export interface IItem {
+    id?: number;
+    barcode?: number;
+    title?: string;
 }
 
 export class ApiException extends Error {
