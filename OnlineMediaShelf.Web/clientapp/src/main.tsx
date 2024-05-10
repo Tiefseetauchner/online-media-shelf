@@ -1,5 +1,5 @@
 import React
-  from 'react'
+  , {} from 'react'
 import ReactDOM
   from 'react-dom/client'
 import App
@@ -40,7 +40,6 @@ const lightTheme: Theme = {
 const darkTheme: Theme = {
   ...createDarkTheme(onlineMediaShelvesTheme),
 };
-
 
 darkTheme.colorBrandForeground1 = onlineMediaShelvesTheme[110];
 darkTheme.colorBrandForeground2 = onlineMediaShelvesTheme[120];

@@ -26,6 +26,13 @@ import {
 import {
   RegisterPage
 } from "./components/RegisterPage.tsx";
+import {
+  ICurrentUserModel
+} from "./OMSWebClient.ts";
+import {
+  createContext,
+  useState
+} from "react";
 
 export const routes = {
   root: "/",
@@ -35,7 +42,17 @@ export const routes = {
   register: "/register",
 };
 
+interface UserContextState {
+  currentUser?: ICurrentUserModel;
+}
+
+export const UserContext = createContext<{
+  user?: UserContextState,
+  setUser?: React.Dispatch<React.SetStateAction<UserContextState>>
+}>({});
+
 function App() {
+  const [user, setUser] = useState<UserContextState>({})
 
   const router = createBrowserRouter([
     {
@@ -74,9 +91,15 @@ function App() {
   ]);
 
   return (
-    <RouterProvider
-      router={router}>
-    </RouterProvider>);
+    <UserContext.Provider
+      value={{
+        user: user,
+        setUser: setUser
+      }}>
+      <RouterProvider
+        router={router}>
+      </RouterProvider>
+    </UserContext.Provider>);
 }
 
 export default App

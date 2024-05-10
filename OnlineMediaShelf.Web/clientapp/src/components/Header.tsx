@@ -1,6 +1,8 @@
 import {
   Menu,
   MenuTrigger,
+  Skeleton,
+  SkeletonItem,
   tokens,
   Toolbar,
   ToolbarButton
@@ -14,20 +16,29 @@ import {
   faHouse
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  routes
+  routes,
+  UserContext
 } from "../App.tsx";
 import {
   Link
 } from "react-router-dom";
 import {
-  CSSProperties
+  CSSProperties,
+  useContext,
+  useEffect,
+  useState
 } from "react";
+import {
+  AccountClient
+} from "../OMSWebClient.ts";
 
 function Header() {
   const sidebarButtonStyle: CSSProperties = {
     width: "100%",
     justifyContent: "start",
   };
+
+  const {user} = useContext(UserContext);
 
   return (<>
     <Menu>
@@ -36,7 +47,8 @@ function Header() {
           position: "sticky",
           top: 0,
           zIndex: 10,
-          backgroundColor: tokens.colorNeutralBackground4
+          backgroundColor: tokens.colorBrandBackground2,
+          display: "flex"
         }}>
         <MenuTrigger>
           <ToolbarButton
@@ -49,6 +61,34 @@ function Header() {
           to={routes.root}>
           <ToolbarButton>Online Media Shelves </ToolbarButton>
         </Link>
+        <div
+          style={{
+            position: "absolute",
+            right: "10px",
+          }}>
+          {
+            user?.currentUser == undefined ?
+              <ToolbarButton>
+                <SkeletonItem
+                  shape="rectangle"
+                  size={16}/>
+              </ToolbarButton> :
+              user.currentUser?.isLoggedIn ?
+                <Link
+                  to={routes.myShelves}>
+                  <ToolbarButton>
+                    {user.currentUser.userName}
+                  </ToolbarButton>
+                </Link> :
+                <Link
+                  to={routes.login}>
+                  <ToolbarButton
+                    style={{float: "right"}}>
+                    Login
+                  </ToolbarButton>
+                </Link>
+          }
+        </div>
       </Toolbar>
 
       <div

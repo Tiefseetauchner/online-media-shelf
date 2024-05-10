@@ -72,7 +72,7 @@ public class AccountController(
   [HttpGet("current_user")]
   public ActionResult<CurrentUserModel> GetCurrentUser()
   {
-    return Ok(new CurrentUserModel(User.Identities.Any(), User.Identities.First().Name));
+    return Ok(new CurrentUserModel(User.Identities.First().IsAuthenticated, User.Identities.First().Name));
   }
 
   // NOTE (Tiefseetauchner): From aspnetcore/src/Identity/Core/src/IdentityApiEndpointRouteBuilderExtensions.cs

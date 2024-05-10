@@ -10,16 +10,16 @@ import {
 } from "@fluentui/react-components";
 import {
   ChangeEvent,
+  useContext,
   useState
 } from "react";
 import {
   AccountClient,
-  Client,
   LoginModel,
-  LoginRequest
 } from "../OMSWebClient.ts";
 import {
-  routes
+  routes,
+  UserContext
 } from "../App.tsx";
 import {
   Link,
@@ -42,6 +42,11 @@ export function LoginPage() {
     email: routeData?.email ?? "",
     password: routeData?.password ?? "",
   });
+
+  const {
+    user,
+    setUser
+  } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -69,6 +74,15 @@ export function LoginPage() {
         usernameOrEmail: state.email,
         password: state.password
       }));
+
+      let user = await client.getCurrentUser();
+
+      setUser!({
+        currentUser: {
+          isLoggedIn: user.isLoggedIn,
+          userName: user.userName
+        }
+      })
 
       navigate(routes.root);
     } catch (e: any) {

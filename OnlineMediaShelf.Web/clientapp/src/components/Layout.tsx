@@ -3,8 +3,29 @@ import Header
 import {
   Outlet
 } from "react-router-dom";
+import {
+  useContext,
+  useEffect
+} from "react";
+import {
+  AccountClient
+} from "../OMSWebClient.ts";
+import {
+  UserContext
+} from "../App.tsx";
 
 export function Layout() {
+  const {setUser} = useContext(UserContext);
+
+  useEffect(() => {
+    new AccountClient().getCurrentUser().then((userResponse) => setUser ? setUser({
+      currentUser: {
+        userName: userResponse.userName,
+        isLoggedIn: userResponse.isLoggedIn
+      }
+    }) : null);
+  }, [])
+
   return (
     <div
       style={{minHeight: "100vh"}}>
