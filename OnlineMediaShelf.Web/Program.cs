@@ -1,5 +1,4 @@
 using System;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +57,10 @@ public class Program
       options.User.AllowedUserNameCharacters =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
       options.User.RequireUniqueEmail = true;
+
+      options.SignIn.RequireConfirmedPhoneNumber = false;
+      options.SignIn.RequireConfirmedAccount = false;
+      options.SignIn.RequireConfirmedEmail = false;
     });
 
     services.AddAuthentication();

@@ -8,21 +8,10 @@ import {
   ToastTitle,
   useToastController
 } from "@fluentui/react-components";
-import {
-  ChangeEvent,
-  useState
-} from "react";
-import {
-  Client,
-  LoginRequest
-} from "../OMSWebClient.ts";
-import {
-  routes
-} from "../App.tsx";
-import {
-  Link,
-  useLocation
-} from "react-router-dom";
+import {ChangeEvent, useState} from "react";
+import {Client, LoginRequest} from "../OMSWebClient.ts";
+import {routes} from "../App.tsx";
+import {Link, useLocation} from "react-router-dom";
 
 interface LoginPageState {
   loading: boolean;
@@ -66,7 +55,9 @@ export function LoginPage() {
       }));
     } catch (e: any) {
       if (e.status === 401)
-        showErrorToast("E-Mail and Password don't match")
+        showErrorToast("E-Mail and Password don't match");
+      else if (e.status === 403)
+        showErrorToast("You're currently not allowed to log in!");
       else
         showErrorToast("An unexpected Server Error has occured")
     }
