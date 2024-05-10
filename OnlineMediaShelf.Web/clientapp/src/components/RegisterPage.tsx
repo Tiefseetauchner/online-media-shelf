@@ -14,9 +14,7 @@ import {
 } from "react";
 import {
   AccountClient,
-  Client,
   RegisterModel,
-  RegisterRequest
 } from "../OMSWebClient.ts";
 import {
   routes

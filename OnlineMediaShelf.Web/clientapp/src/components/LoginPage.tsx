@@ -8,10 +8,24 @@ import {
   ToastTitle,
   useToastController
 } from "@fluentui/react-components";
-import {ChangeEvent, useState} from "react";
-import {Client, LoginRequest} from "../OMSWebClient.ts";
-import {routes} from "../App.tsx";
-import {Link, useLocation} from "react-router-dom";
+import {
+  ChangeEvent,
+  useState
+} from "react";
+import {
+  AccountClient,
+  Client,
+  LoginModel,
+  LoginRequest
+} from "../OMSWebClient.ts";
+import {
+  routes
+} from "../App.tsx";
+import {
+  Link,
+  useLocation,
+  useNavigate
+} from "react-router-dom";
 
 interface LoginPageState {
   loading: boolean;
@@ -28,6 +42,8 @@ export function LoginPage() {
     email: routeData?.email ?? "",
     password: routeData?.password ?? "",
   });
+
+  const navigate = useNavigate();
 
   const {dispatchToast} = useToastController();
 
@@ -46,20 +62,25 @@ export function LoginPage() {
   }
 
   async function loginUser() {
-    var client = new Client();
+    var client = new AccountClient();
 
     try {
-      await client.postAccountLogin(true, true, new LoginRequest({
-        email: state.email,
+      await client.login(new LoginModel({
+        usernameOrEmail: state.email,
         password: state.password
       }));
+
+      navigate(routes.root);
     } catch (e: any) {
       if (e.status === 401)
         showErrorToast("E-Mail and Password don't match");
       else if (e.status === 403)
         showErrorToast("You're currently not allowed to log in!");
-      else
-        showErrorToast("An unexpected Server Error has occured")
+      else {
+        showErrorToast("An unexpected Server Error has occured");
+        throw e;
+      }
+
     }
 
     setState({
@@ -111,7 +132,6 @@ export function LoginPage() {
           <Input
             onChange={emailInputChanges}
             appearance={"underline"}
-            type={"email"}
             required
             value={state.email}/>
         </Field>
