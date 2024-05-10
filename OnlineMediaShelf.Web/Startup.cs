@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
+using Tiefseetauchner.OnlineMediaShelf.Domain;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web;
 
@@ -7,7 +9,6 @@ public class Startup
 {
   public void Configure(WebApplication app)
   {
-    // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
       app.UseOpenApi();
@@ -16,14 +17,19 @@ public class Startup
 
     app.UseHttpsRedirection();
 
-    app.UseAuthorization();
+    app.UseAuthentication();
 
     app.UseStaticFiles();
 
+    app.UseCors(Program.AllowSpa);
+
     app.UseRouting();
-   
+
+    app.UseAuthorization();
+
     app.MapControllers();
     app.MapSwagger();
+    app.MapGroup("/account").MapIdentityApi<ApplicationUser>();
     app.MapFallbackToFile("index.html");
   }
 }

@@ -9,6 +9,7 @@ public class ApplicationContextFactory : IDesignTimeDbContextFactory<Application
   {
     var optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
 
+    // Note: Only for local testing
     var connectionString = "server=localhost;user=root;password=sql_pw;database=OMS_DB";
 
     var serverVersion = ServerVersion.AutoDetect(connectionString);

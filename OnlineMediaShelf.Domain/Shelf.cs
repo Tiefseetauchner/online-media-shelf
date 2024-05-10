@@ -6,6 +6,6 @@ public class Shelf
 {
   public int ShelfId { get; set; }
   public int UserId { get; set; }
-  public User User { get; set; } = null!;
+  public ApplicationUser ApplicationUser { get; set; } = null!;
   public List<Item> Items { get; set; } = null!;
 }

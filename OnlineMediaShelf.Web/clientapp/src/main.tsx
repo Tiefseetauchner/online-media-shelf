@@ -9,7 +9,8 @@ import {
   createDarkTheme,
   createLightTheme,
   FluentProvider,
-  Theme
+  Theme,
+  Toaster
 } from "@fluentui/react-components";
 import "normalize.css";
 
@@ -48,6 +49,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <FluentProvider
       theme={lightTheme}>
+      <Toaster/>
       <App/>
     </FluentProvider>
   </React.StrictMode>,

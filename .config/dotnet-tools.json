@@ -5,7 +5,8 @@
     "dotnet-ef": {
       "version": "8.0.4",
       "commands": [
-        "dotnet-ef"
+        "dotnet-ef",
+        "dotnet-aspnet-codegenerator"
       ]
     }
   }

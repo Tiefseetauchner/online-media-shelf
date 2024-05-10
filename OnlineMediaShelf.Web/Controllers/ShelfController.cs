@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ public class ShelfController(ApplicationContext context) : ControllerBase
   {
     var shelvesFromDb = await context.Shelves
       .AsQueryable()
-      .Where(_ => _.User.Name == userName)
+      .Where(_ => _.ApplicationUser.NormalizedUserName == userName)
       .ToListAsync();
 
     var shelves = shelvesFromDb.Select(ConvertToWebObject);
@@ -41,7 +42,7 @@ public class ShelfController(ApplicationContext context) : ControllerBase
   }
 
   [HttpPost("create")]
-  [Authorize("UserRequired")]
+  [Authorize]
   public async Task<ActionResult<Shelf>> CreateShelf([FromBody] Shelf shelf)
   {
     var shelfInDb = context.Shelves.Add(ConvertToDomainObject(shelf));

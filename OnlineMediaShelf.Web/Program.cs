@@ -1,5 +1,7 @@
 using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,22 +34,49 @@ public class Program
     var services = builder.Services;
     var connectionStrings = builder.Configuration.GetSection("connectionStrings");
 
-    services.AddControllers();
-
-    services.AddEndpointsApiExplorer();
-    services.AddOpenApiDocument();
+    services.AddCors(options =>
+    {
+      options.AddPolicy(name: AllowSpa,
+        policy => { policy.WithOrigins("http://localhost:57687").AllowAnyHeader().AllowAnyMethod(); });
+    });
 
     var connectionString = connectionStrings["OpenMediaShelvesDb"];
 
     var serverVersion = ServerVersion.AutoDetect(connectionString);
 
-    // Replace 'YourDbContext' with the name of your own DbContext derived class.
     services.AddDbContext<ApplicationContext>(
       dbContextOptions => dbContextOptions
         .UseMySql(connectionString, serverVersion)
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors()
-    );
+        .LogTo(Console.WriteLine, LogLevel.Warning));
+
+    services.AddControllers();
+
+    services.Configure<IdentityOptions>(options =>
+    {
+      options.Password.RequiredUniqueChars = 4;
+
+      options.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
+      options.User.RequireUniqueEmail = true;
+    });
+
+    services.AddAuthentication();
+    services.AddAuthorization();
+
+    services.ConfigureApplicationCookie(options =>
+    {
+      options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+
+      options.LoginPath = "/Login";
+      options.LogoutPath = "/Logout";
+    });
+
+    services.AddIdentityApiEndpoints<ApplicationUser>()
+      .AddEntityFrameworkStores<ApplicationContext>();
+
+    services.AddEndpointsApiExplorer();
+    services.AddOpenApiDocument();
   }
+
+  public const string AllowSpa = "_allowSPA";
 }

@@ -20,11 +20,19 @@ import {
 import {
   ErrorPage
 } from "./components/ErrorPage.tsx";
+import {
+  LoginPage
+} from "./components/LoginPage.tsx";
+import {
+  RegisterPage
+} from "./components/RegisterPage.tsx";
 
 export const routes = {
   root: "/",
   myShelves: "/my-shelves",
-  shelf: "/shelf/:shelfId"
+  shelf: "/shelf/:shelfId",
+  login: "/login",
+  register: "/register",
 };
 
 function App() {
@@ -38,6 +46,14 @@ function App() {
         {
           path: "/",
           Component: HomePage,
+        },
+        {
+          path: "login",
+          Component: LoginPage,
+        },
+        {
+          path: "register",
+          Component: RegisterPage,
         },
         {
           path: "my-shelves",
