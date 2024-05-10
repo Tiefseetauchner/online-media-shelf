@@ -11,7 +11,7 @@ Online Media Shelf is a collaborative platform designed to help users document a
 ## Build
 This being my first real ASP.Net core project I created all on my own (for now), compiling and deploying is not a hashed out solution, and it's a bit involved. Compiling requires an **active Database**. If you want to compile the solution, you'll need to adjust the connection string in [appsettings.json](OnlineMediaShelf.Web/appsettings.json) to a database on your system.
 
-Adding a migration is currently done with a Rider plugin, though if you understand EF Migrations, you can probably do it manually. **You'll need to change the connection string in [ApplicationContextFactory.cs](OnlineMediaShelf.Domain.ApplicationContextFactory.cs) to create a migration or update the database**
+Adding a migration is currently done with a Rider plugin, though if you understand EF Migrations, you can probably do it manually. **You'll need to change the connection string in [ApplicationContextFactory.cs](OnlineMediaShelf.Domain/ApplicationContextFactory.cs) to create a migration or update the database**
 
 Deployment is currently not a concern and thusly I'll ignore it ^^
 
