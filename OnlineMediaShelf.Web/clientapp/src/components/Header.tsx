@@ -1,7 +1,6 @@
 import {
   Menu,
-  MenuTrigger,
-  Skeleton,
+  MenuProps,
   SkeletonItem,
   tokens,
   Toolbar,
@@ -16,7 +15,6 @@ import {
   faHouse
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  routes,
   UserContext
 } from "../App.tsx";
 import {
@@ -25,12 +23,11 @@ import {
 import {
   CSSProperties,
   useContext,
-  useEffect,
-  useState
+  useState,
 } from "react";
 import {
-  AccountClient
-} from "../OMSWebClient.ts";
+  routes
+} from "../routes.ts";
 
 function Header() {
   const sidebarButtonStyle: CSSProperties = {
@@ -38,59 +35,67 @@ function Header() {
     justifyContent: "start",
   };
 
+  const [open, setOpen] = useState(false);
+
   const {user} = useContext(UserContext);
 
-  return (<>
-    <Menu>
-      <Toolbar
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-          backgroundColor: tokens.colorBrandBackground2,
-          display: "flex"
-        }}>
-        <MenuTrigger>
-          <ToolbarButton
-            icon={
-              <FontAwesomeIcon
-                icon={faBars}/>}
-          />
-        </MenuTrigger>
-        <Link
-          to={routes.root}>
-          <ToolbarButton>Online Media Shelves </ToolbarButton>
-        </Link>
-        <div
-          style={{
-            position: "absolute",
-            right: "10px",
-          }}>
-          {
-            user?.currentUser == undefined ?
-              <ToolbarButton>
-                <SkeletonItem
-                  shape="rectangle"
-                  size={16}/>
-              </ToolbarButton> :
-              user.currentUser?.isLoggedIn ?
-                <Link
-                  to={routes.myShelves}>
-                  <ToolbarButton>
-                    {user.currentUser.userName}
-                  </ToolbarButton>
-                </Link> :
-                <Link
-                  to={routes.login}>
-                  <ToolbarButton
-                    style={{float: "right"}}>
-                    Login
-                  </ToolbarButton>
-                </Link>
-          }
-        </div>
-      </Toolbar>
+  const onOpenChange: MenuProps["onOpenChange"] = (_, data) => {
+    setOpen(data.open);
+  };
 
+  const toggleMenu = () => setOpen(prevState => !prevState);
+
+  return (<>
+    <Toolbar
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        backgroundColor: tokens.colorBrandBackground2,
+        display: "flex"
+      }}>
+      <ToolbarButton
+        icon={
+          <FontAwesomeIcon
+            icon={faBars}/>}
+        onClick={() => toggleMenu()}/>
+      <Link
+        to={routes.root}>
+        <ToolbarButton>Online Media Shelves </ToolbarButton>
+      </Link>
+      <div
+        style={{
+          position: "absolute",
+          right: "10px",
+        }}>
+        {
+          user?.currentUser == undefined ?
+            <ToolbarButton>
+              <SkeletonItem
+                shape="rectangle"
+                size={16}/>
+            </ToolbarButton> :
+            user.currentUser?.isLoggedIn ?
+              <Link
+                to={routes.userAccount}>
+                <ToolbarButton>
+                  {user.currentUser.userName}
+                </ToolbarButton>
+              </Link> :
+              <Link
+                to={routes.login}>
+                <ToolbarButton
+                  style={{float: "right"}}>
+                  Login
+                </ToolbarButton>
+              </Link>
+        }
+      </div>
+    </Toolbar>
+
+    <Menu
+      open={open}
+      onOpenChange={onOpenChange}>
       <div
         style={{
           position: "fixed",
@@ -137,6 +142,30 @@ function Header() {
               My Shelves
             </ToolbarButton>
           </Link>
+          {
+            user?.currentUser == undefined ?
+              <ToolbarButton
+                style={sidebarButtonStyle}>
+                <SkeletonItem
+                  shape="rectangle"
+                  size={16}/>
+              </ToolbarButton> :
+              user.currentUser?.isLoggedIn ?
+                <Link
+                  to={routes.userAccount}>
+                  <ToolbarButton
+                    style={sidebarButtonStyle}>
+                    {user.currentUser.userName}
+                  </ToolbarButton>
+                </Link> :
+                <Link
+                  to={routes.login}>
+                  <ToolbarButton
+                    style={sidebarButtonStyle}>
+                    Login
+                  </ToolbarButton>
+                </Link>
+          }
         </Toolbar>
       </div>
     </Menu>

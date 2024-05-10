@@ -1,3 +1,5 @@
+#region
+
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -5,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
+
+#endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web;
 
@@ -68,7 +72,7 @@ public class Program
 
     services.ConfigureApplicationCookie(options =>
     {
-      options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+      options.ExpireTimeSpan = TimeSpan.FromDays(1);
 
       options.LoginPath = "/Login";
       options.LogoutPath = "/Logout";

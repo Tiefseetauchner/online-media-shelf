@@ -10,47 +10,42 @@ import {
 } from "@fluentui/react-components";
 import {
   ChangeEvent,
-  useContext,
   useState
 } from "react";
 import {
   AccountClient,
-  LoginModel,
-} from "../OMSWebClient.ts";
-import {
-  routes,
-  UserContext
-} from "../App.tsx";
+  RegisterModel,
+} from "../../OMSWebClient.ts";
 import {
   Link,
   useLocation,
   useNavigate
 } from "react-router-dom";
+import {
+  routes
+} from "../../routes.ts";
 
-interface LoginPageState {
+interface RegisterPageState {
   loading: boolean;
   email: string;
+  userName: string;
   password: string;
 }
 
-export function LoginPage() {
+export function RegisterPage() {
   const location = useLocation();
   const routeData = location.state;
 
-  const [state, setState] = useState<LoginPageState>({
+  const [state, setState] = useState<RegisterPageState>({
     loading: false,
     email: routeData?.email ?? "",
+    userName: "",
     password: routeData?.password ?? "",
   });
 
-  const {
-    user,
-    setUser
-  } = useContext(UserContext);
+  const {dispatchToast} = useToastController();
 
   const navigate = useNavigate();
-
-  const {dispatchToast} = useToastController();
 
   function showErrorToast(message: string) {
     dispatchToast(
@@ -70,31 +65,15 @@ export function LoginPage() {
     var client = new AccountClient();
 
     try {
-      await client.login(new LoginModel({
-        usernameOrEmail: state.email,
-        password: state.password
+      await client.register(new RegisterModel({
+        email: state.email,
+        username: state.userName,
+        password: state.password,
       }));
 
-      let user = await client.getCurrentUser();
-
-      setUser!({
-        currentUser: {
-          isLoggedIn: user.isLoggedIn,
-          userName: user.userName
-        }
-      })
-
-      navigate(routes.root);
+      navigate(routes.login)
     } catch (e: any) {
-      if (e.status === 401)
-        showErrorToast("E-Mail and Password don't match");
-      else if (e.status === 403)
-        showErrorToast("You're currently not allowed to log in!");
-      else {
-        showErrorToast("An unexpected Server Error has occured");
-        throw e;
-      }
-
+      showErrorToast("An unexpected Server Error has occured")
     }
 
     setState({
@@ -103,17 +82,10 @@ export function LoginPage() {
     });
   }
 
-  const emailInputChanges = (e: ChangeEvent<HTMLInputElement>) => {
+  const inputChanges = (e: ChangeEvent<HTMLInputElement>) => {
     setState({
       ...state,
-      email: e.target.value
-    });
-  };
-
-  const passwordInputChanges = (e: ChangeEvent<HTMLInputElement>) => {
-    setState({
-      ...state,
-      password: e.target.value
+      [e.target.name]: e.target.value
     });
   };
 
@@ -140,22 +112,34 @@ export function LoginPage() {
 
           loginUser();
         }}>
-        <h1>Log in:</h1>
+        <h1>Register a new account:</h1>
         <Field
           label="E-Mail address">
           <Input
-            onChange={emailInputChanges}
+            onChange={inputChanges}
+            appearance={"underline"}
+            type={"email"}
+            required
+            name={"email"}
+            value={state.email}/>
+        </Field>
+        <Field
+          label="Username">
+          <Input
+            onChange={inputChanges}
             appearance={"underline"}
             required
-            value={state.email}/>
+            name={"userName"}
+            value={state.userName}/>
         </Field>
         <Field
           label="Password">
           <Input
-            onChange={passwordInputChanges}
+            onChange={inputChanges}
             appearance={"underline"}
             type={"password"}
             required
+            name={"password"}
             value={state.password}/>
         </Field>
         <br/>
@@ -165,15 +149,15 @@ export function LoginPage() {
               <Button
                 type={"submit"}
                 appearance={"primary"}
-                style={{marginRight: 10}}>Login</Button>
+                style={{marginRight: 10}}>Register new Account</Button>
               <Link
-                to={routes.register}
+                to={routes.login}
                 state={{
                   email: state.email,
                   password: state.password,
                 }}>
                 <Button
-                  appearance={"outline"}>Register</Button>
+                  appearance={"outline"}>Login</Button>
               </Link>
             </>
         }
