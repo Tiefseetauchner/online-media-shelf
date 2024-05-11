@@ -651,7 +651,7 @@ export class ShelfClient {
         return Promise.resolve<Shelf[]>(null as any);
     }
 
-    getShelf(id: number): Promise<Shelf[]> {
+    getShelf(id: number): Promise<Shelf> {
         let url_ = this.baseUrl + "/api/shelves/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -670,21 +670,14 @@ export class ShelfClient {
         });
     }
 
-    protected processGetShelf(response: Response): Promise<Shelf[]> {
+    protected processGetShelf(response: Response): Promise<Shelf> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Shelf.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = Shelf.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -692,7 +685,7 @@ export class ShelfClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Shelf[]>(null as any);
+        return Promise.resolve<Shelf>(null as any);
     }
 
     createShelf(shelf: CreateShelfModel): Promise<Shelf> {
@@ -718,12 +711,12 @@ export class ShelfClient {
     protected processCreateShelf(response: Response): Promise<Shelf> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
+        if (status === 201) {
             return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Shelf.fromJS(resultData200);
-            return result200;
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = Shelf.fromJS(resultData201);
+            return result201;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -1474,6 +1467,8 @@ export interface ICurrentUserModel {
 export class Shelf implements IShelf {
     id?: number;
     userId?: number;
+    name?: string;
+    description?: string;
     items?: Item[];
 
     constructor(data?: IShelf) {
@@ -1489,6 +1484,8 @@ export class Shelf implements IShelf {
         if (_data) {
             this.id = _data["id"];
             this.userId = _data["userId"];
+            this.name = _data["name"];
+            this.description = _data["description"];
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
@@ -1508,6 +1505,8 @@ export class Shelf implements IShelf {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["userId"] = this.userId;
+        data["name"] = this.name;
+        data["description"] = this.description;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
@@ -1520,6 +1519,8 @@ export class Shelf implements IShelf {
 export interface IShelf {
     id?: number;
     userId?: number;
+    name?: string;
+    description?: string;
     items?: Item[];
 }
 

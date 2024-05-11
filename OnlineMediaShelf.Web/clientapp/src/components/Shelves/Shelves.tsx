@@ -6,6 +6,7 @@ import {UserContext} from "../../App.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {AddShelfDialog} from "./AddShelfDialog.tsx";
+import {ShelfCard} from "./ShelfCard.tsx";
 
 interface ShelvesState {
   shelves?: Shelf[];
@@ -48,11 +49,18 @@ export function Shelves() {
     {user?.currentUser?.isLoggedIn ?
       <Button
         icon={<FontAwesomeIcon icon={faPlus}/>}
-        onClick={() => setState({isDialogOpen: true})}/> :
+        onClick={() => setState({
+          ...state,
+          isDialogOpen: true
+        })}/> :
       <></>}
     {state.shelves == undefined ?
       <SkeletonItem/> :
-      state.shelves.map(shelf => <p>{shelf.id}</p>)}
-    <p></p>
+      <div style={{
+        display: "flex",
+        flexWrap: "wrap",
+      }}>
+        {state.shelves.map(shelf => <ShelfCard shelfId={shelf.id!}/>)}
+      </div>}
   </>)
 }

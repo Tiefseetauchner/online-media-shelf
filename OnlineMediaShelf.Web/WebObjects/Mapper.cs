@@ -8,7 +8,7 @@ public static class Mapper
     new() { UserId = shelf.UserId, ShelfName = shelf.Name, ShelfDescription = shelf.Description };
 
   public static Shelf ConvertToWebObject(Domain.Shelf shelf) =>
-    new(shelf.ShelfId, shelf.UserId, shelf.Items?.Select(ConvertToWebObject).ToList());
+    new(shelf.ShelfId, shelf.UserId, shelf.ShelfName, shelf.ShelfDescription, shelf.Items.Select(ConvertToWebObject).ToList());
 
   public static Item ConvertToWebObject(Domain.Item item) =>
     new(item.ItemId, item.Barcode, item.Title);

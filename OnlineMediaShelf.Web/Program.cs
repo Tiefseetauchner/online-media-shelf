@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 
 #endregion
@@ -49,8 +48,7 @@ public class Program
 
     services.AddDbContext<ApplicationContext>(
       dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, serverVersion)
-        .LogTo(Console.WriteLine, LogLevel.Warning));
+        .UseMySql(connectionString, serverVersion));
 
     services.AddControllers();
 

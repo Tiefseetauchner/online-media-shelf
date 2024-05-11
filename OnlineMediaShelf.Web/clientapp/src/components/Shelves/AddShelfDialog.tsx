@@ -8,12 +8,16 @@ import {
   DialogTitle,
   DialogTrigger,
   Field,
-  Input
+  Input,
+  useToastController
 } from "@fluentui/react-components";
 import {useContext, useState} from "react";
 import {CreateShelfModel, ShelfClient} from "../../OMSWebClient.ts";
 import {UserContext} from "../../App.tsx";
 import {DialogOpenChangeEventHandler} from "@fluentui/react-dialog";
+import {useNavigate} from "react-router-dom";
+import {routes} from "../../routes.ts";
+import {showErrorToast} from "../../utilities/toastHelper.tsx";
 
 interface AddShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -30,6 +34,10 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
   const [state, setState] = useState<AddShelfDialogState>({})
   const {user} = useContext(UserContext)
 
+  const navigate = useNavigate();
+
+  const {dispatchToast} = useToastController();
+
   const handleInput = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setState({
       ...state,
@@ -40,19 +48,30 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
   const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
 
-    const client = new ShelfClient();
+    const runCreate = async () => {
+      const client = new ShelfClient();
 
-    client.createShelf(new CreateShelfModel({
-      userId: user?.currentUser?.userId,
-      name: state.name,
-      description: state.description
-    }));
+      try {
+        let result = await client.createShelf(new CreateShelfModel({
+          userId: user?.currentUser?.userId,
+          name: state.name,
+          description: state.description
+        }))
+
+        navigate(`${routes.shelf}/${result.id}`)
+      } catch (e: any) {
+        showErrorToast("An error occurred when creating shelf.", dispatchToast);
+      }
+    };
+
+    runCreate()
   };
 
   return <Dialog
     open={props.open}
     onOpenChange={props.onOpenChange}>
-    <DialogSurface aria-describedby={undefined}>
+    <DialogSurface
+      aria-describedby={undefined}>
       <form onSubmit={handleSubmit}>
         <DialogBody>
           <DialogTitle>Dialog title</DialogTitle>
@@ -82,14 +101,11 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
             <DialogTrigger disableButtonEnhancement action={"close"}>
               <Button appearance="secondary">Cancel</Button>
             </DialogTrigger>
-            <DialogTrigger disableButtonEnhancement action={"close"}>
-              <Button
-                type="submit"
-                appearance="primary"
-                onClick={handleSubmit}>
-                Submit
-              </Button>
-            </DialogTrigger>
+            <Button
+              type="submit"
+              appearance="primary">
+              Submit
+            </Button>
           </DialogActions>
         </DialogBody>
       </form>

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
@@ -17,12 +16,12 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 public class ShelfController(ApplicationContext context) : ControllerBase
 {
   [HttpGet]
-  public async Task<ActionResult<IEnumerable<Shelf>>> GetAllShelves([FromQuery] string? userName)
+  public ActionResult<IEnumerable<Shelf>> GetAllShelves([FromQuery] string? userName)
   {
-    var shelvesFromDb = await context.Shelves
+    var shelvesFromDb = context.Shelves
       .AsQueryable()
-      .Where(_ => userName.IsNullOrEmpty() || _.ApplicationUser.NormalizedUserName == userName)
-      .ToListAsync();
+      .Where(shelf => userName.IsNullOrEmpty() || shelf.ApplicationUser.NormalizedUserName == userName)
+      .ToList();
 
     var shelves = shelvesFromDb.Select(Mapper.ConvertToWebObject);
 
@@ -30,7 +29,7 @@ public class ShelfController(ApplicationContext context) : ControllerBase
   }
 
   [HttpGet("{id:int}")]
-  public async Task<ActionResult<IEnumerable<Shelf>>> GetShelf(int id)
+  public async Task<ActionResult<Shelf>> GetShelf(int id)
   {
     var shelfFromDb = await context.Shelves
       .FindAsync(id);
@@ -43,6 +42,7 @@ public class ShelfController(ApplicationContext context) : ControllerBase
 
   [HttpPost("create")]
   [Authorize]
+  [ProducesResponseType<Shelf>(201)]
   public async Task<ActionResult<Shelf>> CreateShelf([FromBody] CreateShelfModel shelf)
   {
     var shelfInDb = context.Shelves.Add(Mapper.ConvertToDomainObject(shelf));
