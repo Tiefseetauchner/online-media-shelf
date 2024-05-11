@@ -1,28 +1,15 @@
-import Header
-  from "./Header.tsx";
-import {
-  Outlet
-} from "react-router-dom";
-import {
-  useContext,
-  useEffect
-} from "react";
-import {
-  AccountClient
-} from "../OMSWebClient.ts";
-import {
-  UserContext
-} from "../App.tsx";
+import Header from "./Header.tsx";
+import {Outlet} from "react-router-dom";
+import {useContext, useEffect} from "react";
+import {AccountClient} from "../OMSWebClient.ts";
+import {UserContext} from "../App.tsx";
 
 export function Layout() {
   const {setUser} = useContext(UserContext);
 
   useEffect(() => {
     new AccountClient().getCurrentUser().then((userResponse) => setUser ? setUser({
-      currentUser: {
-        userName: userResponse.userName,
-        isLoggedIn: userResponse.isLoggedIn
-      }
+      currentUser: userResponse
     }) : null);
   }, [])
 

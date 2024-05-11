@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Item = Tiefseetauchner.OnlineMediaShelf.Web.WebObjects.Item;
 using Shelf = Tiefseetauchner.OnlineMediaShelf.Web.WebObjects.Shelf;
@@ -13,7 +13,7 @@ using Shelf = Tiefseetauchner.OnlineMediaShelf.Web.WebObjects.Shelf;
 namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 
 [ApiController]
-[Route("shelves")]
+[Route("api/shelves")]
 public class ShelfController(ApplicationContext context) : ControllerBase
 {
   [HttpGet]
@@ -21,7 +21,7 @@ public class ShelfController(ApplicationContext context) : ControllerBase
   {
     var shelvesFromDb = await context.Shelves
       .AsQueryable()
-      .Where(_ => _.ApplicationUser.NormalizedUserName == userName)
+      .Where(_ => userName.IsNullOrEmpty() || _.ApplicationUser.NormalizedUserName == userName)
       .ToListAsync();
 
     var shelves = shelvesFromDb.Select(ConvertToWebObject);
@@ -29,7 +29,7 @@ public class ShelfController(ApplicationContext context) : ControllerBase
     return Ok(shelves);
   }
 
-  [HttpGet("{id}")]
+  [HttpGet("{id:int}")]
   public async Task<ActionResult<IEnumerable<Shelf>>> GetShelf(int id)
   {
     var shelfFromDb = await context.Shelves

@@ -23,7 +23,7 @@ public class AccountController(
   SignInManager<ApplicationUser> signInManager)
   : ControllerBase
 {
-  private static readonly EmailAddressAttribute EmailAddressAttribute = new();
+  private readonly static EmailAddressAttribute s_emailAddressAttribute = new();
 
   // NOTE (Tiefseetauchner): This follows the source code of aspnetcore/src/Identity/Core/src/IdentityApiEndpointRouteBuilderExtensions.cs
   [HttpPost("register")]
@@ -34,7 +34,7 @@ public class AccountController(
       throw new NotSupportedException($"{nameof(Register)} requires a user store with email support.");
     }
 
-    if (string.IsNullOrEmpty(model.Email) || !EmailAddressAttribute.IsValid(model.Email))
+    if (string.IsNullOrEmpty(model.Email) || !s_emailAddressAttribute.IsValid(model.Email))
       return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(model.Email)));
 
     var user = new ApplicationUser()
@@ -56,7 +56,7 @@ public class AccountController(
   public async Task<IActionResult> Login([FromBody] LoginModel model)
   {
     var user = await userManager.FindByEmailAsync(model.UsernameOrEmail)
-               ?? await userManager.FindByNameAsync(model.UsernameOrEmail);
+      ?? await userManager.FindByNameAsync(model.UsernameOrEmail);
 
     if (user == null)
       return BadRequest("Invalid login attempt");
@@ -75,7 +75,19 @@ public class AccountController(
   [HttpGet("current_user")]
   public ActionResult<CurrentUserModel> GetCurrentUser()
   {
-    return Ok(new CurrentUserModel(User.Identities.First().IsAuthenticated, User.Identities.First().Name));
+    var userIsAuthenticated = User.Identities.First().IsAuthenticated;
+
+    if (!userIsAuthenticated)
+      return Ok(new CurrentUserModel(false, null, 0));
+
+    var userNameFromClaim = User.Identities.First().Name;
+
+    if (userNameFromClaim == null)
+      return StatusCode(500, "Error when loading Username from Claim");
+
+    var user = userManager.FindByNameAsync(userNameFromClaim);
+
+    return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id));
   }
 
   [HttpGet("current_user/information")]

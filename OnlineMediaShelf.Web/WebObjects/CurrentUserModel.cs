@@ -2,4 +2,5 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 public record CurrentUserModel(
   bool IsLoggedIn,
-  string? UserName);
+  string? UserName,
+  int UserId);

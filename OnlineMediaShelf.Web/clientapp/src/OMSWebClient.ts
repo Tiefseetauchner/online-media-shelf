@@ -609,7 +609,7 @@ export class ShelfClient {
     }
 
     getAllShelves(userName: string | null | undefined): Promise<Shelf[]> {
-        let url_ = this.baseUrl + "/shelves?";
+        let url_ = this.baseUrl + "/api/shelves?";
         if (userName !== undefined && userName !== null)
             url_ += "userName=" + encodeURIComponent("" + userName) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -652,7 +652,7 @@ export class ShelfClient {
     }
 
     getShelf(id: number): Promise<Shelf[]> {
-        let url_ = this.baseUrl + "/shelves/{id}";
+        let url_ = this.baseUrl + "/api/shelves/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -696,7 +696,7 @@ export class ShelfClient {
     }
 
     createShelf(shelf: Shelf): Promise<Shelf> {
-        let url_ = this.baseUrl + "/shelves/create";
+        let url_ = this.baseUrl + "/api/shelves/create";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(shelf);
@@ -1430,6 +1430,7 @@ export interface ILoginModel {
 export class CurrentUserModel implements ICurrentUserModel {
     isLoggedIn?: boolean;
     userName?: string | undefined;
+    userId?: number;
 
     constructor(data?: ICurrentUserModel) {
         if (data) {
@@ -1444,6 +1445,7 @@ export class CurrentUserModel implements ICurrentUserModel {
         if (_data) {
             this.isLoggedIn = _data["isLoggedIn"];
             this.userName = _data["userName"];
+            this.userId = _data["userId"];
         }
     }
 
@@ -1458,6 +1460,7 @@ export class CurrentUserModel implements ICurrentUserModel {
         data = typeof data === 'object' ? data : {};
         data["isLoggedIn"] = this.isLoggedIn;
         data["userName"] = this.userName;
+        data["userId"] = this.userId;
         return data;
     }
 }
@@ -1465,6 +1468,7 @@ export class CurrentUserModel implements ICurrentUserModel {
 export interface ICurrentUserModel {
     isLoggedIn?: boolean;
     userName?: string | undefined;
+    userId?: number;
 }
 
 export class Shelf implements IShelf {

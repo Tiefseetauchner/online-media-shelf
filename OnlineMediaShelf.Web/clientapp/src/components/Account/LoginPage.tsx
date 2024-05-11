@@ -1,34 +1,10 @@
-import {
-  Button,
-  Field,
-  Input,
-  Spinner,
-  Toast,
-  ToastBody,
-  ToastTitle,
-  useToastController
-} from "@fluentui/react-components";
-import {
-  ChangeEvent,
-  useContext,
-  useEffect,
-  useState
-} from "react";
-import {
-  AccountClient,
-  LoginModel,
-} from "../../OMSWebClient.ts";
-import {
-  UserContext
-} from "../../App.tsx";
-import {
-  Link,
-  useLocation,
-  useNavigate
-} from "react-router-dom";
-import {
-  routes
-} from "../../routes.ts";
+import {Button, Field, Input, Spinner, useToastController} from "@fluentui/react-components";
+import {ChangeEvent, useContext, useEffect, useState} from "react";
+import {AccountClient, LoginModel,} from "../../OMSWebClient.ts";
+import {UserContext} from "../../App.tsx";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import {routes} from "../../routes.ts";
+import {showErrorToast} from "../../utilities/toastHelper.tsx";
 
 interface LoginPageState {
   loading: boolean;
@@ -53,22 +29,7 @@ export function LoginPage() {
   } = useContext(UserContext);
 
   const navigate = useNavigate();
-
   const {dispatchToast} = useToastController();
-
-  function showErrorToast(message: string) {
-    dispatchToast(
-      <Toast>
-        <ToastTitle>An Error occured while trying to log in:</ToastTitle>
-        <ToastBody>{message}</ToastBody>
-      </Toast>,
-      {
-        intent: "error",
-        position: "bottom",
-        timeout: 5000
-      }
-    );
-  }
 
   async function loginUser() {
     try {
@@ -89,11 +50,11 @@ export function LoginPage() {
       navigate(routes.root);
     } catch (e: any) {
       if (e.status === 401)
-        showErrorToast("E-Mail and Password don't match");
+        showErrorToast("E-Mail and Password don't match", dispatchToast);
       else if (e.status === 403)
-        showErrorToast("You're currently not allowed to log in!");
+        showErrorToast("You're currently not allowed to log in!", dispatchToast);
       else {
-        showErrorToast("An unexpected Server Error has occured");
+        showErrorToast("An unexpected Server Error has occured", dispatchToast);
         throw e;
       }
 
