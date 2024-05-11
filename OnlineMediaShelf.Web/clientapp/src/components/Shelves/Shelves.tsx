@@ -9,12 +9,13 @@ import {AddShelfDialog} from "./AddShelfDialog.tsx";
 
 interface ShelvesState {
   shelves?: Shelf[];
+  isDialogOpen: boolean;
 }
 
 export function Shelves() {
   const shelfClient = new ShelfClient();
 
-  const [state, setState] = useState<ShelvesState>({});
+  const [state, setState] = useState<ShelvesState>({isDialogOpen: false});
 
   const {user} = useContext(UserContext)
 
@@ -41,9 +42,13 @@ export function Shelves() {
     <h1>Shelves</h1>
 
     <AddShelfDialog
-      open={true}/>
+      open={state.isDialogOpen}
+      onOpenChange={(_, data) => setState({...state, isDialogOpen: data.open})}/>
+
     {user?.currentUser?.isLoggedIn ?
-      <Button icon={<FontAwesomeIcon icon={faPlus}/>}/> :
+      <Button
+        icon={<FontAwesomeIcon icon={faPlus}/>}
+        onClick={() => setState({isDialogOpen: true})}/> :
       <></>}
     {state.shelves == undefined ?
       <SkeletonItem/> :

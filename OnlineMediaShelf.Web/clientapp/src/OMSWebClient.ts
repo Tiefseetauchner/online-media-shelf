@@ -695,7 +695,7 @@ export class ShelfClient {
         return Promise.resolve<Shelf[]>(null as any);
     }
 
-    createShelf(shelf: Shelf): Promise<Shelf> {
+    createShelf(shelf: CreateShelfModel): Promise<Shelf> {
         let url_ = this.baseUrl + "/api/shelves/create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1565,6 +1565,50 @@ export interface IItem {
     id?: number;
     barcode?: number;
     title?: string;
+}
+
+export class CreateShelfModel implements ICreateShelfModel {
+    userId?: number;
+    name?: string;
+    description?: string;
+
+    constructor(data?: ICreateShelfModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): CreateShelfModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateShelfModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        return data;
+    }
+}
+
+export interface ICreateShelfModel {
+    userId?: number;
+    name?: string;
+    description?: string;
 }
 
 export interface FileResponse {
