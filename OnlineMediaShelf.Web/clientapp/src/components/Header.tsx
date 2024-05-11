@@ -12,7 +12,8 @@ import {
 import {
   faBars,
   faBookOpen,
-  faHouse
+  faHouse,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import {
   UserContext
@@ -84,8 +85,7 @@ function Header() {
               </Link> :
               <Link
                 to={routes.login}>
-                <ToolbarButton
-                  style={{float: "right"}}>
+                <ToolbarButton>
                   Login
                 </ToolbarButton>
               </Link>
@@ -145,6 +145,9 @@ function Header() {
           {
             user?.currentUser == undefined ?
               <ToolbarButton
+                icon={
+                  <FontAwesomeIcon
+                    icon={faUser}/>}
                 style={sidebarButtonStyle}>
                 <SkeletonItem
                   shape="rectangle"
@@ -154,6 +157,9 @@ function Header() {
                 <Link
                   to={routes.userAccount}>
                   <ToolbarButton
+                    icon={
+                      <FontAwesomeIcon
+                        icon={faUser}/>}
                     style={sidebarButtonStyle}>
                     {user.currentUser.userName}
                   </ToolbarButton>
@@ -161,6 +167,9 @@ function Header() {
                 <Link
                   to={routes.login}>
                   <ToolbarButton
+                    icon={
+                      <FontAwesomeIcon
+                        icon={faUser}/>}
                     style={sidebarButtonStyle}>
                     Login
                   </ToolbarButton>

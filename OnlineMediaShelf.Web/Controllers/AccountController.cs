@@ -1,8 +1,9 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -10,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
+
+#endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 
@@ -71,6 +74,12 @@ public class AccountController(
 
   [HttpGet("current_user")]
   public ActionResult<CurrentUserModel> GetCurrentUser()
+  {
+    return Ok(new CurrentUserModel(User.Identities.First().IsAuthenticated, User.Identities.First().Name));
+  }
+
+  [HttpGet("current_user/information")]
+  public ActionResult<CurrentUserModel> GetCurrentUserInformation()
   {
     return Ok(new CurrentUserModel(User.Identities.First().IsAuthenticated, User.Identities.First().Name));
   }
