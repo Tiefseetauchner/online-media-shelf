@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
-public interface IReadRepository<T> : IRepositoryBase
+public interface IReadRepository<T, TKey>
 {
-  T? GetById(int id);
+  T? GetById(TKey id);
 
-  Task<T?> GetByIdAsync(int id);
+  Task<T?> GetByIdAsync(TKey id);
 
   List<T> GetAll();
 

@@ -16,6 +16,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
   protected override void OnModelCreating(ModelBuilder builder)
   {
     base.OnModelCreating(builder);
+
     builder.Entity<Shelf>().HasMany(s => s.Items).WithMany(i => i.ContainingShelves);
+
+    builder.Entity<Shelf>().Navigation(e => e.User).AutoInclude();
+    builder.Entity<Shelf>().Navigation(e => e.Items).AutoInclude();
   }
 }

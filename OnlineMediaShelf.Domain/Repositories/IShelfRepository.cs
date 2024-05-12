@@ -9,7 +9,7 @@ using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 public interface IShelfRepository :
-  ICrudRepository<Shelf>
+  ICrudRepository<Shelf, int>
 {
   List<Shelf> GetByUser(ApplicationUser user);
   Task<List<Shelf>> GetByUserAsync(ApplicationUser user);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
-public interface ICreateRepository<T> : IRepositoryBase
+public interface ICreateRepository<T>
 {
   T Create(T entity);
 

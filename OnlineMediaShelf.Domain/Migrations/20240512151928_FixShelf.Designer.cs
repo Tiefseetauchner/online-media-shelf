@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 
@@ -11,9 +12,11 @@ using Tiefseetauchner.OnlineMediaShelf.Domain;
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240512151928_FixShelf")]
+    partial class FixShelf
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,15 +27,15 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("ItemShelf", b =>
                 {
-                    b.Property<int>("ContainingShelvesId")
+                    b.Property<int>("ContainingShelvesShelfId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ItemsId")
+                    b.Property<int>("ItemsItemId")
                         .HasColumnType("int");
 
-                    b.HasKey("ContainingShelvesId", "ItemsId");
+                    b.HasKey("ContainingShelvesShelfId", "ItemsItemId");
 
-                    b.HasIndex("ItemsId");
+                    b.HasIndex("ItemsItemId");
 
                     b.ToTable("ItemShelf");
                 });
@@ -238,11 +241,11 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ItemId"));
 
                     b.Property<int>("Barcode")
                         .HasColumnType("int");
@@ -252,18 +255,18 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ItemId");
 
                     b.ToTable("Items");
                 });
 
             modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Shelf", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ShelfId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ShelfId"));
 
                     b.Property<string>("ShelfDescription")
                         .IsRequired()
@@ -276,9 +279,10 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ShelfId");
 
                     b.HasIndex("UserId");
 
@@ -289,13 +293,13 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                 {
                     b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Shelf", null)
                         .WithMany()
-                        .HasForeignKey("ContainingShelvesId")
+                        .HasForeignKey("ContainingShelvesShelfId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", null)
                         .WithMany()
-                        .HasForeignKey("ItemsId")
+                        .HasForeignKey("ItemsItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -355,7 +359,9 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                 {
                     b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", "User")
                         .WithMany("Shelves")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

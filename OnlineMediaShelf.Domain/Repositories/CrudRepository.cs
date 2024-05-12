@@ -11,11 +11,12 @@ using Tiefseetauchner.OnlineMediaShelf.Common.ArgumentChecks;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
-public class CrudRepository<T>(DbContext dbContext, DbSet<T> dbSet)
-  : RepositoryBase<T>(dbContext, dbSet),
-    ICrudRepository<T>
+public class CrudRepository<T, TKey>(DbSet<T> dbSet)
+  : ICrudRepository<T, TKey>
   where T : class
 {
+  public DbSet<T> DbSet { get; } = dbSet;
+
   public T Create(T entity) =>
     DbSet.Add(entity).Entity;
 
@@ -25,10 +26,10 @@ public class CrudRepository<T>(DbContext dbContext, DbSet<T> dbSet)
   public async Task<T> CreateAsync(T entity) =>
     (await DbSet.AddAsync(entity)).Entity;
 
-  public T? GetById(int id) =>
+  public T? GetById(TKey id) =>
     DbSet.Find(id);
 
-  public async Task<T?> GetByIdAsync(int id) =>
+  public async Task<T?> GetByIdAsync(TKey id) =>
     await DbSet.FindAsync(id);
 
   public List<T> GetAll() =>
@@ -43,7 +44,7 @@ public class CrudRepository<T>(DbContext dbContext, DbSet<T> dbSet)
   public void Delete(T entity) =>
     DbSet.Remove(entity);
 
-  public async Task DeleteByIdAsync(int id)
+  public async Task DeleteByIdAsync(TKey id)
   {
     var entity = await DbSet.FindAsync(id);
     if (entity != null)
