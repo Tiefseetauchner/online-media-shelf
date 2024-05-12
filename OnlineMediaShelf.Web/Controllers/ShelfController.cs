@@ -1,25 +1,28 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 using Shelf = Tiefseetauchner.OnlineMediaShelf.Web.WebObjects.Shelf;
+
+#endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 
 [ApiController]
 [Route("api/shelves")]
-public class ShelfController(ApplicationContext context) : ControllerBase
+public class ShelfController(DbSet<Domain.Shelf> shelfDataSet) : ControllerBase
 {
   [HttpGet]
   public ActionResult<IEnumerable<Shelf>> GetAllShelves([FromQuery] string? userName)
   {
-    var shelvesFromDb = context.Shelves
-      .AsQueryable()
+    var shelvesFromDb = shelfDataSet.AsQueryable()
       .Where(shelf => userName.IsNullOrEmpty() || shelf.ApplicationUser.NormalizedUserName == userName)
       .ToList();
 
@@ -31,8 +34,7 @@ public class ShelfController(ApplicationContext context) : ControllerBase
   [HttpGet("{id:int}")]
   public async Task<ActionResult<Shelf>> GetShelf(int id)
   {
-    var shelfFromDb = await context.Shelves
-      .FindAsync(id);
+    var shelfFromDb = await shelfDataSet.FindAsync(id);
 
     if (shelfFromDb != null)
       return Ok(Mapper.ConvertToWebObject(shelfFromDb));
@@ -45,11 +47,11 @@ public class ShelfController(ApplicationContext context) : ControllerBase
   [ProducesResponseType<Shelf>(201)]
   public async Task<ActionResult<Shelf>> CreateShelf([FromBody] CreateShelfModel shelf)
   {
-    var shelfInDb = context.Shelves.Add(Mapper.ConvertToDomainObject(shelf));
+    var shelfInDb = shelfDataSet.Add(Mapper.ConvertToDomainObject(shelf));
 
     try
     {
-      await context.SaveChangesAsync();
+      // await shelfDataSet.SaveChangesAsync();
     }
     catch (Exception)
     {

@@ -11,7 +11,7 @@ using Tiefseetauchner.OnlineMediaShelf.Domain;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 {
-    [DbContext(typeof(ApplicationContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20240509152420_AddItem")]
     partial class AddItem
     {

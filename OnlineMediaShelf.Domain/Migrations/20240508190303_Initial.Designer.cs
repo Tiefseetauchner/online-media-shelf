@@ -10,7 +10,7 @@ using Tiefseetauchner.OnlineMediaShelf.Domain;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 {
-    [DbContext(typeof(ApplicationContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20240508190303_Initial")]
     partial class Initial
     {

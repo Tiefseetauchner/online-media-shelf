@@ -44,11 +44,10 @@ public class Program
 
     var connectionString = connectionStrings["OpenMediaShelvesDb"];
 
-    var serverVersion = ServerVersion.AutoDetect(connectionString);
-
-    services.AddDbContext<ApplicationContext>(
+    services.AddDbContext<ApplicationDbContext>(
       dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, serverVersion));
+        .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
+      ServiceLifetime.Transient);
 
     services.AddControllers();
 
@@ -77,7 +76,7 @@ public class Program
     });
 
     services.AddIdentityApiEndpoints<ApplicationUser>()
-      .AddEntityFrameworkStores<ApplicationContext>();
+      .AddEntityFrameworkStores<ApplicationDbContext>();
 
     services.AddEndpointsApiExplorer();
     services.AddOpenApiDocument();

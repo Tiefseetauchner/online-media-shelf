@@ -1,13 +1,17 @@
+#region
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
+#endregion
+
 namespace Tiefseetauchner.OnlineMediaShelf.Domain;
 
-public class ApplicationContextFactory : IDesignTimeDbContextFactory<ApplicationContext>
+public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
 {
-  public ApplicationContext CreateDbContext(string[] args)
+  public ApplicationDbContext CreateDbContext(string[] args)
   {
-    var optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
+    var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
     // Note: Only for local compiling
     var connectionString = "server=localhost;user=root;password=sql_pw;database=OMS_DB";
@@ -16,6 +20,6 @@ public class ApplicationContextFactory : IDesignTimeDbContextFactory<Application
 
     optionsBuilder.UseMySql(connectionString, serverVersion);
 
-    return new ApplicationContext(optionsBuilder.Options);
+    return new ApplicationDbContext(optionsBuilder.Options);
   }
 }
