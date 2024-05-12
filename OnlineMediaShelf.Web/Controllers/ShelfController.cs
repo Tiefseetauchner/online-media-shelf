@@ -51,17 +51,20 @@ public class ShelfController(
   [ProducesResponseType<ShelfModel>(201)]
   public async Task<ActionResult<ShelfModel>> CreateShelf([FromBody] CreateShelfModel shelf)
   {
-    var shelfInDb = await unitOfWork.ShelfRepository.CreateAsync(Mapper.ConvertToDomainObject(shelf));
-
     try
     {
+      var mappedShelf = Mapper.ConvertToDomainObject(shelf);
+      mappedShelf.User = await unitOfWork.UserRepository.GetByIdAsync(shelf.UserId) ?? throw new ArgumentNullException(nameof(shelf.UserId), "User not found");
+
+      var shelfInDb = await unitOfWork.ShelfRepository.CreateAsync(mappedShelf);
+
       await unitOfWork.CommitAsync();
+
+      return CreatedAtAction(nameof(GetShelf), new { id = shelfInDb.Id }, Mapper.ConvertToWebObject(shelfInDb));
     }
     catch (Exception)
     {
       return StatusCode(500, "An error occured while saving changes. Try again later.");
     }
-
-    return CreatedAtAction(nameof(GetShelf), new { id = shelfInDb.ShelfId }, Mapper.ConvertToWebObject(shelfInDb));
   }
 }

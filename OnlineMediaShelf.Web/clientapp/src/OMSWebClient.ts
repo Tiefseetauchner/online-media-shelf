@@ -1424,6 +1424,7 @@ export class CurrentUserModel implements ICurrentUserModel {
     isLoggedIn?: boolean;
     userName?: string | undefined;
     userId?: string;
+    signUpDate?: Date;
 
     constructor(data?: ICurrentUserModel) {
         if (data) {
@@ -1439,6 +1440,7 @@ export class CurrentUserModel implements ICurrentUserModel {
             this.isLoggedIn = _data["isLoggedIn"];
             this.userName = _data["userName"];
             this.userId = _data["userId"];
+            this.signUpDate = _data["signUpDate"] ? new Date(_data["signUpDate"].toString()) : <any>undefined;
         }
     }
 
@@ -1454,6 +1456,7 @@ export class CurrentUserModel implements ICurrentUserModel {
         data["isLoggedIn"] = this.isLoggedIn;
         data["userName"] = this.userName;
         data["userId"] = this.userId;
+        data["signUpDate"] = this.signUpDate ? this.signUpDate.toISOString() : <any>undefined;
         return data;
     }
 }
@@ -1462,6 +1465,7 @@ export interface ICurrentUserModel {
     isLoggedIn?: boolean;
     userName?: string | undefined;
     userId?: string;
+    signUpDate?: Date;
 }
 
 export class ShelfModel implements IShelfModel {

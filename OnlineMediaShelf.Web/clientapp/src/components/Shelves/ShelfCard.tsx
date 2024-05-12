@@ -14,6 +14,12 @@ import {
   useEffect,
   useState
 } from "react";
+import {
+  routes
+} from "../../routes.ts";
+import {
+  Link
+} from "react-router-dom";
 
 interface ShelfCardProps {
   shelfId: number;
@@ -68,7 +74,10 @@ export function ShelfCard(props: ShelfCardProps) {
       </p>
 
       <CardFooter>
-        <Button>View Shelf</Button>
+        <Link
+          to={`${routes.shelf}/${state.shelf?.id}`}>
+          <Button>View Shelf</Button>
+        </Link>
       </CardFooter>
     </Card>
   </>);

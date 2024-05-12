@@ -67,12 +67,10 @@ export const router = createBrowserRouter([
       {
         path: "shelves",
         Component: Shelves,
-        children: [
-          {
-            path: ":shelfId",
-            Component: ShelfView,
-          },
-        ],
+      },
+      {
+        path: "shelves/:shelfId",
+        Component: ShelfView,
       },
     ],
   },
