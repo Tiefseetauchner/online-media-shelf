@@ -1,8 +1,12 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace DeadmanSwitchFailed.Common.ArgumentChecks;
+#endregion
+
+namespace Tiefseetauchner.OnlineMediaShelf.Common.ArgumentChecks;
 
 public static class CheckExtensions
 {

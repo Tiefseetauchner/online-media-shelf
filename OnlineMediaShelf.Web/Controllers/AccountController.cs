@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Tiefseetauchner.OnlineMediaShelf.Domain;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 #endregion
@@ -40,7 +40,8 @@ public class AccountController(
     var user = new ApplicationUser()
     {
       Email = model.Email,
-      UserName = model.Username
+      UserName = model.Username,
+      SignUpDate = DateTime.Now
     };
     var result = await userManager.CreateAsync(user, model.Password);
 
@@ -56,7 +57,7 @@ public class AccountController(
   public async Task<IActionResult> Login([FromBody] LoginModel model)
   {
     var user = await userManager.FindByEmailAsync(model.UsernameOrEmail)
-      ?? await userManager.FindByNameAsync(model.UsernameOrEmail);
+               ?? await userManager.FindByNameAsync(model.UsernameOrEmail);
 
     if (user == null)
       return BadRequest("Invalid login attempt");
@@ -73,21 +74,24 @@ public class AccountController(
   }
 
   [HttpGet("current_user")]
-  public ActionResult<CurrentUserModel> GetCurrentUser()
+  public async Task<ActionResult<CurrentUserModel>> GetCurrentUser()
   {
     var userIsAuthenticated = User.Identities.First().IsAuthenticated;
 
     if (!userIsAuthenticated)
-      return Ok(new CurrentUserModel(false, null, 0));
+      return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue));
 
     var userNameFromClaim = User.Identities.First().Name;
 
     if (userNameFromClaim == null)
       return StatusCode(500, "Error when loading Username from Claim");
 
-    var user = userManager.FindByNameAsync(userNameFromClaim);
+    var user = await userManager.FindByNameAsync(userNameFromClaim);
 
-    return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id));
+    if (user == null)
+      return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue));
+
+    return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id, user.SignUpDate));
   }
 
   [HttpGet("current_user/information")]

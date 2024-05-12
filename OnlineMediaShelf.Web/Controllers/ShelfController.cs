@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Tiefseetauchner.OnlineMediaShelf.Domain;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
-using Shelf = Tiefseetauchner.OnlineMediaShelf.Web.WebObjects.Shelf;
 
 #endregion
 
@@ -17,14 +17,18 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 
 [ApiController]
 [Route("api/shelves")]
-public class ShelfController(DbSet<Domain.Shelf> shelfDataSet) : ControllerBase
+public class ShelfController(
+  IUnitOfWork unitOfWork,
+  UserManager<ApplicationUser> userManager) : ControllerBase
 {
   [HttpGet]
-  public ActionResult<IEnumerable<Shelf>> GetAllShelves([FromQuery] string? userName)
+  public async Task<ActionResult<IEnumerable<ShelfModel>>> GetAllShelves([FromQuery] string? userName)
   {
-    var shelvesFromDb = shelfDataSet.AsQueryable()
-      .Where(shelf => userName.IsNullOrEmpty() || shelf.ApplicationUser.NormalizedUserName == userName)
-      .ToList();
+    List<Shelf> shelvesFromDb;
+    if (userName != null)
+      shelvesFromDb = await unitOfWork.ShelfRepository.GetByUserAsync(await unitOfWork.UserRepository.GetByUserNameAsync(userName));
+    else
+      shelvesFromDb = await unitOfWork.ShelfRepository.GetAllAsync();
 
     var shelves = shelvesFromDb.Select(Mapper.ConvertToWebObject);
 
@@ -32,9 +36,9 @@ public class ShelfController(DbSet<Domain.Shelf> shelfDataSet) : ControllerBase
   }
 
   [HttpGet("{id:int}")]
-  public async Task<ActionResult<Shelf>> GetShelf(int id)
+  public async Task<ActionResult<ShelfModel>> GetShelf(int id)
   {
-    var shelfFromDb = await shelfDataSet.FindAsync(id);
+    var shelfFromDb = await unitOfWork.ShelfRepository.GetByIdAsync(id);
 
     if (shelfFromDb != null)
       return Ok(Mapper.ConvertToWebObject(shelfFromDb));
@@ -44,20 +48,20 @@ public class ShelfController(DbSet<Domain.Shelf> shelfDataSet) : ControllerBase
 
   [HttpPost("create")]
   [Authorize]
-  [ProducesResponseType<Shelf>(201)]
-  public async Task<ActionResult<Shelf>> CreateShelf([FromBody] CreateShelfModel shelf)
+  [ProducesResponseType<ShelfModel>(201)]
+  public async Task<ActionResult<ShelfModel>> CreateShelf([FromBody] CreateShelfModel shelf)
   {
-    var shelfInDb = shelfDataSet.Add(Mapper.ConvertToDomainObject(shelf));
+    var shelfInDb = await unitOfWork.ShelfRepository.CreateAsync(Mapper.ConvertToDomainObject(shelf));
 
     try
     {
-      // await shelfDataSet.SaveChangesAsync();
+      await unitOfWork.CommitAsync();
     }
     catch (Exception)
     {
       return StatusCode(500, "An error occured while saving changes. Try again later.");
     }
 
-    return CreatedAtAction(nameof(GetShelf), new { id = shelfInDb.Entity.ShelfId }, Mapper.ConvertToWebObject(shelfInDb.Entity));
+    return CreatedAtAction(nameof(GetShelf), new { id = shelfInDb.ShelfId }, Mapper.ConvertToWebObject(shelfInDb));
   }
 }

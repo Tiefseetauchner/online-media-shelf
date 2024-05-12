@@ -1,9 +1,13 @@
-import {Toast, ToastBody, ToastTitle} from "@fluentui/react-components";
+import {
+  Toast,
+  ToastBody,
+  ToastTitle
+} from "@fluentui/react-components";
 
 export function showErrorToast(message: string, dispatchToast: (content: React.ReactNode, options?: (any | undefined)) => void) {
   dispatchToast(
     <Toast>
-      <ToastTitle>An Error occured while trying to log in:</ToastTitle>
+      <ToastTitle>An Error occured:</ToastTitle>
       <ToastBody>{message}</ToastBody>
     </Toast>,
     {

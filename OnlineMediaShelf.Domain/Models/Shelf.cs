@@ -1,13 +1,17 @@
+#region
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Tiefseetauchner.OnlineMediaShelf.Domain;
+#endregion
+
+namespace Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 
 public class Shelf
 {
   public int ShelfId { get; set; }
 
-  public int UserId { get; set; }
+  public string UserId { get; set; } = null!;
 
   [StringLength(100)]
   public string ShelfName { get; set; } = null!;

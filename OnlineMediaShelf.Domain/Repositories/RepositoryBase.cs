@@ -1,8 +1,12 @@
+#region
+
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeadmanSwitchFailed.Common.Domain.Repositories;
+#endregion
+
+namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 public abstract class RepositoryBase<T> : IRepositoryBase, IDisposable where T : class
 {

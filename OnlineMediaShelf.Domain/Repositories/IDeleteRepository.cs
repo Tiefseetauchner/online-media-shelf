@@ -1,4 +1,4 @@
-namespace DeadmanSwitchFailed.Common.Domain.Repositories;
+namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 public interface IDeleteRepository<in T> : IRepositoryBase
 {

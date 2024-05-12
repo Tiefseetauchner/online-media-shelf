@@ -1,6 +1,10 @@
+#region
+
 using System.Threading.Tasks;
 
-namespace DeadmanSwitchFailed.Common.Domain.Repositories;
+#endregion
+
+namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 public interface IRepositoryBase
 {

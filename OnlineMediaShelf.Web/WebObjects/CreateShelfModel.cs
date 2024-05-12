@@ -1,6 +1,6 @@
 namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 public record CreateShelfModel(
-  int UserId,
+  string UserId,
   string Name,
   string Description);

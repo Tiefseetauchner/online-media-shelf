@@ -1,32 +1,27 @@
-using System.Collections.Concurrent;
+#region
+
 using System.Threading.Tasks;
-using DeadmanSwitchFailed.Common.Domain.Repositories;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
+
+#endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork(ApplicationDbContext context)
+  : IUnitOfWork
 {
-  private readonly ApplicationDbContext _context;
-
-  public UnitOfWork(ApplicationDbContext context)
-  {
-    _context = context;
-    UserRepository = new CrudRepository<ApplicationUser>(context, context.Users);
-    ShelfRepository = new CrudRepository<Shelf>(context, context.Shelves);
-    ItemRepository = new CrudRepository<Item>(context, context.Items);
-  }
-
-  public CrudRepository<ApplicationUser> UserRepository { get; private set; }
-  public CrudRepository<Shelf> ShelfRepository { get; private set; }
-  public CrudRepository<Item> ItemRepository { get; private set; }
+  public IUserRepository UserRepository { get; private set; } = new UserRepository(context, context.Users);
+  public IShelfRepository ShelfRepository { get; private set; } = new ShelfRepository(context, context.Shelves);
+  public ICrudRepository<Item> ItemRepository { get; private set; } = new CrudRepository<Item>(context, context.Items);
 
   public async Task CommitAsync()
   {
-    await _context.SaveChangesAsync();
+    await context.SaveChangesAsync();
   }
 
   public void Dispose()
   {
-    _context.Dispose();
+    context.Dispose();
   }
 }

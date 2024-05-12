@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 
@@ -11,9 +12,11 @@ using Tiefseetauchner.OnlineMediaShelf.Domain;
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240512151400_AddSignupDate")]
+    partial class AddSignupDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,7 +172,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.ApplicationUser", b =>
+            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)");
@@ -214,6 +217,9 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime>("SignUpDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
 
@@ -233,7 +239,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Item", b =>
+            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", b =>
                 {
                     b.Property<int>("ItemId")
                         .ValueGeneratedOnAdd()
@@ -254,7 +260,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Shelf", b =>
+            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Shelf", b =>
                 {
                     b.Property<int>("ShelfId")
                         .ValueGeneratedOnAdd()
@@ -275,8 +281,9 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("ShelfId");
 
@@ -287,13 +294,13 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("ItemShelf", b =>
                 {
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Shelf", null)
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Shelf", null)
                         .WithMany()
                         .HasForeignKey("ContainingShelvesShelfId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Item", null)
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", null)
                         .WithMany()
                         .HasForeignKey("ItemsItemId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -311,7 +318,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.ApplicationUser", null)
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -320,7 +327,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.ApplicationUser", null)
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -335,7 +342,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.ApplicationUser", null)
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -344,23 +351,23 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.ApplicationUser", null)
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Shelf", b =>
+            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Shelf", b =>
                 {
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.ApplicationUser", "ApplicationUser")
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", "ApplicationUser")
                         .WithMany("Shelves")
                         .HasForeignKey("ApplicationUserId");
 
                     b.Navigation("ApplicationUser");
                 });
 
-            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.ApplicationUser", b =>
+            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", b =>
                 {
                     b.Navigation("Shelves");
                 });

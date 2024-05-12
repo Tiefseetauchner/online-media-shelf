@@ -1,7 +1,11 @@
+#region
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
-using Tiefseetauchner.OnlineMediaShelf.Domain;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
+
+#endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web;
 

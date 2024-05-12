@@ -6,8 +6,7 @@ using System;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
-public record CurrentUserModel(
-  bool IsLoggedIn,
-  string? UserName,
+public record UserModel(
   string UserId,
+  string UserName,
   DateTime SignUpDate);

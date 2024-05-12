@@ -1,21 +1,29 @@
+#region
+
 using System.Linq;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
+
+#endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 public static class Mapper
 {
-  public static Domain.Shelf ConvertToDomainObject(CreateShelfModel shelf) =>
+  public static Shelf ConvertToDomainObject(CreateShelfModel shelf) =>
     new() { UserId = shelf.UserId, ShelfName = shelf.Name, ShelfDescription = shelf.Description };
 
-  public static Shelf ConvertToWebObject(Domain.Shelf shelf) =>
-    new(shelf.ShelfId, shelf.UserId, shelf.ShelfName, shelf.ShelfDescription, shelf.Items.Select(ConvertToWebObject).ToList());
+  public static ShelfModel ConvertToWebObject(Shelf shelf) =>
+    new(shelf.ShelfId, ConvertToWebObject(shelf.ApplicationUser), shelf.ShelfName, shelf.ShelfDescription, shelf.Items.Select(ConvertToWebObject).ToList());
 
-  public static Item ConvertToWebObject(Domain.Item item) =>
+  private static UserModel ConvertToWebObject(ApplicationUser user) =>
+    new(user.Id, user.UserName ?? "", user.SignUpDate);
+
+  public static ItemModel ConvertToWebObject(Item item) =>
     new(item.ItemId, item.Barcode, item.Title);
 
-  public static Domain.Shelf ConvertToDomainObject(Shelf shelf) =>
-    new() { UserId = shelf.UserId, Items = shelf.Items.Select(ConvertToDomainObject).ToList() };
+  public static Shelf ConvertToDomainObject(ShelfModel shelf) =>
+    new() { UserId = shelf.User.UserId, Items = shelf.Items.Select(ConvertToDomainObject).ToList() };
 
-  public static Domain.Item ConvertToDomainObject(Item item) =>
-    new() { Barcode = item.Barcode, Title = item.Title };
+  public static Item ConvertToDomainObject(ItemModel itemModel) =>
+    new() { Barcode = itemModel.Barcode, Title = itemModel.Title };
 }

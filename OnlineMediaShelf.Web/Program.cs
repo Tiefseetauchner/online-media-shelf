@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 
 #endregion
 
@@ -48,6 +49,8 @@ public class Program
       dbContextOptions => dbContextOptions
         .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
       ServiceLifetime.Transient);
+
+    services.AddScoped<IUnitOfWork, UnitOfWork>();
 
     services.AddControllers();
 

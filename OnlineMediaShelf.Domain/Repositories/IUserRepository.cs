@@ -1,6 +1,5 @@
 #region
 
-using System;
 using System.Threading.Tasks;
 using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
@@ -9,10 +8,9 @@ using Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain;
 
-public interface IUnitOfWork : IDisposable
+public interface IUserRepository :
+  ICrudRepository<ApplicationUser>
 {
-  IUserRepository UserRepository { get; }
-  IShelfRepository ShelfRepository { get; }
-  ICrudRepository<Item> ItemRepository { get; }
-  Task CommitAsync();
+  ApplicationUser GetByUserName(string userName);
+  Task<ApplicationUser> GetByUserNameAsync(string userName);
 }

@@ -1,10 +1,14 @@
+#region
+
 using System.Collections.Generic;
+
+#endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
-public record Shelf(
+public record ShelfModel(
   int Id,
-  int UserId,
+  UserModel User,
   string Name,
   string Description,
-  List<Item> Items);
+  List<ItemModel> Items);

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 #endregion
 
-namespace Tiefseetauchner.OnlineMediaShelf.Domain;
+namespace Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 
 public class Item
 {

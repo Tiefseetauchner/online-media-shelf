@@ -608,7 +608,7 @@ export class ShelfClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAllShelves(userName: string | null | undefined): Promise<Shelf[]> {
+    getAllShelves(userName: string | null | undefined): Promise<ShelfModel[]> {
         let url_ = this.baseUrl + "/api/shelves?";
         if (userName !== undefined && userName !== null)
             url_ += "userName=" + encodeURIComponent("" + userName) + "&";
@@ -626,7 +626,7 @@ export class ShelfClient {
         });
     }
 
-    protected processGetAllShelves(response: Response): Promise<Shelf[]> {
+    protected processGetAllShelves(response: Response): Promise<ShelfModel[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -636,7 +636,7 @@ export class ShelfClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(Shelf.fromJS(item));
+                    result200!.push(ShelfModel.fromJS(item));
             }
             else {
                 result200 = <any>null;
@@ -648,10 +648,10 @@ export class ShelfClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Shelf[]>(null as any);
+        return Promise.resolve<ShelfModel[]>(null as any);
     }
 
-    getShelf(id: number): Promise<Shelf> {
+    getShelf(id: number): Promise<ShelfModel> {
         let url_ = this.baseUrl + "/api/shelves/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -670,14 +670,14 @@ export class ShelfClient {
         });
     }
 
-    protected processGetShelf(response: Response): Promise<Shelf> {
+    protected processGetShelf(response: Response): Promise<ShelfModel> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Shelf.fromJS(resultData200);
+            result200 = ShelfModel.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -685,10 +685,10 @@ export class ShelfClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Shelf>(null as any);
+        return Promise.resolve<ShelfModel>(null as any);
     }
 
-    createShelf(shelf: CreateShelfModel): Promise<Shelf> {
+    createShelf(shelf: CreateShelfModel): Promise<ShelfModel> {
         let url_ = this.baseUrl + "/api/shelves/create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -708,14 +708,14 @@ export class ShelfClient {
         });
     }
 
-    protected processCreateShelf(response: Response): Promise<Shelf> {
+    protected processCreateShelf(response: Response): Promise<ShelfModel> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
             return response.text().then((_responseText) => {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result201 = Shelf.fromJS(resultData201);
+            result201 = ShelfModel.fromJS(resultData201);
             return result201;
             });
         } else if (status !== 200 && status !== 204) {
@@ -723,7 +723,7 @@ export class ShelfClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Shelf>(null as any);
+        return Promise.resolve<ShelfModel>(null as any);
     }
 }
 
@@ -1423,7 +1423,7 @@ export interface ILoginModel {
 export class CurrentUserModel implements ICurrentUserModel {
     isLoggedIn?: boolean;
     userName?: string | undefined;
-    userId?: number;
+    userId?: string;
 
     constructor(data?: ICurrentUserModel) {
         if (data) {
@@ -1461,17 +1461,17 @@ export class CurrentUserModel implements ICurrentUserModel {
 export interface ICurrentUserModel {
     isLoggedIn?: boolean;
     userName?: string | undefined;
-    userId?: number;
+    userId?: string;
 }
 
-export class Shelf implements IShelf {
+export class ShelfModel implements IShelfModel {
     id?: number;
-    userId?: number;
+    user?: UserModel;
     name?: string;
     description?: string;
-    items?: Item[];
+    items?: ItemModel[];
 
-    constructor(data?: IShelf) {
+    constructor(data?: IShelfModel) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1483,20 +1483,20 @@ export class Shelf implements IShelf {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.userId = _data["userId"];
+            this.user = _data["user"] ? UserModel.fromJS(_data["user"]) : <any>undefined;
             this.name = _data["name"];
             this.description = _data["description"];
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(Item.fromJS(item));
+                    this.items!.push(ItemModel.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): Shelf {
+    static fromJS(data: any): ShelfModel {
         data = typeof data === 'object' ? data : {};
-        let result = new Shelf();
+        let result = new ShelfModel();
         result.init(data);
         return result;
     }
@@ -1504,7 +1504,7 @@ export class Shelf implements IShelf {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["userId"] = this.userId;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
         data["name"] = this.name;
         data["description"] = this.description;
         if (Array.isArray(this.items)) {
@@ -1516,20 +1516,64 @@ export class Shelf implements IShelf {
     }
 }
 
-export interface IShelf {
+export interface IShelfModel {
     id?: number;
-    userId?: number;
+    user?: UserModel;
     name?: string;
     description?: string;
-    items?: Item[];
+    items?: ItemModel[];
 }
 
-export class Item implements IItem {
+export class UserModel implements IUserModel {
+    userId?: string;
+    userName?: string;
+    signUpDate?: Date;
+
+    constructor(data?: IUserModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.userName = _data["userName"];
+            this.signUpDate = _data["signUpDate"] ? new Date(_data["signUpDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UserModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["userName"] = this.userName;
+        data["signUpDate"] = this.signUpDate ? this.signUpDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUserModel {
+    userId?: string;
+    userName?: string;
+    signUpDate?: Date;
+}
+
+export class ItemModel implements IItemModel {
     id?: number;
     barcode?: number;
     title?: string;
 
-    constructor(data?: IItem) {
+    constructor(data?: IItemModel) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1546,9 +1590,9 @@ export class Item implements IItem {
         }
     }
 
-    static fromJS(data: any): Item {
+    static fromJS(data: any): ItemModel {
         data = typeof data === 'object' ? data : {};
-        let result = new Item();
+        let result = new ItemModel();
         result.init(data);
         return result;
     }
@@ -1562,14 +1606,14 @@ export class Item implements IItem {
     }
 }
 
-export interface IItem {
+export interface IItemModel {
     id?: number;
     barcode?: number;
     title?: string;
 }
 
 export class CreateShelfModel implements ICreateShelfModel {
-    userId?: number;
+    userId?: string;
     name?: string;
     description?: string;
 
@@ -1607,7 +1651,7 @@ export class CreateShelfModel implements ICreateShelfModel {
 }
 
 export interface ICreateShelfModel {
-    userId?: number;
+    userId?: string;
     name?: string;
     description?: string;
 }

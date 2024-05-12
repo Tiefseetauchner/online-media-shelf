@@ -1,20 +1,19 @@
 #region
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using DeadmanSwitchFailed.Common.ArgumentChecks;
 using Microsoft.EntityFrameworkCore;
+using Tiefseetauchner.OnlineMediaShelf.Common.ArgumentChecks;
 
 #endregion
 
-namespace DeadmanSwitchFailed.Common.Domain.Repositories;
+namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 public class CrudRepository<T>(DbContext dbContext, DbSet<T> dbSet)
   : RepositoryBase<T>(dbContext, dbSet),
-    ICreateRepository<T>,
-    IReadRepository<T>,
-    IUpdateRepository<T>,
-    IDeleteRepository<T>
+    ICrudRepository<T>
   where T : class
 {
   public T Create(T entity) =>
@@ -31,6 +30,12 @@ public class CrudRepository<T>(DbContext dbContext, DbSet<T> dbSet)
 
   public async Task<T?> GetByIdAsync(int id) =>
     await DbSet.FindAsync(id);
+
+  public List<T> GetAll() =>
+    DbSet.ToList();
+
+  public Task<List<T>> GetAllAsync() =>
+    DbSet.ToListAsync();
 
   public T Update(T entity) =>
     DbSet.Update(entity).Entity;

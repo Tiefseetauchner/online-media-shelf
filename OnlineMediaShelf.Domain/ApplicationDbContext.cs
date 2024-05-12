@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 
 #endregion
 
