@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
@@ -66,5 +67,22 @@ public class ShelfController(
     {
       return StatusCode(500, "An error occured while saving changes. Try again later.");
     }
+  }
+
+  [HttpPost("{id:int}/items/add")]
+  [Authorize]
+  [ProducesResponseType(201)]
+  public async Task<IActionResult> AddItem(int id, [FromBody] ItemModel item)
+  {
+    var shelf = await unitOfWork.ShelfRepository.GetByIdAsync(id);
+
+    if (shelf == null)
+      return NotFound();
+
+    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == item.Id || i.Barcode == item.Barcode));
+
+    await unitOfWork.CommitAsync();
+
+    return Created();
   }
 }

@@ -15,8 +15,16 @@ public class ShelfRepository(DbSet<Shelf> dbSet) : CrudRepository<Shelf, int>(db
   private readonly DbSet<Shelf> _dbSet = dbSet;
 
   public List<Shelf> GetByUser(ApplicationUser user) =>
-    _dbSet.AsQueryable().Where(shelf => shelf.User.Id == user.Id).ToList();
+    ConfigureIncludes(_dbSet)
+      .Where(shelf => shelf.User.Id == user.Id)
+      .ToList();
 
-  public Task<List<Shelf>> GetByUserAsync(ApplicationUser user) =>
-    _dbSet.AsQueryable().Where(shelf => shelf.User.Id == user.Id).ToListAsync();
+  public async Task<List<Shelf>> GetByUserAsync(ApplicationUser user) =>
+    await ConfigureIncludes(_dbSet)
+      .Where(shelf => shelf.User.Id == user.Id)
+      .ToListAsync();
+
+  protected override IQueryable<Shelf> ConfigureIncludes(DbSet<Shelf> dbSet) =>
+    dbSet.Include(shelf => shelf.User)
+      .Include(shelf => shelf.Items);
 }

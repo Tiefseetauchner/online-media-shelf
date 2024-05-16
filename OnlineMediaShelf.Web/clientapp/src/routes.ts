@@ -28,11 +28,18 @@ import {
 import {
   UserShelves
 } from "./components/Account/UserShelves.tsx";
+import {
+  Items
+} from "./components/Items/Items.tsx";
+import {
+  ItemView
+} from "./components/Items/ItemView.tsx";
 
 export const routes = {
   root: "/",
   myShelves: "/my-shelves",
   shelf: "/shelves",
+  item: "/items",
   login: "/login",
   register: "/register",
   userAccount: "/my-account",
@@ -71,6 +78,14 @@ export const router = createBrowserRouter([
       {
         path: "shelves/:shelfId",
         Component: ShelfView,
+      },
+      {
+        path: "items",
+        Component: Items,
+      },
+      {
+        path: "items/:itemId",
+        Component: ItemView,
       },
     ],
   },

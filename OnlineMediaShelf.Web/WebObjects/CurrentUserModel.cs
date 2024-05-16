@@ -1,6 +1,7 @@
 #region
 
 using System;
+using System.Collections.Generic;
 
 #endregion
 
@@ -10,4 +11,5 @@ public record CurrentUserModel(
   bool IsLoggedIn,
   string? UserName,
   string UserId,
-  DateTime SignUpDate);
+  DateTime SignUpDate,
+  List<ShelfModel> Shelves);

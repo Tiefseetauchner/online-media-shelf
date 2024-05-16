@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
@@ -79,7 +80,7 @@ public class AccountController(
     var userIsAuthenticated = User.Identities.First().IsAuthenticated;
 
     if (!userIsAuthenticated)
-      return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue));
+      return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue, []));
 
     var userNameFromClaim = User.Identities.First().Name;
 
@@ -89,15 +90,27 @@ public class AccountController(
     var user = await userManager.FindByNameAsync(userNameFromClaim);
 
     if (user == null)
-      return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue));
+      return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue, []));
 
-    return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id, user.SignUpDate));
+    return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id, user.SignUpDate, user.Shelves.Select(Mapper.ConvertToWebObject).ToList()));
   }
 
   [HttpGet("current_user/information")]
-  public ActionResult<CurrentUserModel> GetCurrentUserInformation()
+  public async Task<ActionResult<ApplicationUser>> GetCurrentUserInformation()
   {
-    return Ok();
+    var userIsAuthenticated = User.Identities.First().IsAuthenticated;
+
+    if (!userIsAuthenticated)
+      return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue, []));
+
+    var userNameFromClaim = User.Identities.First().Name;
+
+    if (userNameFromClaim == null)
+      return StatusCode(500, "Error when loading Username from Claim");
+
+    var user = await userManager.FindByNameAsync(userNameFromClaim);
+
+    return Ok(user);
   }
 
   // NOTE (Tiefseetauchner): From aspnetcore/src/Identity/Core/src/IdentityApiEndpointRouteBuilderExtensions.cs

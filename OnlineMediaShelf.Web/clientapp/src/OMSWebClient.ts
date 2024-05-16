@@ -563,7 +563,7 @@ export class AccountClient {
         return Promise.resolve<CurrentUserModel>(null as any);
     }
 
-    getCurrentUserInformation(): Promise<CurrentUserModel> {
+    getCurrentUserInformation(): Promise<ApplicationUser> {
         let url_ = this.baseUrl + "/accountextension/current_user/information";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -579,14 +579,14 @@ export class AccountClient {
         });
     }
 
-    protected processGetCurrentUserInformation(response: Response): Promise<CurrentUserModel> {
+    protected processGetCurrentUserInformation(response: Response): Promise<ApplicationUser> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CurrentUserModel.fromJS(resultData200);
+            result200 = ApplicationUser.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -594,7 +594,179 @@ export class AccountClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CurrentUserModel>(null as any);
+        return Promise.resolve<ApplicationUser>(null as any);
+    }
+}
+
+export class ItemClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getAllItems(): Promise<ItemModel[]> {
+        let url_ = this.baseUrl + "/api/items";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllItems(_response);
+        });
+    }
+
+    protected processGetAllItems(response: Response): Promise<ItemModel[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ItemModel.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ItemModel[]>(null as any);
+    }
+
+    searchItem(name: string | undefined): Promise<ItemModel[]> {
+        let url_ = this.baseUrl + "/api/items/search?";
+        if (name === null)
+            throw new Error("The parameter 'name' cannot be null.");
+        else if (name !== undefined)
+            url_ += "name=" + encodeURIComponent("" + name) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSearchItem(_response);
+        });
+    }
+
+    protected processSearchItem(response: Response): Promise<ItemModel[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ItemModel.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ItemModel[]>(null as any);
+    }
+
+    getItem(id: number): Promise<ItemModel> {
+        let url_ = this.baseUrl + "/api/items/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetItem(_response);
+        });
+    }
+
+    protected processGetItem(response: Response): Promise<ItemModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ItemModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ItemModel>(null as any);
+    }
+
+    createItem(shelf: CreateItemModel): Promise<ItemModel> {
+        let url_ = this.baseUrl + "/api/items/create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(shelf);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateItem(_response);
+        });
+    }
+
+    protected processCreateItem(response: Response): Promise<ItemModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = ItemModel.fromJS(resultData201);
+            return result201;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ItemModel>(null as any);
     }
 }
 
@@ -724,6 +896,43 @@ export class ShelfClient {
             });
         }
         return Promise.resolve<ShelfModel>(null as any);
+    }
+
+    addItem(id: number, item: ItemModel): Promise<void> {
+        let url_ = this.baseUrl + "/api/shelves/{id}/items/add";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(item);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAddItem(_response);
+        });
+    }
+
+    protected processAddItem(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -1425,6 +1634,7 @@ export class CurrentUserModel implements ICurrentUserModel {
     userName?: string | undefined;
     userId?: string;
     signUpDate?: Date;
+    shelves?: ShelfModel[];
 
     constructor(data?: ICurrentUserModel) {
         if (data) {
@@ -1441,6 +1651,11 @@ export class CurrentUserModel implements ICurrentUserModel {
             this.userName = _data["userName"];
             this.userId = _data["userId"];
             this.signUpDate = _data["signUpDate"] ? new Date(_data["signUpDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["shelves"])) {
+                this.shelves = [] as any;
+                for (let item of _data["shelves"])
+                    this.shelves!.push(ShelfModel.fromJS(item));
+            }
         }
     }
 
@@ -1457,6 +1672,11 @@ export class CurrentUserModel implements ICurrentUserModel {
         data["userName"] = this.userName;
         data["userId"] = this.userId;
         data["signUpDate"] = this.signUpDate ? this.signUpDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.shelves)) {
+            data["shelves"] = [];
+            for (let item of this.shelves)
+                data["shelves"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -1466,6 +1686,7 @@ export interface ICurrentUserModel {
     userName?: string | undefined;
     userId?: string;
     signUpDate?: Date;
+    shelves?: ShelfModel[];
 }
 
 export class ShelfModel implements IShelfModel {
@@ -1574,8 +1795,9 @@ export interface IUserModel {
 
 export class ItemModel implements IItemModel {
     id?: number;
-    barcode?: number;
+    barcode?: string | undefined;
     title?: string;
+    description?: string | undefined;
 
     constructor(data?: IItemModel) {
         if (data) {
@@ -1591,6 +1813,7 @@ export class ItemModel implements IItemModel {
             this.id = _data["id"];
             this.barcode = _data["barcode"];
             this.title = _data["title"];
+            this.description = _data["description"];
         }
     }
 
@@ -1606,14 +1829,344 @@ export class ItemModel implements IItemModel {
         data["id"] = this.id;
         data["barcode"] = this.barcode;
         data["title"] = this.title;
+        data["description"] = this.description;
         return data;
     }
 }
 
 export interface IItemModel {
     id?: number;
-    barcode?: number;
+    barcode?: string | undefined;
     title?: string;
+    description?: string | undefined;
+}
+
+export class IdentityUserOfString implements IIdentityUserOfString {
+    id?: string | undefined;
+    userName?: string | undefined;
+    normalizedUserName?: string | undefined;
+    email?: string | undefined;
+    normalizedEmail?: string | undefined;
+    emailConfirmed?: boolean;
+    passwordHash?: string | undefined;
+    securityStamp?: string | undefined;
+    concurrencyStamp?: string | undefined;
+    phoneNumber?: string | undefined;
+    phoneNumberConfirmed?: boolean;
+    twoFactorEnabled?: boolean;
+    lockoutEnd?: Date | undefined;
+    lockoutEnabled?: boolean;
+    accessFailedCount?: number;
+
+    constructor(data?: IIdentityUserOfString) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userName = _data["userName"];
+            this.normalizedUserName = _data["normalizedUserName"];
+            this.email = _data["email"];
+            this.normalizedEmail = _data["normalizedEmail"];
+            this.emailConfirmed = _data["emailConfirmed"];
+            this.passwordHash = _data["passwordHash"];
+            this.securityStamp = _data["securityStamp"];
+            this.concurrencyStamp = _data["concurrencyStamp"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.phoneNumberConfirmed = _data["phoneNumberConfirmed"];
+            this.twoFactorEnabled = _data["twoFactorEnabled"];
+            this.lockoutEnd = _data["lockoutEnd"] ? new Date(_data["lockoutEnd"].toString()) : <any>undefined;
+            this.lockoutEnabled = _data["lockoutEnabled"];
+            this.accessFailedCount = _data["accessFailedCount"];
+        }
+    }
+
+    static fromJS(data: any): IdentityUserOfString {
+        data = typeof data === 'object' ? data : {};
+        let result = new IdentityUserOfString();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userName"] = this.userName;
+        data["normalizedUserName"] = this.normalizedUserName;
+        data["email"] = this.email;
+        data["normalizedEmail"] = this.normalizedEmail;
+        data["emailConfirmed"] = this.emailConfirmed;
+        data["passwordHash"] = this.passwordHash;
+        data["securityStamp"] = this.securityStamp;
+        data["concurrencyStamp"] = this.concurrencyStamp;
+        data["phoneNumber"] = this.phoneNumber;
+        data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
+        data["twoFactorEnabled"] = this.twoFactorEnabled;
+        data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
+        data["lockoutEnabled"] = this.lockoutEnabled;
+        data["accessFailedCount"] = this.accessFailedCount;
+        return data;
+    }
+}
+
+export interface IIdentityUserOfString {
+    id?: string | undefined;
+    userName?: string | undefined;
+    normalizedUserName?: string | undefined;
+    email?: string | undefined;
+    normalizedEmail?: string | undefined;
+    emailConfirmed?: boolean;
+    passwordHash?: string | undefined;
+    securityStamp?: string | undefined;
+    concurrencyStamp?: string | undefined;
+    phoneNumber?: string | undefined;
+    phoneNumberConfirmed?: boolean;
+    twoFactorEnabled?: boolean;
+    lockoutEnd?: Date | undefined;
+    lockoutEnabled?: boolean;
+    accessFailedCount?: number;
+}
+
+export class IdentityUser extends IdentityUserOfString implements IIdentityUser {
+
+    constructor(data?: IIdentityUser) {
+        super(data);
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+    }
+
+    static fromJS(data: any): IdentityUser {
+        data = typeof data === 'object' ? data : {};
+        let result = new IdentityUser();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IIdentityUser extends IIdentityUserOfString {
+}
+
+export class ApplicationUser extends IdentityUser implements IApplicationUser {
+    signUpDate!: Date;
+    shelves?: Shelf[];
+
+    constructor(data?: IApplicationUser) {
+        super(data);
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.signUpDate = _data["signUpDate"] ? new Date(_data["signUpDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["shelves"])) {
+                this.shelves = [] as any;
+                for (let item of _data["shelves"])
+                    this.shelves!.push(Shelf.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ApplicationUser {
+        data = typeof data === 'object' ? data : {};
+        let result = new ApplicationUser();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["signUpDate"] = this.signUpDate ? this.signUpDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.shelves)) {
+            data["shelves"] = [];
+            for (let item of this.shelves)
+                data["shelves"].push(item.toJSON());
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IApplicationUser extends IIdentityUser {
+    signUpDate: Date;
+    shelves?: Shelf[];
+}
+
+export class Shelf implements IShelf {
+    id?: number;
+    shelfName!: string;
+    shelfDescription!: string;
+    user?: ApplicationUser;
+    items?: Item[];
+
+    constructor(data?: IShelf) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.shelfName = _data["shelfName"];
+            this.shelfDescription = _data["shelfDescription"];
+            this.user = _data["user"] ? ApplicationUser.fromJS(_data["user"]) : <any>undefined;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Item.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Shelf {
+        data = typeof data === 'object' ? data : {};
+        let result = new Shelf();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["shelfName"] = this.shelfName;
+        data["shelfDescription"] = this.shelfDescription;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IShelf {
+    id?: number;
+    shelfName: string;
+    shelfDescription: string;
+    user?: ApplicationUser;
+    items?: Item[];
+}
+
+export class Item implements IItem {
+    id?: number;
+    barcode?: string | undefined;
+    title!: string;
+    description?: string | undefined;
+    containingShelves?: Shelf[];
+
+    constructor(data?: IItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.barcode = _data["barcode"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["containingShelves"])) {
+                this.containingShelves = [] as any;
+                for (let item of _data["containingShelves"])
+                    this.containingShelves!.push(Shelf.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Item {
+        data = typeof data === 'object' ? data : {};
+        let result = new Item();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["barcode"] = this.barcode;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        if (Array.isArray(this.containingShelves)) {
+            data["containingShelves"] = [];
+            for (let item of this.containingShelves)
+                data["containingShelves"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IItem {
+    id?: number;
+    barcode?: string | undefined;
+    title: string;
+    description?: string | undefined;
+    containingShelves?: Shelf[];
+}
+
+export class CreateItemModel implements ICreateItemModel {
+    barcode?: string;
+    title?: string;
+    description?: string | undefined;
+
+    constructor(data?: ICreateItemModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.barcode = _data["barcode"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): CreateItemModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateItemModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["barcode"] = this.barcode;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        return data;
+    }
+}
+
+export interface ICreateItemModel {
+    barcode?: string;
+    title?: string;
+    description?: string | undefined;
 }
 
 export class CreateShelfModel implements ICreateShelfModel {

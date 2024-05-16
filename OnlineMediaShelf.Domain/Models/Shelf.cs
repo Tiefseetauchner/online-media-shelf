@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 
-public class Shelf
+public class Shelf : IEntity<int>
 {
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   [Key]

@@ -1,6 +1,7 @@
 #region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 #endregion
@@ -16,4 +17,6 @@ public interface IReadRepository<T, TKey>
   List<T> GetAll();
 
   Task<List<T>> GetAllAsync();
+
+  IQueryable<T> GetQueryable();
 }

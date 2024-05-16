@@ -1,7 +1,6 @@
 #region
 
 using System.Threading.Tasks;
-using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 #endregion
@@ -13,7 +12,7 @@ public class UnitOfWork(ApplicationDbContext context)
 {
   public IUserRepository UserRepository { get; private set; } = new UserRepository(context.Users);
   public IShelfRepository ShelfRepository { get; private set; } = new ShelfRepository(context.Shelves);
-  public ICrudRepository<Item, int> ItemRepository { get; private set; } = new CrudRepository<Item, int>(context.Items);
+  public IItemRepository ItemRepository { get; private set; } = new ItemRepository(context.Items);
 
   public async Task CommitAsync()
   {

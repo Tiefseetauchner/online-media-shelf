@@ -11,9 +11,10 @@ using Tiefseetauchner.OnlineMediaShelf.Common.ArgumentChecks;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
-public class CrudRepository<T, TKey>(DbSet<T> dbSet)
+public abstract class CrudRepository<T, TKey>(DbSet<T> dbSet)
   : ICrudRepository<T, TKey>
-  where T : class
+  where T : class, IEntity<TKey>
+  where TKey : notnull
 {
   public DbSet<T> DbSet { get; } = dbSet;
 
@@ -27,16 +28,19 @@ public class CrudRepository<T, TKey>(DbSet<T> dbSet)
     (await DbSet.AddAsync(entity)).Entity;
 
   public T? GetById(TKey id) =>
-    DbSet.Find(id);
+    ConfigureIncludes(DbSet).Single(e => e.Id.Equals(id));
 
   public async Task<T?> GetByIdAsync(TKey id) =>
-    await DbSet.FindAsync(id);
+    await ConfigureIncludes(DbSet).SingleAsync(e => e.Id.Equals(id));
 
   public List<T> GetAll() =>
-    DbSet.ToList();
+    ConfigureIncludes(DbSet).ToList();
 
   public Task<List<T>> GetAllAsync() =>
-    DbSet.ToListAsync();
+    ConfigureIncludes(DbSet).ToListAsync();
+
+  public IQueryable<T> GetQueryable() =>
+    DbSet.AsQueryable();
 
   public T Update(T entity) =>
     DbSet.Update(entity).Entity;
@@ -50,4 +54,6 @@ public class CrudRepository<T, TKey>(DbSet<T> dbSet)
     if (entity != null)
       DbSet.Remove(entity);
   }
+
+  protected abstract IQueryable<T> ConfigureIncludes(DbSet<T> dbSet);
 }

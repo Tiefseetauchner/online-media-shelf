@@ -1,7 +1,6 @@
 namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
-public record ItemModel(
-  int Id,
-  string? Barcode,
+public record CreateItemModel(
+  string Barcode,
   string Title,
   string? Description);

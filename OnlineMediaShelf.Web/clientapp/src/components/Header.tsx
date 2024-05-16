@@ -133,13 +133,13 @@ function Header() {
             </ToolbarButton>
           </Link>
           <Link
-            to={routes.myShelves}>
+            to={routes.shelf}>
             <ToolbarButton
               style={sidebarButtonStyle}
               icon={
                 <FontAwesomeIcon
                   icon={faBookOpen}/>}>
-              My Shelves
+              Shelves
             </ToolbarButton>
           </Link>
           {
@@ -154,16 +154,29 @@ function Header() {
                   size={16}/>
               </ToolbarButton> :
               user.currentUser?.isLoggedIn ?
-                <Link
-                  to={routes.userAccount}>
-                  <ToolbarButton
-                    icon={
-                      <FontAwesomeIcon
-                        icon={faUser}/>}
-                    style={sidebarButtonStyle}>
-                    {user.currentUser.userName}
-                  </ToolbarButton>
-                </Link> :
+                <>
+                  <Link
+                    to={routes.userAccount}>
+                    <ToolbarButton
+                      icon={
+                        <FontAwesomeIcon
+                          icon={faUser}/>}
+                      style={sidebarButtonStyle}>
+                      {user.currentUser.userName}
+                    </ToolbarButton>
+                  </Link>
+
+                  <Link
+                    to={routes.myShelves}>
+                    <ToolbarButton
+                      style={sidebarButtonStyle}
+                      icon={
+                        <FontAwesomeIcon
+                          icon={faBookOpen}/>}>
+                      My Shelves
+                    </ToolbarButton>
+                  </Link>
+                </> :
                 <Link
                   to={routes.login}>
                   <ToolbarButton

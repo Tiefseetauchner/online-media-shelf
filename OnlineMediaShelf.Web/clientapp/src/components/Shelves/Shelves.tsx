@@ -1,15 +1,37 @@
-import {Shelf, ShelfClient} from "../../OMSWebClient.ts";
-import {useContext, useEffect, useState} from "react";
-import {Button, SkeletonItem, useToastController} from "@fluentui/react-components";
-import {showErrorToast} from "../../utilities/toastHelper.tsx";
-import {UserContext} from "../../App.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
-import {AddShelfDialog} from "./AddShelfDialog.tsx";
-import {ShelfCard} from "./ShelfCard.tsx";
+import {
+  IShelfModel,
+  ShelfClient
+} from "../../OMSWebClient.ts";
+import {
+  useContext,
+  useEffect,
+  useState
+} from "react";
+import {
+  Button,
+  useToastController
+} from "@fluentui/react-components";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
+import {
+  UserContext
+} from "../../App.tsx";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faPlus
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  AddShelfDialog
+} from "./AddShelfDialog.tsx";
+import {
+  ShelfCardDisplay
+} from "./ShelfCardDisplay.tsx";
 
 interface ShelvesState {
-  shelves?: Shelf[];
+  shelves?: IShelfModel[];
   isDialogOpen: boolean;
 }
 
@@ -44,23 +66,22 @@ export function Shelves() {
 
     <AddShelfDialog
       open={state.isDialogOpen}
-      onOpenChange={(_, data) => setState({...state, isDialogOpen: data.open})}/>
+      onOpenChange={(_, data) => setState({
+        ...state,
+        isDialogOpen: data.open
+      })}/>
 
     {user?.currentUser?.isLoggedIn ?
       <Button
-        icon={<FontAwesomeIcon icon={faPlus}/>}
+        icon={
+          <FontAwesomeIcon
+            icon={faPlus}/>}
         onClick={() => setState({
           ...state,
           isDialogOpen: true
         })}/> :
       <></>}
-    {state.shelves == undefined ?
-      <SkeletonItem/> :
-      <div style={{
-        display: "flex",
-        flexWrap: "wrap",
-      }}>
-        {state.shelves.map(shelf => <ShelfCard shelfId={shelf.id!}/>)}
-      </div>}
+    <ShelfCardDisplay
+      shelves={state.shelves!}/>
   </>)
 }

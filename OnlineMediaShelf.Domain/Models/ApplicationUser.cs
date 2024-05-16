@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 
-public class ApplicationUser : IdentityUser
+public class ApplicationUser : IdentityUser, IEntity<string>
 {
   [Required]
   public DateTime SignUpDate { get; set; } = default!;

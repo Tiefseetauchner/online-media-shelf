@@ -9,28 +9,58 @@ import {
 } from "../../App.tsx";
 import {
   Button,
-  Card,
   Field,
   Input,
   Skeleton,
   SkeletonItem
 } from "@fluentui/react-components";
 import {
-  AccountClient
+  AccountClient,
+  IShelfModel
 } from "../../OMSWebClient.ts";
+import {
+  ShelfCardDisplay
+} from "../Shelves/ShelfCardDisplay.tsx";
 
 interface AccountState {
   isLoaded: boolean;
   email?: string;
   userName?: string;
-
+  shelves?: IShelfModel[];
 }
 
 function AccountPageSkeleton() {
   return (<>
     <Skeleton>
-      <SkeletonItem
-        shape={"rectangle"}/>
+      <h1>
+        <SkeletonItem
+          style={{
+            width: "150px",
+            height: "2rem",
+          }}/>
+      </h1>
+      <h2>
+        <SkeletonItem
+          style={{
+            width: "50px",
+            height: "1.5rem",
+          }}/>
+
+      </h2>
+      <div>
+        <SkeletonItem
+          style={{
+            width: "250px",
+            height: "150px",
+          }}/>
+      </div>
+      <h2>
+        <SkeletonItem
+          style={{
+            width: "50px",
+            height: "1.5rem",
+          }}/>
+      </h2>
     </Skeleton>
   </>);
 }
@@ -42,16 +72,17 @@ export function AccountPage() {
 
   useEffect(() => {
     async function loadUserData() {
-      const client = new AccountClient();
+      const accountClient = new AccountClient();
       try {
-        let result = await client.getCurrentUserInformation();
+        let accountResult = await accountClient.getCurrentUserInformation();
 
         setState(prevState => {
           return {
             ...prevState,
             isLoaded: true,
-            userName: result.userName,
+            userName: accountResult.userName,
             email: "email@asdf.com",
+            shelves: accountResult.shelves,
           };
         });
       } catch (e: any) {
@@ -70,103 +101,46 @@ export function AccountPage() {
   };
 
   return (<>
-    <h1>Manage my account</h1>
+    {state.isLoaded ? <>
+        <h1>Manage my account</h1>
 
-    <h2>Manage Shelves</h2>
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "25% 25% 25% 25%",
-        gridGap: "10px"
-      }}>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-      <Card
-        orientation={"horizontal"}/>
-    </div>
+        <h2>Manage Shelves</h2>
 
-    <h2>Edit Account Data</h2>
-    {state.isLoaded ?
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
+        <ShelfCardDisplay
+          shelves={state.shelves ?? []}/>
 
-          return false;
-        }}>
-        <Field
-          label="E-Mail address">
-          <Input
-            onChange={inputChanges}
-            appearance={"underline"}
-            required
-            name={"email"}
-            value={state.email}/>
-        </Field>
-        <Field
-          label="Username">
-          <Input
-            onChange={inputChanges}
-            appearance={"underline"}
-            required
-            name={"userName"}
-            value={state.userName}/>
-        </Field>
-        <Button
-          appearance={"primary"}
-          type={"submit"}>
-          Update Account Data
-        </Button>
-      </form> :
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+
+            return false;
+          }}>
+          <h2>Edit Account Data</h2>
+          <Field
+            label="E-Mail address">
+            <Input
+              onChange={inputChanges}
+              appearance={"underline"}
+              required
+              name={"email"}
+              value={state.email}/>
+          </Field>
+          <Field
+            label="Username">
+            <Input
+              onChange={inputChanges}
+              appearance={"underline"}
+              required
+              name={"userName"}
+              value={state.userName}/>
+          </Field>
+          <Button
+            appearance={"primary"}
+            type={"submit"}>
+            Update Account Data
+          </Button>
+        </form>
+      </> :
       <AccountPageSkeleton/>
     }
 
