@@ -19,8 +19,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 [ApiController]
 [Route("api/shelves")]
 public class ShelfController(
-  IUnitOfWork unitOfWork,
-  UserManager<ApplicationUser> userManager) : ControllerBase
+  IUnitOfWork unitOfWork) : ControllerBase
 {
   [HttpGet]
   public async Task<ActionResult<IEnumerable<ShelfModel>>> GetAllShelves([FromQuery] string? userName)
