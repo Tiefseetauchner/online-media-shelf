@@ -41,6 +41,9 @@ import {
 import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
+import Barcode
+  from "react-barcode";
+
 
 interface ItemsState {
   items?: IItemModel[];
@@ -48,13 +51,6 @@ interface ItemsState {
 }
 
 const columns: TableColumnDefinition<IItemModel>[] = [
-  createTableColumn<IItemModel>({
-    columnId: 'barcode',
-    compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
-    renderHeaderCell: () => 'Barcode',
-    renderCell: (item) =>
-      <TableCellLayout>{item.barcode}</TableCellLayout>,
-  }),
   createTableColumn<IItemModel>({
     columnId: 'title',
     compare: (a, b) => (a.title || '').localeCompare(b.title || ''),
@@ -67,8 +63,31 @@ const columns: TableColumnDefinition<IItemModel>[] = [
     compare: (a, b) => (a.description || '').localeCompare(b.description || ''),
     renderHeaderCell: () => 'Description',
     renderCell: (item) =>
-      <TableCellLayout>{item.description}</TableCellLayout>
-  })
+      <TableCellLayout
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          textWrap: "nowrap",
+        }}>{item.description}</TableCellLayout>
+  }),
+  createTableColumn<IItemModel>({
+    columnId: 'barcode',
+    compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
+    renderHeaderCell: () => 'Barcode',
+    renderCell: (item) => <>
+      <TableCellLayout>
+        <Barcode
+          height={15}
+          width={1.3}
+          fontSize={12}
+          renderer={"svg"}
+          background={"#0000"}
+          format={"EAN13"}
+          value={item.barcode!}/>
+      </TableCellLayout>
+    </>
+    ,
+  }),
 ];
 
 export function Items() {
@@ -107,18 +126,20 @@ export function Items() {
         isDialogOpen: data.open
       })}/>
 
-    <h1>Items</h1>
+    <h1>Items
+      {user?.currentUser?.isLoggedIn ?
+        <Button
+          style={{float: "right"}}
+          icon={
+            <FontAwesomeIcon
+              icon={faPlus}/>}
+          onClick={() => setState({
+            ...state,
+            isDialogOpen: true
+          })}>Create Item</Button> :
+        <></>}
+    </h1>
 
-    {user?.currentUser?.isLoggedIn ?
-      <Button
-        icon={
-          <FontAwesomeIcon
-            icon={faPlus}/>}
-        onClick={() => setState({
-          ...state,
-          isDialogOpen: true
-        })}/> :
-      <></>}
 
     {state.items ?
       <DataGrid

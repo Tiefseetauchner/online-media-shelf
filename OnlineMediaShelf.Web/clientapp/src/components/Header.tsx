@@ -13,7 +13,9 @@ import {
   faBars,
   faBookOpen,
   faHouse,
-  faUser
+  faList,
+  faUser,
+  IconDefinition
 } from "@fortawesome/free-solid-svg-icons";
 import {
   UserContext
@@ -23,6 +25,7 @@ import {
 } from "react-router-dom";
 import {
   CSSProperties,
+  PropsWithChildren,
   useContext,
   useState,
 } from "react";
@@ -30,11 +33,31 @@ import {
   routes
 } from "../routes.ts";
 
-function Header() {
+
+interface NavBarButtonProps extends PropsWithChildren {
+  icon: IconDefinition;
+  to: string;
+}
+
+function NavBarButton(props: NavBarButtonProps) {
   const sidebarButtonStyle: CSSProperties = {
     width: "100%",
     justifyContent: "start",
   };
+
+  return <Link
+    to={props.to}>
+    <ToolbarButton
+      style={sidebarButtonStyle}
+      icon={
+        <FontAwesomeIcon
+          icon={props.icon}/>}>
+      {props.children}
+    </ToolbarButton>
+  </Link>;
+}
+
+function Header() {
 
   const [open, setOpen] = useState(false);
 
@@ -93,6 +116,19 @@ function Header() {
       </div>
     </Toolbar>
 
+    <div
+      style={{
+        display: open ? "block" : "none",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        height: "100vh",
+        boxSizing: "border-box",
+        zIndex: 100,
+        width: "100vw",
+        backgroundColor: "#00000055"
+      }}></div>
+
     <Menu
       open={open}
       onOpenChange={onOpenChange}>
@@ -122,71 +158,36 @@ function Header() {
             width: "100%",
             boxSizing: "border-box",
           }}>
-          <Link
-            to={routes.root}>
-            <ToolbarButton
-              style={sidebarButtonStyle}
-              icon={
-                <FontAwesomeIcon
-                  icon={faHouse}/>}>
-              Home
-            </ToolbarButton>
-          </Link>
-          <Link
-            to={routes.shelf}>
-            <ToolbarButton
-              style={sidebarButtonStyle}
-              icon={
-                <FontAwesomeIcon
-                  icon={faBookOpen}/>}>
-              Shelves
-            </ToolbarButton>
-          </Link>
+          <NavBarButton
+            to={routes.root}
+            icon={faHouse}>Home</NavBarButton>
+          <NavBarButton
+            to={routes.shelf}
+            icon={faBookOpen}>Shelves</NavBarButton>
+          <NavBarButton
+            to={routes.item}
+            icon={faList}>All Items</NavBarButton>
           {
             user?.currentUser == undefined ?
-              <ToolbarButton
-                icon={
-                  <FontAwesomeIcon
-                    icon={faUser}/>}
-                style={sidebarButtonStyle}>
+              <NavBarButton
+                to={routes.shelf}
+                icon={faUser}>
                 <SkeletonItem
                   shape="rectangle"
                   size={16}/>
-              </ToolbarButton> :
+              </NavBarButton> :
               user.currentUser?.isLoggedIn ?
                 <>
-                  <Link
-                    to={routes.userAccount}>
-                    <ToolbarButton
-                      icon={
-                        <FontAwesomeIcon
-                          icon={faUser}/>}
-                      style={sidebarButtonStyle}>
-                      {user.currentUser.userName}
-                    </ToolbarButton>
-                  </Link>
-
-                  <Link
-                    to={routes.myShelves}>
-                    <ToolbarButton
-                      style={sidebarButtonStyle}
-                      icon={
-                        <FontAwesomeIcon
-                          icon={faBookOpen}/>}>
-                      My Shelves
-                    </ToolbarButton>
-                  </Link>
+                  <NavBarButton
+                    to={routes.userAccount}
+                    icon={faUser}>{user.currentUser.userName}</NavBarButton>
+                  <NavBarButton
+                    to={routes.myShelves}
+                    icon={faBookOpen}>My Shelves</NavBarButton>
                 </> :
-                <Link
-                  to={routes.login}>
-                  <ToolbarButton
-                    icon={
-                      <FontAwesomeIcon
-                        icon={faUser}/>}
-                    style={sidebarButtonStyle}>
-                    Login
-                  </ToolbarButton>
-                </Link>
+                <NavBarButton
+                  to={routes.login}
+                  icon={faUser}>Login</NavBarButton>
           }
         </Toolbar>
       </div>
