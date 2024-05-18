@@ -87,7 +87,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       <form
         onSubmit={handleSubmit}>
         <DialogBody>
-          <DialogTitle>Dialog title</DialogTitle>
+          <DialogTitle>Create Item</DialogTitle>
           <DialogContent
             style={{
               display: "flex",

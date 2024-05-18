@@ -72,14 +72,14 @@ public class ShelfController(
   [HttpPost("{id:int}/items/add")]
   [Authorize]
   [ProducesResponseType(201)]
-  public async Task<IActionResult> AddItem(int id, [FromBody] ItemModel item)
+  public async Task<IActionResult> AddItem(int id, [FromBody] ItemAddModel itemId)
   {
     var shelf = await unitOfWork.ShelfRepository.GetByIdAsync(id);
 
     if (shelf == null)
       return NotFound();
 
-    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == item.Id || i.Barcode == item.Barcode));
+    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == itemId.Id || i.Barcode == itemId.Barcode));
 
     await unitOfWork.CommitAsync();
 

@@ -1,4 +1,5 @@
 import {
+  useNavigate,
   useParams
 } from "react-router-dom";
 import {
@@ -7,7 +8,7 @@ import {
   useState
 } from "react";
 import {
-  IItem,
+  IItemModel,
   IShelfModel,
   ShelfClient
 } from "../../OMSWebClient.ts";
@@ -15,6 +16,8 @@ import {
   Button,
   createTableColumn,
   DataGrid,
+  DataGridBody,
+  DataGridCell,
   DataGridHeader,
   DataGridHeaderCell,
   DataGridRow,
@@ -32,8 +35,11 @@ import {
   faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  CreateItemDialog
-} from "../Items/CreateItemDialog.tsx";
+  AddItemToShelfDialog
+} from "./AddItemToShelfDialog.tsx";
+import {
+  routes
+} from "../../routes.ts";
 
 interface ShelfState {
   shelf?: IShelfModel;
@@ -47,6 +53,8 @@ export function ShelfView() {
 
   const {user} = useContext(UserContext);
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     async function populateShelf() {
       const client = new ShelfClient();
@@ -56,7 +64,9 @@ export function ShelfView() {
       setState({
         ...state,
         shelf: result
-      })
+      });
+
+      console.log(result);
     }
 
     populateShelf();
@@ -70,12 +80,11 @@ export function ShelfView() {
             <SkeletonItem
               style={{width: "250px"}}/>
           </h1>
-          <p>
-            <SkeletonItem/>
-          </p>
+          <SkeletonItem/>
         </Skeleton> :
         <>
-          <CreateItemDialog
+          <AddItemToShelfDialog
+            shelfId={state.shelf.id!}
             open={state.isDialogOpen}
             onOpenChange={(_, data) => setState({
               ...state,
@@ -98,9 +107,9 @@ export function ShelfView() {
           <DataGrid
             items={state.shelf.items!}
             columns={[
-              createTableColumn<IItem>({
+              createTableColumn<IItemModel>({
                 columnId: "title",
-                compare: (a, b) => a.title.localeCompare(b.title),
+                compare: (a, b) => a.title!.localeCompare(b.title!),
                 renderCell: (item) =>
                   <TableCellLayout>{item.title}</TableCellLayout>,
                 renderHeaderCell: () => "Title"
@@ -115,6 +124,21 @@ export function ShelfView() {
                 )}
               </DataGridRow>
             </DataGridHeader>
+            <DataGridBody<IItemModel>>
+              {({
+                  item,
+                  rowId
+                }) => (
+                <DataGridRow<IItemModel>
+                  onClick={() => navigate(`${routes.item}/${item.id}`)}
+                  style={{cursor: "pointer"}}
+                  key={rowId}>
+                  {({renderCell}) => (
+                    <DataGridCell>{renderCell(item)}</DataGridCell>
+                  )}
+                </DataGridRow>
+              )}
+            </DataGridBody>
           </DataGrid>
         </>
     }

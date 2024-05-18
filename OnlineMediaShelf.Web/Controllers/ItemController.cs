@@ -30,11 +30,12 @@ public class ItemController(
   }
 
   [HttpGet("search")]
-  public async Task<ActionResult<List<ItemModel>>> SearchItem([FromQuery] string name)
+  public async Task<ActionResult<List<ItemModel>>> SearchItem([FromQuery] string? title, [FromQuery] string? barcode)
   {
     // TODO (Tiefseetauchner): Fuzzy Search?
     var items = await unitOfWork.ItemRepository.GetQueryable()
-      .Where(i => i.Title.Contains(name))
+      .Where(i => title == null || i.Title.Contains(title))
+      .Where(i => barcode == null || i.Barcode == null || i.Barcode.Contains(barcode))
       .ToListAsync();
 
     return Ok(items);

@@ -11,13 +11,29 @@ import {
   Input,
   useToastController
 } from "@fluentui/react-components";
-import {useContext, useState} from "react";
-import {CreateShelfModel, ShelfClient} from "../../OMSWebClient.ts";
-import {UserContext} from "../../App.tsx";
-import {DialogOpenChangeEventHandler} from "@fluentui/react-dialog";
-import {useNavigate} from "react-router-dom";
-import {routes} from "../../routes.ts";
-import {showErrorToast} from "../../utilities/toastHelper.tsx";
+import {
+  useContext,
+  useState
+} from "react";
+import {
+  CreateShelfModel,
+  ShelfClient
+} from "../../OMSWebClient.ts";
+import {
+  UserContext
+} from "../../App.tsx";
+import {
+  DialogOpenChangeEventHandler
+} from "@fluentui/react-dialog";
+import {
+  useNavigate
+} from "react-router-dom";
+import {
+  routes
+} from "../../routes.ts";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
 
 interface AddShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -72,14 +88,16 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
     onOpenChange={props.onOpenChange}>
     <DialogSurface
       aria-describedby={undefined}>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}>
         <DialogBody>
-          <DialogTitle>Dialog title</DialogTitle>
-          <DialogContent style={{
-            display: "flex",
-            flexDirection: "column",
-            rowGap: "10px",
-          }}>
+          <DialogTitle>Add Shelf</DialogTitle>
+          <DialogContent
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              rowGap: "10px",
+            }}>
             <Field
               label="Shelf Name">
               <Input
@@ -98,8 +116,11 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
             </Field>
           </DialogContent>
           <DialogActions>
-            <DialogTrigger disableButtonEnhancement action={"close"}>
-              <Button appearance="secondary">Cancel</Button>
+            <DialogTrigger
+              disableButtonEnhancement
+              action={"close"}>
+              <Button
+                appearance="secondary">Cancel</Button>
             </DialogTrigger>
             <Button
               type="submit"

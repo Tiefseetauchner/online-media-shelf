@@ -649,12 +649,12 @@ export class ItemClient {
         return Promise.resolve<ItemModel[]>(null as any);
     }
 
-    searchItem(name: string | undefined): Promise<ItemModel[]> {
+    searchItem(title: string | null | undefined, barcode: string | null | undefined): Promise<ItemModel[]> {
         let url_ = this.baseUrl + "/api/items/search?";
-        if (name === null)
-            throw new Error("The parameter 'name' cannot be null.");
-        else if (name !== undefined)
-            url_ += "name=" + encodeURIComponent("" + name) + "&";
+        if (title !== undefined && title !== null)
+            url_ += "title=" + encodeURIComponent("" + title) + "&";
+        if (barcode !== undefined && barcode !== null)
+            url_ += "barcode=" + encodeURIComponent("" + barcode) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -898,14 +898,14 @@ export class ShelfClient {
         return Promise.resolve<ShelfModel>(null as any);
     }
 
-    addItem(id: number, item: ItemModel): Promise<void> {
+    addItem(id: number, itemId: ItemAddModel): Promise<void> {
         let url_ = this.baseUrl + "/api/shelves/{id}/items/add";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(item);
+        const content_ = JSON.stringify(itemId);
 
         let options_: RequestInit = {
             body: content_,
@@ -2211,6 +2211,46 @@ export interface ICreateShelfModel {
     userId?: string;
     name?: string;
     description?: string;
+}
+
+export class ItemAddModel implements IItemAddModel {
+    id?: number | undefined;
+    barcode?: string | undefined;
+
+    constructor(data?: IItemAddModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.barcode = _data["barcode"];
+        }
+    }
+
+    static fromJS(data: any): ItemAddModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ItemAddModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["barcode"] = this.barcode;
+        return data;
+    }
+}
+
+export interface IItemAddModel {
+    id?: number | undefined;
+    barcode?: string | undefined;
 }
 
 export interface FileResponse {
