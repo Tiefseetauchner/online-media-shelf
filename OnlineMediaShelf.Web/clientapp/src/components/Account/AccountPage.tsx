@@ -16,7 +16,8 @@ import {
 } from "@fluentui/react-components";
 import {
   AccountClient,
-  IShelfModel
+  IShelfModel,
+  ShelfClient
 } from "../../OMSWebClient.ts";
 import {
   ShelfCardDisplay
@@ -81,14 +82,31 @@ export function AccountPage() {
             ...prevState,
             isLoaded: true,
             userName: accountResult.userName,
-            email: "email@asdf.com",
-            shelves: accountResult.shelves,
+            email: accountResult.email,
           };
         });
       } catch (e: any) {
 
       }
     }
+
+    async function loadUserShelves() {
+      const shelfClient = new ShelfClient();
+      try {
+        let shelfResult = await shelfClient.getAllShelves(state.userName);
+
+        setState(prevState => {
+          return {
+            ...prevState,
+            shelves: shelfResult
+          };
+        });
+      } catch (e: any) {
+
+      }
+    }
+
+    loadUserShelves();
 
     loadUserData();
   }, []);

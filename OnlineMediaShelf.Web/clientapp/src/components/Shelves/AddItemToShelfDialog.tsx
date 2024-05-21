@@ -73,6 +73,12 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
           id: state.itemId,
           barcode: state.barcode
         }))
+
+        props.onOpenChange(null!, {
+          open: false,
+          type: "triggerClick",
+          event: null!
+        });
       } catch (e: any) {
         showErrorToast("An error occurred when adding item to shelf.", dispatchToast);
       }

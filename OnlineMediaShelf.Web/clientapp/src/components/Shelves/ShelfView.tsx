@@ -23,7 +23,8 @@ import {
   DataGridRow,
   Skeleton,
   SkeletonItem,
-  TableCellLayout
+  TableCellLayout,
+  TableColumnDefinition
 } from "@fluentui/react-components";
 import {
   UserContext
@@ -32,14 +33,14 @@ import {
   FontAwesomeIcon
 } from "@fortawesome/react-fontawesome";
 import {
-  faPlus
+  faPlus,
+  faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
 import {
   AddItemToShelfDialog
 } from "./AddItemToShelfDialog.tsx";
-import {
-  routes
-} from "../../routes.ts";
+import Barcode
+  from "react-barcode";
 
 interface ShelfState {
   shelf?: IShelfModel;
@@ -55,6 +56,67 @@ export function ShelfView() {
 
   const navigate = useNavigate()
 
+  const columns: TableColumnDefinition<IItemModel>[] = [
+    createTableColumn<IItemModel>({
+      columnId: 'title',
+      compare: (a, b) => (a.title || '').localeCompare(b.title || ''),
+      renderHeaderCell: () => 'Title',
+      renderCell: (item) =>
+        <TableCellLayout>{item.title}</TableCellLayout>,
+    }),
+    createTableColumn<IItemModel>({
+      columnId: 'description',
+      compare: (a, b) => (a.description || '').localeCompare(b.description || ''),
+      renderHeaderCell: () => 'Description',
+      renderCell: (item) =>
+        <TableCellLayout
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            textWrap: "nowrap",
+          }}>{item.description}</TableCellLayout>
+    }),
+    createTableColumn<IItemModel>({
+      columnId: 'barcode',
+      compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
+      renderHeaderCell: () => 'Barcode',
+      renderCell: (item) => <>
+        <TableCellLayout>
+          <Barcode
+            height={15}
+            width={1.3}
+            fontSize={12}
+            renderer={"svg"}
+            background={"#0000"}
+            format={"EAN13"}
+            value={item.barcode!}/>
+        </TableCellLayout>
+      </>
+      ,
+    }),
+    createTableColumn<IItemModel>({
+      columnId: 'deleteButton',
+      compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
+      renderCell: (item) => <>
+        <TableCellLayout>
+          <Button
+            onClick={() => {
+              async function removeItemFromShelf(shelfId: string, itemId: number) {
+                console.log("aaa");
+              }
+
+              removeItemFromShelf(shelfId!, item.id!);
+            }}
+            icon={
+              <FontAwesomeIcon
+                icon={faTrashCan}
+                color={"red"}/>}/>
+        </TableCellLayout>
+      </>
+      ,
+    }),
+  ];
+
   useEffect(() => {
     async function populateShelf() {
       const client = new ShelfClient();
@@ -65,12 +127,10 @@ export function ShelfView() {
         ...state,
         shelf: result
       });
-
-      console.log(result);
     }
 
     populateShelf();
-  }, []);
+  }, [state.isDialogOpen]);
 
   return (<>
     {
@@ -106,17 +166,12 @@ export function ShelfView() {
 
           <DataGrid
             items={state.shelf.items!}
-            columns={[
-              createTableColumn<IItemModel>({
-                columnId: "title",
-                compare: (a, b) => a.title!.localeCompare(b.title!),
-                renderCell: (item) =>
-                  <TableCellLayout>{item.title}</TableCellLayout>,
-                renderHeaderCell: () => "Title"
-              })
-            ]}
+            columns={columns}
             getRowId={(item) => item.id}
-            sortable={true}>
+            sortable={true}
+            selectionMode={"single"}
+            subtleSelection
+            selectionAppearance={"neutral"}>
             <DataGridHeader>
               <DataGridRow>
                 {({renderHeaderCell}) => (
@@ -130,9 +185,9 @@ export function ShelfView() {
                   rowId
                 }) => (
                 <DataGridRow<IItemModel>
-                  onClick={() => navigate(`${routes.item}/${item.id}`)}
                   style={{cursor: "pointer"}}
-                  key={rowId}>
+                  key={rowId}
+                  selectionCell={null}>
                   {({renderCell}) => (
                     <DataGridCell>{renderCell(item)}</DataGridCell>
                   )}
