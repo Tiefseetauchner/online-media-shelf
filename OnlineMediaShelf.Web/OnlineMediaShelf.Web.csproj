@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <SpaRoot>$(MSBuildProjectDirectory)/clientapp/</SpaRoot>
         <SpaProxyServerUrl>http://localhost:57687</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>bun dev</SpaProxyLaunchCommand>
+        <SpaProxyLaunchCommand Condition="$([MSBuild]::IsOsPlatform('Windows'))">cmd.exe /s /c $(SpaProxyLaunchCommand)</SpaProxyLaunchCommand>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <RootNamespace>Tiefseetauchner.OnlineMediaShelf.Web</RootNamespace>
