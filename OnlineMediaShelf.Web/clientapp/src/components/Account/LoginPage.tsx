@@ -79,15 +79,13 @@ export function LoginPage() {
         showErrorToast("You're currently not allowed to log in!", dispatchToast);
       else {
         showErrorToast("An unexpected Server Error has occured", dispatchToast);
-        throw e;
       }
-
     }
 
-    setState({
-      ...state,
+    setState(prevState => ({
+      ...prevState,
       loading: false,
-    });
+    }));
   }
 
   const emailInputChanges = (e: ChangeEvent<HTMLInputElement>) => {
