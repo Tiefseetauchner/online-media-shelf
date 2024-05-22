@@ -23,7 +23,7 @@ import {
 } from "react-router-dom";
 import {
   routes
-} from "../../routes.ts";
+} from "../../utilities/routes.ts";
 
 interface RegisterPageState {
   loading: boolean;

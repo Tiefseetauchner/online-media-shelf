@@ -10,7 +10,7 @@ import {
 } from "@fluentui/react-components";
 import {
   routes
-} from "../routes.ts";
+} from "../utilities/routes.ts";
 
 export function ErrorPage() {
   const error: any = useRouteError();

@@ -3,37 +3,37 @@ import {
 } from "react-router-dom";
 import {
   Layout
-} from "./components/Layout.tsx";
+} from "../components/Layout.tsx";
 import {
   ErrorPage
-} from "./components/ErrorPage.tsx";
+} from "../components/ErrorPage.tsx";
 import {
   HomePage
-} from "./components/HomePage.tsx";
+} from "../components/HomePage.tsx";
 import {
   Shelves
-} from "./components/Shelves/Shelves.tsx";
+} from "../components/Shelves/Shelves.tsx";
 import {
   ShelfView
-} from "./components/Shelves/ShelfView.tsx";
+} from "../components/Shelves/ShelfView.tsx";
 import {
   LoginPage
-} from "./components/Account/LoginPage.tsx";
+} from "../components/Account/LoginPage.tsx";
 import {
   RegisterPage
-} from "./components/Account/RegisterPage.tsx";
+} from "../components/Account/RegisterPage.tsx";
 import {
   AccountPage
-} from "./components/Account/AccountPage.tsx";
+} from "../components/Account/AccountPage.tsx";
 import {
   UserShelves
-} from "./components/Account/UserShelves.tsx";
+} from "../components/Account/UserShelves.tsx";
 import {
   Items
-} from "./components/Items/Items.tsx";
+} from "../components/Items/Items.tsx";
 import {
   ItemView
-} from "./components/Items/ItemView.tsx";
+} from "../components/Items/ItemView.tsx";
 
 export const routes = {
   root: "/",
@@ -90,3 +90,7 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+export function navigateToItem(itemId: number | undefined, navigate: (to: string) => void) {
+  navigate(`${routes.item}/${itemId}`);
+}

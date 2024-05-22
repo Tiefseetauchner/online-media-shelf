@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
@@ -71,17 +70,38 @@ public class ShelfController(
   [HttpPost("{id:int}/items/add")]
   [Authorize]
   [ProducesResponseType(201)]
-  public async Task<IActionResult> AddItem(int id, [FromBody] ItemAddModel itemId)
+  public async Task<IActionResult> AddItem(int id, [FromBody] ItemAddModel item)
   {
     var shelf = await unitOfWork.ShelfRepository.GetByIdAsync(id);
 
     if (shelf == null)
       return NotFound();
 
-    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == itemId.Id || i.Barcode == itemId.Barcode));
+    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == item.Id || i.Barcode == item.Barcode));
 
     await unitOfWork.CommitAsync();
 
     return Created();
+  }
+
+  [HttpPost("{id:int}/items/remove")]
+  [Authorize]
+  [ProducesResponseType(200)]
+  public async Task<IActionResult> RemoveItem(int id, [FromQuery] int itemId)
+  {
+    var shelf = await unitOfWork.ShelfRepository.GetByIdAsync(id);
+
+    if (shelf == null)
+      return NotFound();
+
+    var item = shelf.Items.FirstOrDefault(i => i.Id == itemId);
+    if (item == null)
+      return NotFound();
+
+    shelf.Items.Remove(item);
+
+    await unitOfWork.CommitAsync();
+
+    return Ok();
   }
 }

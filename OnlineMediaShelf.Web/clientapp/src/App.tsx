@@ -10,7 +10,7 @@ import {
 } from "react";
 import {
   router
-} from "./routes.ts";
+} from "./utilities/routes.ts";
 
 interface UserContextState {
   currentUser?: ICurrentUserModel;

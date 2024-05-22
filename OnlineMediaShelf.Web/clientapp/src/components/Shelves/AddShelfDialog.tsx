@@ -30,7 +30,7 @@ import {
 } from "react-router-dom";
 import {
   routes
-} from "../../routes.ts";
+} from "../../utilities/routes.ts";
 import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";

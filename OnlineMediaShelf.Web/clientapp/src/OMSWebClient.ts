@@ -898,14 +898,14 @@ export class ShelfClient {
         return Promise.resolve<ShelfModel>(null as any);
     }
 
-    addItem(id: number, itemId: ItemAddModel): Promise<void> {
+    addItem(id: number, item: ItemAddModel): Promise<void> {
         let url_ = this.baseUrl + "/api/shelves/{id}/items/add";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(itemId);
+        const content_ = JSON.stringify(item);
 
         let options_: RequestInit = {
             body: content_,
@@ -924,6 +924,43 @@ export class ShelfClient {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    removeItem(id: number, itemId: number | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/shelves/{id}/items/remove?";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (itemId === null)
+            throw new Error("The parameter 'itemId' cannot be null.");
+        else if (itemId !== undefined)
+            url_ += "itemId=" + encodeURIComponent("" + itemId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveItem(_response);
+        });
+    }
+
+    protected processRemoveItem(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
             return response.text().then((_responseText) => {
             return;
             });

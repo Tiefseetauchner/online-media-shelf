@@ -16,7 +16,7 @@ import {
 } from "react";
 import {
   routes
-} from "../../routes.ts";
+} from "../../utilities/routes.ts";
 import {
   Link
 } from "react-router-dom";

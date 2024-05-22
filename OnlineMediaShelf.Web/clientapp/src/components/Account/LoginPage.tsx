@@ -1,10 +1,34 @@
-import {Button, Field, Input, Spinner, useToastController} from "@fluentui/react-components";
-import {ChangeEvent, useContext, useEffect, useState} from "react";
-import {AccountClient, LoginModel,} from "../../OMSWebClient.ts";
-import {UserContext} from "../../App.tsx";
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import {routes} from "../../routes.ts";
-import {showErrorToast} from "../../utilities/toastHelper.tsx";
+import {
+  Button,
+  Field,
+  Input,
+  Spinner,
+  useToastController
+} from "@fluentui/react-components";
+import {
+  ChangeEvent,
+  useContext,
+  useEffect,
+  useState
+} from "react";
+import {
+  AccountClient,
+  LoginModel,
+} from "../../OMSWebClient.ts";
+import {
+  UserContext
+} from "../../App.tsx";
+import {
+  Link,
+  useLocation,
+  useNavigate
+} from "react-router-dom";
+import {
+  routes
+} from "../../utilities/routes.ts";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
 
 interface LoginPageState {
   loading: boolean;

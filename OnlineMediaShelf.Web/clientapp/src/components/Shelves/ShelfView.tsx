@@ -8,23 +8,21 @@ import {
   useState
 } from "react";
 import {
-  IItemModel,
   IShelfModel,
   ShelfClient
 } from "../../OMSWebClient.ts";
 import {
   Button,
-  createTableColumn,
-  DataGrid,
-  DataGridBody,
-  DataGridCell,
-  DataGridHeader,
-  DataGridHeaderCell,
-  DataGridRow,
   Skeleton,
   SkeletonItem,
+  Table,
+  TableBody,
+  TableCell,
   TableCellLayout,
-  TableColumnDefinition
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  useToastController
 } from "@fluentui/react-components";
 import {
   UserContext
@@ -41,6 +39,12 @@ import {
 } from "./AddItemToShelfDialog.tsx";
 import Barcode
   from "react-barcode";
+import {
+  navigateToItem
+} from "../../utilities/routes.ts";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
 
 interface ShelfState {
   shelf?: IShelfModel;
@@ -51,70 +55,35 @@ export function ShelfView() {
   const {shelfId} = useParams();
 
   const [state, setState] = useState<ShelfState>({isDialogOpen: false});
+  const [updateTracker, setUpdateTracker] = useState(0);
 
   const {user} = useContext(UserContext);
 
   const navigate = useNavigate()
 
-  const columns: TableColumnDefinition<IItemModel>[] = [
-    createTableColumn<IItemModel>({
-      columnId: 'title',
-      compare: (a, b) => (a.title || '').localeCompare(b.title || ''),
-      renderHeaderCell: () => 'Title',
-      renderCell: (item) =>
-        <TableCellLayout>{item.title}</TableCellLayout>,
-    }),
-    createTableColumn<IItemModel>({
-      columnId: 'description',
-      compare: (a, b) => (a.description || '').localeCompare(b.description || ''),
-      renderHeaderCell: () => 'Description',
-      renderCell: (item) =>
-        <TableCellLayout
-          style={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            textWrap: "nowrap",
-          }}>{item.description}</TableCellLayout>
-    }),
-    createTableColumn<IItemModel>({
-      columnId: 'barcode',
-      compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
-      renderHeaderCell: () => 'Barcode',
-      renderCell: (item) => <>
-        <TableCellLayout>
-          <Barcode
-            height={15}
-            width={1.3}
-            fontSize={12}
-            renderer={"svg"}
-            background={"#0000"}
-            format={"EAN13"}
-            value={item.barcode!}/>
-        </TableCellLayout>
-      </>
-      ,
-    }),
-    createTableColumn<IItemModel>({
-      columnId: 'deleteButton',
-      compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
-      renderCell: (item) => <>
-        <TableCellLayout>
-          <Button
-            onClick={() => {
-              async function removeItemFromShelf(shelfId: string, itemId: number) {
-                console.log("aaa");
-              }
+  const {dispatchToast} = useToastController();
 
-              removeItemFromShelf(shelfId!, item.id!);
-            }}
-            icon={
-              <FontAwesomeIcon
-                icon={faTrashCan}
-                color={"red"}/>}/>
-        </TableCellLayout>
-      </>
-      ,
-    }),
+  const columns = [
+    {
+      columnKey: "title",
+      label: "Title",
+      width: "35%"
+    },
+    {
+      columnKey: "description",
+      label: "Description",
+      width: "65%"
+    },
+    {
+      columnKey: "barcode",
+      label: "Barcode",
+      width: "165px"
+    },
+    {
+      columnKey: "deleteButton",
+      label: "",
+      width: "32px"
+    },
   ];
 
   useEffect(() => {
@@ -130,7 +99,7 @@ export function ShelfView() {
     }
 
     populateShelf();
-  }, [state.isDialogOpen]);
+  }, [state.isDialogOpen, updateTracker]);
 
   return (<>
     {
@@ -164,39 +133,88 @@ export function ShelfView() {
                 isDialogOpen: true
               })}>Add item to shelf</Button> : <></>}
 
-          <DataGrid
-            items={state.shelf.items!}
-            columns={columns}
-            getRowId={(item) => item.id}
-            sortable={true}
-            selectionMode={"single"}
-            subtleSelection
-            selectionAppearance={"neutral"}>
-            <DataGridHeader>
-              <DataGridRow>
-                {({renderHeaderCell}) => (
-                  <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+          <Table
+            aria-label={"Items Table"}>
+            <TableHeader>
+              <TableRow>
+                {columns.map((column) =>
+                  <TableHeaderCell
+                    key={column.columnKey}
+                    style={{
+                      width: column.width
+                    }}>
+                    {column.label}
+                  </TableHeaderCell>
                 )}
-              </DataGridRow>
-            </DataGridHeader>
-            <DataGridBody<IItemModel>>
-              {({
-                  item,
-                  rowId
-                }) => (
-                <DataGridRow<IItemModel>
-                  style={{cursor: "pointer"}}
-                  key={rowId}
-                  selectionCell={null}>
-                  {({renderCell}) => (
-                    <DataGridCell>{renderCell(item)}</DataGridCell>
-                  )}
-                </DataGridRow>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {state.shelf.items?.map(item =>
+                <TableRow
+                  key={item.title}>
+                  <TableCell
+                    onClick={() => navigateToItem(item.id, navigate)}
+                    style={{cursor: "pointer"}}>
+                    <TableCellLayout>
+                      {item.title}
+                    </TableCellLayout>
+                  </TableCell>
+                  <TableCell
+                    onClick={() => navigateToItem(item.id, navigate)}
+                    style={{cursor: "pointer"}}>
+                    <TableCellLayout
+                      style={{
+                        overflowX: "hidden",
+                        textOverflow: "ellipsis",
+                        textWrap: "nowrap",
+                      }}>
+                      {item.description}
+                    </TableCellLayout>
+                  </TableCell>
+                  <TableCell>
+                    <TableCellLayout>
+                      <Barcode
+                        height={15}
+                        width={1.3}
+                        fontSize={12}
+                        renderer={"svg"}
+                        background={"#0000"}
+                        format={"EAN13"}
+                        value={item.barcode!}/>
+                    </TableCellLayout>
+                  </TableCell>
+                  <TableCell>
+                    <TableCellLayout>
+                      <Button
+                        onClick={() => {
+                          async function removeItemFromShelf() {
+                            let client = new ShelfClient();
+
+                            if (state.shelf?.id === undefined)
+                              return;
+
+                            try {
+                              await client.removeItem(state.shelf.id, item.id)
+
+                              setUpdateTracker(i => i + 1)
+                            } catch (e: any) {
+                              showErrorToast("Failed to remove item from shelf. Try again later", dispatchToast)
+                            }
+                          }
+
+                          removeItemFromShelf();
+                        }}
+                        icon={
+                          <FontAwesomeIcon
+                            icon={faTrashCan}
+                            color={"red"}/>}/>
+                    </TableCellLayout>
+                  </TableCell>
+                </TableRow>
               )}
-            </DataGridBody>
-          </DataGrid>
+            </TableBody>
+          </Table>
         </>
     }
-
   </>)
 }

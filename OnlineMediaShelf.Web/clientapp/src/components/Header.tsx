@@ -31,7 +31,7 @@ import {
 } from "react";
 import {
   routes
-} from "../routes.ts";
+} from "../utilities/routes.ts";
 
 
 interface NavBarButtonProps extends PropsWithChildren {
