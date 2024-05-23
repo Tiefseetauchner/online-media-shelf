@@ -1,6 +1,4 @@
 import {
-  Menu,
-  MenuProps,
   SkeletonItem,
   tokens,
   Toolbar,
@@ -39,33 +37,30 @@ interface NavBarButtonProps extends PropsWithChildren {
   to: string;
 }
 
-function NavBarButton(props: NavBarButtonProps) {
-  const sidebarButtonStyle: CSSProperties = {
-    width: "100%",
-    justifyContent: "start",
-  };
-
-  return <Link
-    to={props.to}>
-    <ToolbarButton
-      style={sidebarButtonStyle}
-      icon={
-        <FontAwesomeIcon
-          icon={props.icon}/>}>
-      {props.children}
-    </ToolbarButton>
-  </Link>;
-}
-
 function Header() {
 
   const [open, setOpen] = useState(false);
 
   const {user} = useContext(UserContext);
 
-  const onOpenChange: MenuProps["onOpenChange"] = (_, data) => {
-    setOpen(data.open);
-  };
+  function NavBarButton(props: NavBarButtonProps) {
+    const sidebarButtonStyle: CSSProperties = {
+      width: "100%",
+      justifyContent: "start",
+    };
+
+    return <Link
+      onClick={() => toggleMenu()}
+      to={props.to}>
+      <ToolbarButton
+        style={sidebarButtonStyle}
+        icon={
+          <FontAwesomeIcon
+            icon={props.icon}/>}>
+        {props.children}
+      </ToolbarButton>
+    </Link>;
+  }
 
   const toggleMenu = () => setOpen(prevState => !prevState);
 
@@ -127,68 +122,66 @@ function Header() {
         zIndex: 100,
         width: "100vw",
         backgroundColor: "#00000055"
-      }}></div>
+      }}
+      onClick={() => toggleMenu()}></div>
 
-    <Menu
-      open={open}
-      onOpenChange={onOpenChange}>
+    <div
+      style={{
+        position: "fixed",
+        left: open ? 0 : "-250px",
+        top: 0,
+        height: "100vh",
+        boxSizing: "border-box",
+        zIndex: 100,
+        width: "250px",
+        backgroundColor: tokens.colorNeutralBackground2,
+        overflow: "auto",
+      }}>
       <div
         style={{
-          position: "fixed",
-          left: 0,
-          top: 0,
-          height: "100vh",
-          boxSizing: "border-box",
-          zIndex: 100,
-          width: "250px",
-          backgroundColor: tokens.colorNeutralBackground2
+          width: "100%",
+          display: "block",
+          textAlign: "center"
         }}>
-        <div
-          style={{
-            width: "100%",
-            display: "block",
-            textAlign: "center"
-          }}>
-          <h3>Online Media Shelves</h3>
-        </div>
-        <Toolbar
-          vertical={true}
-          style={{
-            alignItems: "stretch",
-            width: "100%",
-            boxSizing: "border-box",
-          }}>
-          <NavBarButton
-            to={routes.root}
-            icon={faHouse}>Home</NavBarButton>
-          <NavBarButton
-            to={routes.shelf}
-            icon={faBookOpen}>Shelves</NavBarButton>
-          <NavBarButton
-            to={routes.item}
-            icon={faList}>All Items</NavBarButton>
-          {
-            user?.currentUser == undefined ?
-              <NavBarButton
-                to={routes.shelf}
-                icon={faUser}>
-                <SkeletonItem
-                  shape="rectangle"
-                  size={16}/>
-              </NavBarButton> :
-              user.currentUser?.isLoggedIn ?
-                <>
-                  <NavBarButton
-                    to={routes.userAccount}
-                    icon={faUser}>{user.currentUser.userName}</NavBarButton>
-                </> :
-                <NavBarButton
-                  to={routes.login}
-                  icon={faUser}>Login</NavBarButton>
-          }
-        </Toolbar>
+        <h3>Online Media Shelves</h3>
       </div>
-    </Menu>
+      <Toolbar
+        vertical={true}
+        style={{
+          alignItems: "stretch",
+          width: "100%",
+          boxSizing: "border-box",
+        }}>
+        <NavBarButton
+          to={routes.root}
+          icon={faHouse}>Home</NavBarButton>
+        <NavBarButton
+          to={routes.shelf}
+          icon={faBookOpen}>Shelves</NavBarButton>
+        <NavBarButton
+          to={routes.item}
+          icon={faList}>All Items</NavBarButton>
+        {
+          user?.currentUser == undefined ?
+            <NavBarButton
+              to={routes.shelf}
+              icon={faUser}>
+              <SkeletonItem
+                shape="rectangle"
+                size={16}/>
+            </NavBarButton> :
+            user.currentUser?.isLoggedIn ?
+              <>
+                <NavBarButton
+                  to={routes.userAccount}
+                  icon={faUser}>{user.currentUser.userName}</NavBarButton>
+              </> :
+              <NavBarButton
+                to={routes.login}
+                icon={faUser}>Login</NavBarButton>
+        }
+      </Toolbar>
+    </div>
   </>);
 }
 
