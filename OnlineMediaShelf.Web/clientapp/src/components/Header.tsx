@@ -181,9 +181,6 @@ function Header() {
                   <NavBarButton
                     to={routes.userAccount}
                     icon={faUser}>{user.currentUser.userName}</NavBarButton>
-                  <NavBarButton
-                    to={routes.myShelves}
-                    icon={faBookOpen}>My Shelves</NavBarButton>
                 </> :
                 <NavBarButton
                   to={routes.login}
