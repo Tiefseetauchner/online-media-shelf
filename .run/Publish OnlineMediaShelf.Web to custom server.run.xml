@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish OnlineMediaShelf.Web to custom server" type="DotNetPublishAndUpload" factoryName="Publish to custom server">
+    <riderPublish configuration="Release" platform="Any CPU" runtime="Portable" server_id="ab70a828-95a0-4902-ba18-ab6a12f6415f" serverName="OMS_LocalInstance" target_framework="net8.0" uuid_high="8377124607866914208" uuid_low="-8607104040343753181" />
+    <method v="2" />
+  </configuration>
+</component>

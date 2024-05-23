@@ -1,12 +1,8 @@
 import {
   ChangeEvent,
-  useContext,
   useEffect,
   useState
 } from "react";
-import {
-  UserContext
-} from "../../App.tsx";
 import {
   Button,
   Field,
@@ -67,7 +63,7 @@ function AccountPageSkeleton() {
 }
 
 export function AccountPage() {
-  const {user} = useContext(UserContext);
+  // const {user} = useContext(UserContext);
 
   const [state, setState] = useState<AccountState>({isLoaded: false});
 
