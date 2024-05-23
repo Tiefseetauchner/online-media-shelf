@@ -2163,7 +2163,7 @@ export interface IItem {
 }
 
 export class CreateItemModel implements ICreateItemModel {
-    barcode?: string;
+    barcode?: string | undefined;
     title?: string;
     description?: string | undefined;
 
@@ -2201,7 +2201,7 @@ export class CreateItemModel implements ICreateItemModel {
 }
 
 export interface ICreateItemModel {
-    barcode?: string;
+    barcode?: string | undefined;
     title?: string;
     description?: string | undefined;
 }

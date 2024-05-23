@@ -9,6 +9,7 @@ import {
   DialogTrigger,
   Field,
   Input,
+  Textarea,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -56,7 +57,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
 
   const {dispatchToast} = useToastController();
 
-  const handleInput = (ev: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
       ...state,
       [ev.target.name]: ev.target.value
@@ -71,14 +72,18 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       let descriptionError: string | undefined = undefined;
       let titleError: string | undefined = undefined;
 
-      if (state.barcode?.length !== 13)
+      if (state.barcode?.length && state.barcode?.length !== 13)
         barcodeError = "The barcode must be 13 digits long.";
 
-      if (state.title?.length && state.title?.length > 128)
-        titleError = "The title mustn't be longer than 128 characters";
+      if (state.title === undefined)
+        titleError = "The field 'Title' is required.";
+      else if (state.title.length > 128)
+        titleError = "The title mustn't be longer than 128 characters.";
 
-      if (state.description?.length && state.description?.length > 512)
-        descriptionError = "The description mustn't be longer than 512 characters";
+      if (state.description === undefined)
+        descriptionError = "The field 'Description' is required.";
+      else if (state.description.length > 512)
+        descriptionError = "The description mustn't be longer than 512 characters.";
 
       setErrorState({
         barcodeMessage: barcodeError,
@@ -135,17 +140,15 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               <Input
                 appearance={"underline"}
                 onChange={handleInput}
-                name={"title"}
-                required/>
+                name={"title"}/>
             </Field>
             <Field
               label="Item Description"
               validationMessage={errorState.descriptionMessage}>
-              <Input
-                appearance={"underline"}
+              <Textarea
                 onChange={handleInput}
-                name={"description"}
-                required/>
+                style={{height: "100px"}}
+                name={"description"}/>
             </Field>
             <Field
               label="Item Barcode"
@@ -153,8 +156,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               <Input
                 appearance={"underline"}
                 onChange={handleInput}
-                name={"barcode"}
-                required/>
+                name={"barcode"}/>
             </Field>
           </DialogContent>
           <DialogActions>

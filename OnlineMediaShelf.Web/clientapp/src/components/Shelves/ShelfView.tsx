@@ -173,14 +173,16 @@ export function ShelfView() {
                   </TableCell>
                   <TableCell>
                     <TableCellLayout>
-                      <Barcode
-                        height={15}
-                        width={1.3}
-                        fontSize={12}
-                        renderer={"svg"}
-                        background={"#0000"}
-                        format={"EAN13"}
-                        value={item.barcode!}/>
+                      {item.barcode ?
+                        <Barcode
+                          height={15}
+                          width={1.3}
+                          fontSize={12}
+                          renderer={"svg"}
+                          background={"#0000"}
+                          format={"EAN13"}
+                          value={item.barcode}/> :
+                        <>No barcode available</>}
                     </TableCellLayout>
                   </TableCell>
                   <TableCell>
