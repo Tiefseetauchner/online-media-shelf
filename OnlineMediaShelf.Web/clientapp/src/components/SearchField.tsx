@@ -8,6 +8,7 @@ import {
   Popover,
   PopoverSurface,
   PopoverTrigger,
+  tokens,
   Tree,
   TreeItem
 } from '@fluentui/react-components';
@@ -27,24 +28,24 @@ interface SearchFieldProps<T> {
 
 interface SearchFieldInputState<T> {
   input: string;
-  suggestions?: SuggestionType<T>[];
+  suggestions: SuggestionType<T>[];
 }
 
 function SearchField<T>(props: SearchFieldProps<T>) {
-  const [state, setState] = useState<SearchFieldInputState<T>>({input: ""});
+  const [state, setState] = useState<SearchFieldInputState<T>>({
+    input: "",
+    suggestions: []
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
 
   const fetchSuggestions = useCallback(
     debounce(async query => {
-      if (query === "")
-        return;
-
       const result = await props.fetchSuggestionsDelegate(query);
       setState({
         ...state,
         suggestions: result,
       });
-      setIsOpen(true);
     }, 200, {leading: true}), [state.input]);
 
   useEffect(() => {
@@ -59,6 +60,19 @@ function SearchField<T>(props: SearchFieldProps<T>) {
     });
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      setSelectedIndex((prevIndex) => (prevIndex + 1) % state.suggestions!.length);
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
+      setSelectedIndex((prevIndex) => (prevIndex - 1 + state.suggestions!.length) % state.suggestions!.length);
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      selectionPressed(state.suggestions[selectedIndex]);
+      e.preventDefault();
+    }
+  };
+
   return (
     <>
       <Input
@@ -68,6 +82,7 @@ function SearchField<T>(props: SearchFieldProps<T>) {
           ...state,
           input: e.target.value
         })}
+        onKeyDown={handleKeyDown}
         value={state.input}
         onFocus={() => state && setIsOpen(true)}
         onBlur={() => setTimeout(() => setIsOpen(false), 500)}/>
@@ -87,6 +102,10 @@ function SearchField<T>(props: SearchFieldProps<T>) {
               <TreeItem
                 key={index}
                 itemType={"leaf"}
+                style={{
+                  backgroundColor: index === selectedIndex ? tokens.colorNeutralBackground1Hover : tokens.colorNeutralBackground1,
+                  padding: "5px"
+                }}
                 onClick={() => selectionPressed(item)}>{item.name}</TreeItem>
             ))}
           </Tree>

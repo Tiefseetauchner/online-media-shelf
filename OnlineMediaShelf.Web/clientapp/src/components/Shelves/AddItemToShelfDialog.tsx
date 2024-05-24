@@ -34,6 +34,7 @@ interface AddItemToShelfDialogProps {
   onAddItem: () => void;
   open: boolean;
   shelfId: number;
+  excludedItems: number[];
 }
 
 interface AddItemToShelfDialogState {
@@ -106,10 +107,10 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
               rowGap: "10px",
             }}>
             <Field
-              label="Shelf Name">
+              label="Name">
               <SearchField<IItemModel>
                 fetchSuggestionsDelegate={(query) =>
-                  itemClient.searchItem(query, undefined)
+                  itemClient.searchItem(query, undefined, 10, props.excludedItems)
                   .then(items => items.map(mapItemToTitleSuggestionResult))}
                 selectionPressed={selection => setState({
                   ...state,
@@ -117,10 +118,10 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                 })}/>
             </Field>
             <Field
-              label="Shelf Barcode">
+              label="Barcode">
               <SearchField<IItemModel>
                 fetchSuggestionsDelegate={(query) =>
-                  itemClient.searchItem(undefined, query)
+                  itemClient.searchItem(undefined, query, 10, props.excludedItems)
                   .then(items => items.map(mapItemToBarcodeSuggestionResult))}
                 selectionPressed={selection => setState({
                   ...state,
