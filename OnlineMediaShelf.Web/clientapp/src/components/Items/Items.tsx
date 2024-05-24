@@ -10,7 +10,6 @@ import {
 import {
   Button,
   Title1,
-  ToggleButton,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -40,7 +39,6 @@ interface ItemsState {
 
 export function Items() {
   const [state, setState] = useState<ItemsState>({isDialogOpen: false})
-  const [showBarcode, setShowBarcode] = useState(false)
 
   const {user} = useContext(UserContext);
 
@@ -88,13 +86,8 @@ export function Items() {
         <></>}
     </Title1>
 
-
     {state.items !== undefined &&
         <ItemList
-            items={state.items}
-            showBarcode={showBarcode}/>}
-
-    <ToggleButton
-      onClick={() => setShowBarcode(!showBarcode)}>Display Barcode</ToggleButton>
+            items={state.items}/>}
   </>;
 }

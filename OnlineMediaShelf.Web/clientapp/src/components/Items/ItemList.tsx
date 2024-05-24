@@ -23,8 +23,13 @@ import {
   FontAwesomeIcon
 } from "@fortawesome/react-fontawesome";
 import {
+  faChevronLeft,
+  faChevronRight,
   faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  useState
+} from "react";
 
 interface ItemListProps {
   items: IItemModel[];
@@ -36,7 +41,7 @@ interface ItemListProps {
 
 export function ItemList(props: ItemListProps) {
   const showDelete = props.showDelete ?? false;
-  const showBarcode = props.showBarcode ?? false;
+  const [showBarcode, setShowBarcode] = useState(true);
 
   const navigate = useNavigate();
 
@@ -47,22 +52,58 @@ export function ItemList(props: ItemListProps) {
   const columns = [
     {
       columnKey: "title",
-      label: "Title",
+      renderHeaderCell: () =>
+        <p
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}>Title</p>,
       width: "35%"
     },
     {
       columnKey: "description",
-      label: "Description",
+      renderHeaderCell: () =>
+        <p
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}>Description</p>,
       width: "65%"
     },
     showBarcode ? {
-      columnKey: "barcode",
-      label: "Barcode",
-      width: "165px"
-    } : undefined,
+        columnKey: "barcode",
+        renderHeaderCell: () =>
+          <p
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}>
+            Barcode
+            <Button
+              icon={
+                <FontAwesomeIcon
+                  icon={faChevronRight}/>
+              }
+              onClick={() => setShowBarcode(false)}
+              appearance={"subtle"}/>
+          </p>,
+        width: "165px"
+      } :
+      {
+        columnKey: "barcode",
+        renderHeaderCell: () =>
+          <Button
+            icon={
+              <FontAwesomeIcon
+                icon={faChevronLeft}/>
+            }
+            onClick={() => setShowBarcode(true)}
+            appearance={"subtle"}/>,
+        width: "32px"
+      },
     showDelete ? {
       columnKey: "deleteButton",
-      label: "",
+      renderHeaderCell: () => <></>,
       width: "32px"
     } : undefined,
   ];
@@ -75,10 +116,8 @@ export function ItemList(props: ItemListProps) {
           {columns.filter(column => column != undefined).map((column) =>
             <TableHeaderCell
               key={column!.columnKey}
-              style={{
-                width: column!.width
-              }}>
-              {column!.label}
+              style={{width: column!.width}}>
+              {column!.renderHeaderCell()}
             </TableHeaderCell>
           )}
         </TableRow>
@@ -89,7 +128,10 @@ export function ItemList(props: ItemListProps) {
             key={item.title}>
             <TableCell
               onClick={() => onItemClick(item.id!)}
-              style={{cursor: "pointer"}}>
+              style={{
+                cursor: "pointer",
+                lineBreak: "anywhere"
+              }}>
               <TableCellLayout>
                 {item.title}
               </TableCellLayout>
@@ -106,22 +148,23 @@ export function ItemList(props: ItemListProps) {
                 {item.description}
               </TableCellLayout>
             </TableCell>
-            {showBarcode &&
-                <TableCell
-                    onClick={() => onItemClick(item.id!)}>
-                    <TableCellLayout>
-                      {item.barcode ?
-                        <Barcode
-                          height={15}
-                          width={1.3}
-                          fontSize={12}
-                          renderer={"svg"}
-                          background={"#0000"}
-                          format={"EAN13"}
-                          value={item.barcode}/> :
-                        <>No barcode available</>}
-                    </TableCellLayout>
-                </TableCell>}
+            {showBarcode ?
+              <TableCell
+                onClick={() => onItemClick(item.id!)}>
+                <TableCellLayout>
+                  {item.barcode ?
+                    <Barcode
+                      height={15}
+                      width={1.3}
+                      fontSize={12}
+                      renderer={"svg"}
+                      background={"#0000"}
+                      format={"EAN13"}
+                      value={item.barcode}/> :
+                    <>No barcode available</>}
+                </TableCellLayout>
+              </TableCell> :
+              <TableCell/>}
             {(showDelete && props.onDelete != undefined) &&
                 <TableCell>
                     <TableCellLayout>
