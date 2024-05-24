@@ -1,48 +1,24 @@
-import {
-  useContext,
-  useEffect,
-  useState
-} from "react";
-import {
-  IItemModel,
-  ItemClient
-} from "../../OMSWebClient.ts";
+import {useContext, useEffect, useState} from "react";
+import {IItemModel, ItemClient} from "../../OMSWebClient.ts";
 import {
   Button,
-  createTableColumn,
-  DataGrid,
-  DataGridBody,
-  DataGridCell,
-  DataGridHeader,
-  DataGridHeaderCell,
-  DataGridRow,
+  Table,
+  TableBody,
+  TableCell,
   TableCellLayout,
-  TableColumnDefinition,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
   useToastController
 } from "@fluentui/react-components";
-import {
-  FontAwesomeIcon
-} from "@fortawesome/react-fontawesome";
-import {
-  faPlus
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  UserContext
-} from "../../App.tsx";
-import {
-  CreateItemDialog
-} from "./CreateItemDialog.tsx";
-import {
-  useNavigate
-} from "react-router-dom";
-import {
-  routes
-} from "../../utilities/routes.ts";
-import {
-  showErrorToast
-} from "../../utilities/toastHelper.tsx";
-import Barcode
-  from "react-barcode";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {UserContext} from "../../App.tsx";
+import {CreateItemDialog} from "./CreateItemDialog.tsx";
+import {useNavigate} from "react-router-dom";
+import {navigateToItem} from "../../utilities/routes.ts";
+import {showErrorToast} from "../../utilities/toastHelper.tsx";
+import Barcode from "react-barcode";
 
 
 interface ItemsState {
@@ -50,46 +26,22 @@ interface ItemsState {
   isDialogOpen: boolean;
 }
 
-const columns: TableColumnDefinition<IItemModel>[] = [
-  createTableColumn<IItemModel>({
-    columnId: 'title',
-    compare: (a, b) => (a.title || '').localeCompare(b.title || ''),
-    renderHeaderCell: () => 'Title',
-    renderCell: (item) =>
-      <TableCellLayout>{item.title}</TableCellLayout>,
-  }),
-  createTableColumn<IItemModel>({
-    columnId: 'description',
-    compare: (a, b) => (a.description || '').localeCompare(b.description || ''),
-    renderHeaderCell: () => 'Description',
-    renderCell: (item) =>
-      <TableCellLayout
-        style={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          textWrap: "nowrap",
-        }}>{item.description}</TableCellLayout>
-  }),
-  createTableColumn<IItemModel>({
-    columnId: 'barcode',
-    compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
-    renderHeaderCell: () => 'Barcode',
-    renderCell: (item) => <>
-      <TableCellLayout>
-        {item.barcode ?
-          <Barcode
-            height={15}
-            width={1.3}
-            fontSize={12}
-            renderer={"svg"}
-            background={"#0000"}
-            format={"EAN13"}
-            value={item.barcode}/> :
-          <></>}
-      </TableCellLayout>
-    </>
-    ,
-  }),
+const columns = [
+  {
+    columnKey: "title",
+    label: "Title",
+    width: "35%"
+  },
+  {
+    columnKey: "description",
+    label: "Description",
+    width: "65%"
+  },
+  {
+    columnKey: "barcode",
+    label: "Barcode",
+    width: "165px"
+  },
 ];
 
 export function Items() {
@@ -144,36 +96,62 @@ export function Items() {
 
 
     {state.items ?
-      <DataGrid
-        items={state.items}
-        columns={columns}
-        sortable
-        getRowId={(item) => item.id}
-        focusMode="composite"
-      >
-        <DataGridHeader>
-          <DataGridRow>
-            {({renderHeaderCell}) => (
-              <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+      <Table
+        aria-label={"Items Table"}>
+        <TableHeader>
+          <TableRow>
+            {columns.map((column) =>
+              <TableHeaderCell
+                key={column.columnKey}
+                style={{
+                  width: column.width
+                }}>
+                {column.label}
+              </TableHeaderCell>
             )}
-          </DataGridRow>
-        </DataGridHeader>
-        <DataGridBody<IItemModel>>
-          {({
-              item,
-              rowId
-            }) => (
-            <DataGridRow<IItemModel>
-              onClick={() => navigate(`${routes.item}/${item.id}`)}
-              style={{cursor: "pointer"}}
-              key={rowId}>
-              {({renderCell}) => (
-                <DataGridCell>{renderCell(item)}</DataGridCell>
-              )}
-            </DataGridRow>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {state.items.map(item =>
+            <TableRow
+              key={item.title}>
+              <TableCell
+                onClick={() => navigateToItem(item.id, navigate)}
+                style={{cursor: "pointer"}}>
+                <TableCellLayout>
+                  {item.title}
+                </TableCellLayout>
+              </TableCell>
+              <TableCell
+                onClick={() => navigateToItem(item.id, navigate)}
+                style={{cursor: "pointer"}}>
+                <TableCellLayout
+                  style={{
+                    overflowX: "hidden",
+                    textOverflow: "ellipsis",
+                    textWrap: "nowrap",
+                  }}>
+                  {item.description}
+                </TableCellLayout>
+              </TableCell>
+              <TableCell>
+                <TableCellLayout>
+                  {item.barcode ?
+                    <Barcode
+                      height={15}
+                      width={1.3}
+                      fontSize={12}
+                      renderer={"svg"}
+                      background={"#0000"}
+                      format={"EAN13"}
+                      value={item.barcode}/> :
+                    <>No barcode available</>}
+                </TableCellLayout>
+              </TableCell>
+            </TableRow>
           )}
-        </DataGridBody>
-      </DataGrid> :
+        </TableBody>
+      </Table> :
       <></>}
   </>;
 }
