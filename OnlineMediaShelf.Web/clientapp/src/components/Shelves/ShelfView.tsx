@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableHeaderCell,
   TableRow,
+  Title1,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -105,10 +106,10 @@ export function ShelfView() {
     {
       state.shelf == undefined ?
         <Skeleton>
-          <h1>
+          <Title1>
             <SkeletonItem
               style={{width: "250px"}}/>
-          </h1>
+          </Title1>
           <SkeletonItem/>
         </Skeleton> :
         <>
@@ -120,7 +121,7 @@ export function ShelfView() {
               isDialogOpen: data.open
             })}/>
 
-          <h1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf</h1>
+          <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf</Title1>
           <p>{state.shelf.description}</p>
 
           {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?

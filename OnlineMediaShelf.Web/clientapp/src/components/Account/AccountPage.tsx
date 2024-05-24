@@ -8,7 +8,9 @@ import {
   Field,
   Input,
   Skeleton,
-  SkeletonItem
+  SkeletonItem,
+  Title1,
+  Title2
 } from "@fluentui/react-components";
 import {
   AccountClient,
@@ -29,21 +31,21 @@ interface AccountState {
 function AccountPageSkeleton() {
   return (<>
     <Skeleton>
-      <h1>
+      <Title1>
         <SkeletonItem
           style={{
             width: "150px",
             height: "2rem",
           }}/>
-      </h1>
-      <h2>
+      </Title1>
+      <Title2>
         <SkeletonItem
           style={{
             width: "50px",
             height: "1.5rem",
           }}/>
 
-      </h2>
+      </Title2>
       <div>
         <SkeletonItem
           style={{
@@ -51,13 +53,13 @@ function AccountPageSkeleton() {
             height: "150px",
           }}/>
       </div>
-      <h2>
+      <Title2>
         <SkeletonItem
           style={{
             width: "50px",
             height: "1.5rem",
           }}/>
-      </h2>
+      </Title2>
     </Skeleton>
   </>);
 }
@@ -116,9 +118,9 @@ export function AccountPage() {
 
   return (<>
     {state.isLoaded ? <>
-        <h1>Manage my account</h1>
+        <Title1>Manage my account</Title1>
 
-        <h2>Manage Shelves</h2>
+        <Title2>Manage Shelves</Title2>
 
         <ShelfCardDisplay
           shelves={state.shelves ?? []}/>
@@ -129,7 +131,7 @@ export function AccountPage() {
 
             return false;
           }}>
-          <h2>Edit Account Data</h2>
+          <Title2>Edit Account Data</Title2>
           <Field
             label="E-Mail address">
             <Input
