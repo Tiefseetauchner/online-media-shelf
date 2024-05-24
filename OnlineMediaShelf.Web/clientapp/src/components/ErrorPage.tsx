@@ -6,6 +6,8 @@ import {
   CSSProperties
 } from "react";
 import {
+  Title1,
+  Title3,
   tokens
 } from "@fluentui/react-components";
 import {
@@ -23,7 +25,7 @@ export function ErrorPage() {
   return (
     <div
       style={errorStyle}>
-      <h1>Oh no!</h1>
+      <Title1>Oh no!</Title1>
       <p>While loading the page, an error occured.</p>
       <p
         style={{
@@ -35,7 +37,7 @@ export function ErrorPage() {
 
       <Link
         to={routes.root}>
-        <h3>Back Home!</h3>
+        <Title3>Back Home!</Title3>
       </Link>
     </div>)
 }

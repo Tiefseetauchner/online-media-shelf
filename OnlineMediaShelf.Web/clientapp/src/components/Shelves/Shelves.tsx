@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   Button,
+  Title1,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -62,7 +63,7 @@ export function Shelves() {
   }, []);
 
   return (<>
-    <h1>Shelves</h1>
+    <Title1>Shelves</Title1>
 
     <AddShelfDialog
       open={state.isDialogOpen}

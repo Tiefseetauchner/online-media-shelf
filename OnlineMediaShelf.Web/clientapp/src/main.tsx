@@ -1,5 +1,5 @@
 import React
-  , {} from 'react'
+  from 'react'
 import ReactDOM
   from 'react-dom/client'
 import App

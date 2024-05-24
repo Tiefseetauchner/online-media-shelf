@@ -9,15 +9,7 @@ import {
 } from "../../OMSWebClient.ts";
 import {
   Button,
-  createTableColumn,
-  DataGrid,
-  DataGridBody,
-  DataGridCell,
-  DataGridHeader,
-  DataGridHeaderCell,
-  DataGridRow,
-  TableCellLayout,
-  TableColumnDefinition,
+  Title1,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -33,16 +25,11 @@ import {
   CreateItemDialog
 } from "./CreateItemDialog.tsx";
 import {
-  useNavigate
-} from "react-router-dom";
-import {
-  routes
-} from "../../utilities/routes.ts";
-import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
-import Barcode
-  from "react-barcode";
+import {
+  ItemList
+} from "./ItemList.tsx";
 
 
 interface ItemsState {
@@ -50,54 +37,11 @@ interface ItemsState {
   isDialogOpen: boolean;
 }
 
-const columns: TableColumnDefinition<IItemModel>[] = [
-  createTableColumn<IItemModel>({
-    columnId: 'title',
-    compare: (a, b) => (a.title || '').localeCompare(b.title || ''),
-    renderHeaderCell: () => 'Title',
-    renderCell: (item) =>
-      <TableCellLayout>{item.title}</TableCellLayout>,
-  }),
-  createTableColumn<IItemModel>({
-    columnId: 'description',
-    compare: (a, b) => (a.description || '').localeCompare(b.description || ''),
-    renderHeaderCell: () => 'Description',
-    renderCell: (item) =>
-      <TableCellLayout
-        style={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          textWrap: "nowrap",
-        }}>{item.description}</TableCellLayout>
-  }),
-  createTableColumn<IItemModel>({
-    columnId: 'barcode',
-    compare: (a, b) => (a.barcode || '').localeCompare(b.barcode || ''),
-    renderHeaderCell: () => 'Barcode',
-    renderCell: (item) => <>
-      <TableCellLayout>
-        {item.barcode ?
-          <Barcode
-            height={15}
-            width={1.3}
-            fontSize={12}
-            renderer={"svg"}
-            background={"#0000"}
-            format={"EAN13"}
-            value={item.barcode}/> :
-          <></>}
-      </TableCellLayout>
-    </>
-    ,
-  }),
-];
-
 export function Items() {
   const [state, setState] = useState<ItemsState>({isDialogOpen: false})
 
   const {user} = useContext(UserContext);
 
-  const navigate = useNavigate();
   const {dispatchToast} = useToastController();
 
   useEffect(() => {
@@ -128,7 +72,7 @@ export function Items() {
         isDialogOpen: data.open
       })}/>
 
-    <h1>Items
+    <Title1>Items
       {user?.currentUser?.isLoggedIn ?
         <Button
           style={{float: "right"}}
@@ -140,40 +84,10 @@ export function Items() {
             isDialogOpen: true
           })}>Create Item</Button> :
         <></>}
-    </h1>
+    </Title1>
 
-
-    {state.items ?
-      <DataGrid
-        items={state.items}
-        columns={columns}
-        sortable
-        getRowId={(item) => item.id}
-        focusMode="composite"
-      >
-        <DataGridHeader>
-          <DataGridRow>
-            {({renderHeaderCell}) => (
-              <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
-            )}
-          </DataGridRow>
-        </DataGridHeader>
-        <DataGridBody<IItemModel>>
-          {({
-              item,
-              rowId
-            }) => (
-            <DataGridRow<IItemModel>
-              onClick={() => navigate(`${routes.item}/${item.id}`)}
-              style={{cursor: "pointer"}}
-              key={rowId}>
-              {({renderCell}) => (
-                <DataGridCell>{renderCell(item)}</DataGridCell>
-              )}
-            </DataGridRow>
-          )}
-        </DataGridBody>
-      </DataGrid> :
-      <></>}
+    {state.items !== undefined &&
+        <ItemList
+            items={state.items}/>}
   </>;
 }

@@ -72,8 +72,16 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       let descriptionError: string | undefined = undefined;
       let titleError: string | undefined = undefined;
 
+      function isValidBarcode(barcode: string) {
+        return barcode.split('').reduce(function (p, v, i) {
+          return i % 2 == 0 ? p + parseInt(v) : p + 3 * parseInt(v);
+        }, 0) % 10 == 0;
+      }
+
       if (state.barcode?.length && state.barcode?.length !== 13)
         barcodeError = "The barcode must be 13 digits long.";
+      else if (!isValidBarcode(state.barcode!))
+        barcodeError = "The barcode must have a valid check digit.";
 
       if (state.title === undefined)
         titleError = "The field 'Title' is required.";

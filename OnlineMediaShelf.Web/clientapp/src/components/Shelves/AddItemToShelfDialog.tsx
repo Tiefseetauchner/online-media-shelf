@@ -31,6 +31,7 @@ import SearchField, {
 
 interface AddItemToShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
+  onAddItem: () => void;
   open: boolean;
   shelfId: number;
 }
@@ -79,6 +80,8 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
           type: "triggerClick",
           event: null!
         });
+
+        props.onAddItem();
       } catch (e: any) {
         showErrorToast("An error occurred when adding item to shelf.", dispatchToast);
       }

@@ -1,5 +1,6 @@
 import {
   SkeletonItem,
+  Subtitle1,
   tokens,
   Toolbar,
   ToolbarButton
@@ -141,9 +142,10 @@ function Header() {
         style={{
           width: "100%",
           display: "block",
-          textAlign: "center"
+          textAlign: "center",
+          marginTop: "20px",
         }}>
-        <h3>Online Media Shelves</h3>
+        <Subtitle1>Online Media Shelves</Subtitle1>
       </div>
       <Toolbar
         vertical={true}

@@ -2,7 +2,8 @@ import {
   Button,
   Card,
   CardHeader,
-  makeStyles
+  makeStyles,
+  Title1
 } from "@fluentui/react-components";
 
 const useStyles = makeStyles({
@@ -33,8 +34,8 @@ export function HomePage() {
   return (<>
     <div
       className={styles.container}>
-      <h1
-        className={styles.header}>Online Media Shelf</h1>
+      <Title1
+        className={styles.header}>Online Media Shelf</Title1>
       <Card
         className={styles.card}>
         <CardHeader
