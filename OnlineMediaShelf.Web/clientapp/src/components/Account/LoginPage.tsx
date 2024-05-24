@@ -3,6 +3,7 @@ import {
   Field,
   Input,
   Spinner,
+  Title1,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -130,7 +131,7 @@ export function LoginPage() {
 
           loginUser();
         }}>
-        <h1>Log in:</h1>
+        <Title1>Log in:</Title1>
         <Field
           label="E-Mail address">
           <Input

@@ -3,6 +3,7 @@ import {
   Field,
   Input,
   Spinner,
+  Title1,
   Toast,
   ToastBody,
   ToastTitle,
@@ -112,7 +113,7 @@ export function RegisterPage() {
 
           loginUser();
         }}>
-        <h1>Register a new account:</h1>
+        <Title1>Register a new account:</Title1>
         <Field
           label="E-Mail address">
           <Input
