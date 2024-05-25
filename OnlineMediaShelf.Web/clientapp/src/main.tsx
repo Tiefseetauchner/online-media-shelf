@@ -13,6 +13,7 @@ import {
   Toaster
 } from "@fluentui/react-components";
 import "normalize.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const onlineMediaShelvesTheme: BrandVariants = {
   10: "#040202",

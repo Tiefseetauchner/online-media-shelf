@@ -23,9 +23,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.1480013"
-     inkscape:cx="5003.3343"
-     inkscape:cy="1763.498"
+     inkscape:zoom="0.2960026"
+     inkscape:cx="2398.6275"
+     inkscape:cy="847.96551"
      inkscape:window-width="2560"
      inkscape:window-height="1372"
      inkscape:window-x="0"
@@ -39,7 +39,8 @@
        height="200"
        id="page4"
        margin="0"
-       bleed="0" />
+       bleed="0"
+       inkscape:label="PictureMark" />
     <inkscape:page
        x="210"
        y="0"
@@ -47,7 +48,8 @@
        height="200"
        id="page5"
        margin="0 0 0 0"
-       bleed="0" />
+       bleed="0"
+       inkscape:label="WordMarkFull" />
     <inkscape:page
        x="0"
        y="214.00314"
@@ -55,7 +57,11 @@
        height="200"
        id="page7"
        margin="0"
-       bleed="0" />
+       bleed="0"
+       inkscape:export-filename="WordMarkShort.svg"
+       inkscape:export-xdpi="24.190475"
+       inkscape:export-ydpi="24.190475"
+       inkscape:label="WordMarkShort" />
   </sodipodi:namedview>
   <defs
      id="defs1" />
@@ -66,28 +72,16 @@
      transform="translate(-0.5158945,-3.4110288)">
     <path
        id="rect1"
-       style="fill:#b9694d;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 3.0040992,9.347574 c 17.3703418,0 31.3549088,13.984568 31.3549088,31.35491 0,17.370342 -13.984567,31.354065 -31.3549088,31.354065 H 166.64984 c 17.37034,0 31.3549,-13.983723 31.3549,-31.354065 0,-17.370342 -13.98456,-31.35491 -31.3549,-31.35491 z" />
+       style="fill:#b9694d;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 8.9207284,15.095187 c 16.3089326,0 29.4389886,13.130043 29.4389886,29.439015 0,16.30892 -13.130056,29.438162 -29.4389886,29.438162 H 162.56703 c 16.30844,0 29.43857,-13.129242 29.43857,-29.438162 0,-16.308972 -13.13013,-29.439015 -29.43857,-29.439015 z" />
     <path
        id="path2"
-       style="fill:#d8a62e;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 3.0040992,72.056549 c 17.3703418,0 31.3549088,13.984567 31.3549088,31.354911 0,17.37034 -13.984567,31.35407 -31.3549088,31.35407 H 166.64984 c 17.37034,0 31.3549,-13.98373 31.3549,-31.35407 0,-17.370344 -13.98456,-31.354911 -31.3549,-31.354911 z" />
+       style="fill:#d8a62e;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 8.9207284,73.972364 c 16.3089326,0 29.4389886,13.130069 29.4389886,29.438756 0,16.3095 -13.130056,29.43856 -29.4389886,29.43856 H 162.56703 c 16.30844,0 29.43857,-13.12906 29.43857,-29.43856 0,-16.308687 -13.13013,-29.438756 -29.43857,-29.438756 z" />
     <path
        id="path3"
-       style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 3.0040992,134.76553 c 17.3703418,0 31.3549088,13.98456 31.3549088,31.3549 0,17.37034 -13.984567,31.35406 -31.3549088,31.35406 H 166.64984 c 17.37034,0 31.3549,-13.98372 31.3549,-31.35406 0,-17.37034 -13.98456,-31.3549 -31.3549,-31.3549 z" />
-    <path
-       id="path5"
-       style="fill:#b9694d;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 212.12743,9.3475716 c 17.37035,0 31.35493,13.9845684 31.35493,31.3549104 0,17.370342 -13.98458,31.354065 -31.35493,31.354065 h 163.64581 c 17.37034,0 31.3549,-13.983723 31.3549,-31.354065 0,-17.370342 -13.98456,-31.3549104 -31.3549,-31.3549104 z" />
-    <path
-       id="path6"
-       style="fill:#d8a62e;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 212.12743,72.056547 c 17.37035,0 31.35493,13.984567 31.35493,31.354913 0,17.37034 -13.98458,31.35407 -31.35493,31.35407 h 163.64581 c 17.37034,0 31.3549,-13.98373 31.3549,-31.35407 0,-17.370346 -13.98456,-31.354913 -31.3549,-31.354913 z" />
-    <path
-       id="path7"
-       style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 212.12743,134.76553 c 17.37035,0 31.35493,13.98456 31.35493,31.3549 0,17.37034 -13.98458,31.35406 -31.35493,31.35406 h 163.64581 c 17.37034,0 31.3549,-13.98372 31.3549,-31.35406 0,-17.37034 -13.98456,-31.3549 -31.3549,-31.3549 z" />
+       style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 8.9207284,132.84968 c 16.3089326,0 29.4389886,13.12976 29.4389886,29.43881 0,16.30909 -13.130056,29.43838 -29.4389886,29.43838 H 162.56703 c 16.30844,0 29.43857,-13.12929 29.43857,-29.43838 0,-16.30905 -13.13013,-29.43881 -29.43857,-29.43881 z" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:52.5073px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.31269"
@@ -99,18 +93,6 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:252.036px;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:1.31269"
          x="417.32745"
          y="188.8512">Online Media Shelf</tspan></text>
-    <path
-       id="path8"
-       style="fill:#b9694d;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 3.0040992,223.5864 c 17.3703418,0 31.3549088,13.98457 31.3549088,31.35491 0,17.37034 -13.984567,31.35407 -31.3549088,31.35407 H 166.64984 c 17.37034,0 31.3549,-13.98373 31.3549,-31.35407 0,-17.37034 -13.98456,-31.35491 -31.3549,-31.35491 z" />
-    <path
-       id="path9"
-       style="fill:#d8a62e;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 3.0040992,286.29538 c 17.3703418,0 31.3549088,13.98456 31.3549088,31.35491 0,17.37034 -13.984567,31.35407 -31.3549088,31.35407 H 166.64984 c 17.37034,0 31.3549,-13.98373 31.3549,-31.35407 0,-17.37035 -13.98456,-31.35491 -31.3549,-31.35491 z" />
-    <path
-       id="path10"
-       style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:3.26898;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;paint-order:markers fill stroke"
-       d="m 3.0040992,349.00436 c 17.3703418,0 31.3549088,13.98456 31.3549088,31.3549 0,17.37034 -13.984567,31.35406 -31.3549088,31.35406 H 166.64984 c 17.37034,0 31.3549,-13.98372 31.3549,-31.35406 0,-17.37034 -13.98456,-31.3549 -31.3549,-31.3549 z" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:52.5073px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.31269"
@@ -122,5 +104,29 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:252.036px;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:1.31269"
          x="208.20412"
          y="391.63876">OMS</tspan></text>
+    <path
+       id="path10"
+       style="fill:#b9694d;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 217.92073,15.095188 c 16.30893,0 29.43898,13.130043 29.43898,29.439015 0,16.30892 -13.13005,29.438162 -29.43898,29.438162 h 153.6463 c 16.30844,0 29.43857,-13.129242 29.43857,-29.438162 0,-16.308972 -13.13013,-29.439015 -29.43857,-29.439015 z" />
+    <path
+       id="path11"
+       style="fill:#d8a62e;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 217.92073,73.972365 c 16.30893,0 29.43898,13.130069 29.43898,29.438755 0,16.3095 -13.13005,29.43856 -29.43898,29.43856 h 153.6463 c 16.30844,0 29.43857,-13.12906 29.43857,-29.43856 0,-16.308686 -13.13013,-29.438755 -29.43857,-29.438755 z" />
+    <path
+       id="path12"
+       style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 217.92073,132.84968 c 16.30893,0 29.43898,13.12976 29.43898,29.43881 0,16.30909 -13.13005,29.43838 -29.43898,29.43838 h 153.6463 c 16.30844,0 29.43857,-13.12929 29.43857,-29.43838 0,-16.30905 -13.13013,-29.43881 -29.43857,-29.43881 z" />
+    <path
+       id="path13"
+       style="fill:#b9694d;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 7.9207314,229.09833 c 16.3089996,0 29.4389996,13.13004 29.4389996,29.43901 0,16.30892 -13.13,29.43816 -29.4389996,29.43816 H 161.56705 c 16.3085,0 29.4386,-13.12924 29.4386,-29.43816 0,-16.30897 -13.1301,-29.43901 -29.4386,-29.43901 z" />
+    <path
+       id="path14"
+       style="fill:#d8a62e;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 7.9207314,287.9755 c 16.3089996,0 29.4389996,13.13007 29.4389996,29.43876 0,16.3095 -13.13,29.43856 -29.4389996,29.43856 H 161.56705 c 16.3085,0 29.4386,-13.12906 29.4386,-29.43856 0,-16.30869 -13.1301,-29.43876 -29.4386,-29.43876 z" />
+    <path
+       id="path15"
+       style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 7.9207314,346.85282 c 16.3089996,0 29.4389996,13.12976 29.4389996,29.43881 0,16.30909 -13.13,29.43838 -29.4389996,29.43838 H 161.56705 c 16.3085,0 29.4386,-13.12929 29.4386,-29.43838 0,-16.30905 -13.1301,-29.43881 -29.4386,-29.43881 z" />
   </g>
 </svg>

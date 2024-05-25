@@ -32,7 +32,6 @@ import {
   routes
 } from "../utilities/routes.ts";
 
-
 interface NavBarButtonProps extends PropsWithChildren {
   icon: IconDefinition;
   to: string;
@@ -81,7 +80,12 @@ function Header() {
         onClick={() => toggleMenu()}/>
       <Link
         to={routes.root}>
-        <ToolbarButton>Online Media Shelves </ToolbarButton>
+        <ToolbarButton
+          icon={
+            <img
+              style={{width: "24px"}}
+              src={"/PictureMark.svg"}
+              alt={"Logo"}/>}>Online Media Shelves </ToolbarButton>
       </Link>
       <div
         style={{
