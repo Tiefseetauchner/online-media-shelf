@@ -161,6 +161,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                 appearance="secondary">Cancel</Button>
             </DialogTrigger>
             <Button
+              id="SubmitAddItemToShelfButton"
               type="submit"
               appearance="primary">
               Submit

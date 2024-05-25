@@ -1,4 +1,5 @@
 import {
+  KeyboardEventHandler,
   useCallback,
   useEffect,
   useState
@@ -42,11 +43,11 @@ function SearchField<T>(props: SearchFieldProps<T>) {
   const fetchSuggestions = useCallback(
     debounce(async query => {
       const result = await props.fetchSuggestionsDelegate(query);
-      setState({
-        ...state,
+      setState(prev => ({
+        ...prev,
         suggestions: result,
-      });
-    }, 200, {leading: true}), [state.input]);
+      }));
+    }, 2000, {leading: true}), [state.input]);
 
   useEffect(() => {
     fetchSuggestions(state.input);
@@ -60,16 +61,20 @@ function SearchField<T>(props: SearchFieldProps<T>) {
     });
   }
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'ArrowDown') {
+  const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event: any) => {
+    if (event.key === 'ArrowDown') {
       setSelectedIndex((prevIndex) => (prevIndex + 1) % state.suggestions!.length);
-      e.preventDefault();
-    } else if (e.key === 'ArrowUp') {
+      event.preventDefault();
+    } else if (event.key === 'ArrowUp') {
       setSelectedIndex((prevIndex) => (prevIndex - 1 + state.suggestions!.length) % state.suggestions!.length);
-      e.preventDefault();
-    } else if (e.key === 'Enter') {
+      event.preventDefault();
+    } else if (event.key === 'Enter') {
       selectionPressed(state.suggestions[selectedIndex]);
-      e.preventDefault();
+      setIsOpen(false);
+
+      document.getElementById('SubmitAddItemToShelfButton')!.focus();
+
+      event.preventDefault();
     }
   };
 

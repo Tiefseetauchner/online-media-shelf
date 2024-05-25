@@ -2260,7 +2260,6 @@ export interface ICreateShelfModel {
 
 export class ItemAddModel implements IItemAddModel {
     id?: number | undefined;
-    barcode?: string | undefined;
 
     constructor(data?: IItemAddModel) {
         if (data) {
@@ -2274,7 +2273,6 @@ export class ItemAddModel implements IItemAddModel {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.barcode = _data["barcode"];
         }
     }
 
@@ -2288,14 +2286,12 @@ export class ItemAddModel implements IItemAddModel {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["barcode"] = this.barcode;
         return data;
     }
 }
 
 export interface IItemAddModel {
     id?: number | undefined;
-    barcode?: string | undefined;
 }
 
 export interface FileResponse {
