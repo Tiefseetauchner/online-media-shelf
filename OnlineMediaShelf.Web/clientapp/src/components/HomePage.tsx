@@ -73,7 +73,7 @@ export function HomePage() {
       </Row>
 
       <Row
-        className={"mt-2 gap-sm-2 gap-md-0"}>
+        className={"mt-2 row-gap-2"}>
         <Col
           md={"4"}>
           <Card>
