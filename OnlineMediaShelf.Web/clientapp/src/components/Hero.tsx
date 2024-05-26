@@ -11,6 +11,7 @@ import {
   tokens
 } from "@fluentui/react-components";
 import {
+  CSSProperties,
   ReactNode
 } from "react";
 
@@ -19,14 +20,17 @@ interface HeroProps {
   subtitle: string;
   description: string;
   actions: ReactNode[];
+  backgroundImage: string;
+  backgroundColorOverlay: string;
+  style?: CSSProperties;
 }
 
 export function Hero(props: HeroProps) {
   return <div
     style={{
+      ...props.style,
       borderRadius: tokens.borderRadiusLarge,
-      height: "600px",
-      background: `linear-gradient(color-mix(in srgb, ${tokens.colorBrandBackground} 30%, rgba(0,0,0,0.6)), color-mix(in srgb, ${tokens.colorBrandBackground} 30%, rgba(0,0,0,0.6))), url(images/books_1.jpg) center / cover`,
+      background: `linear-gradient(color-mix(in srgb, ${props.backgroundColorOverlay} 30%, rgba(0,0,0,0.6)), color-mix(in srgb, ${props.backgroundColorOverlay} 30%, rgba(0,0,0,0.6))), url(${props.backgroundImage}) center / cover`,
     }}>
     <Container
       className={"h-100"}>
