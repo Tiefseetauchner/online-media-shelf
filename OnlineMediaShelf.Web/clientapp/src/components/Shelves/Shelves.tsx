@@ -19,17 +19,17 @@ import {
   UserContext
 } from "../../App.tsx";
 import {
+  AddShelfDialog
+} from "./AddShelfDialog.tsx";
+import {
+  ShelfList
+} from "./ShelfList.tsx";
+import {
   FontAwesomeIcon
 } from "@fortawesome/react-fontawesome";
 import {
   faPlus
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  AddShelfDialog
-} from "./AddShelfDialog.tsx";
-import {
-  ShelfCardDisplay
-} from "./ShelfCardDisplay.tsx";
 
 interface ShelvesState {
   shelves?: IShelfModel[];
@@ -63,8 +63,6 @@ export function Shelves() {
   }, []);
 
   return (<>
-    <Title1>Shelves</Title1>
-
     <AddShelfDialog
       open={state.isDialogOpen}
       onOpenChange={(_, data) => setState({
@@ -72,17 +70,20 @@ export function Shelves() {
         isDialogOpen: data.open
       })}/>
 
-    {user?.currentUser?.isLoggedIn ?
-      <Button
-        icon={
-          <FontAwesomeIcon
-            icon={faPlus}/>}
-        onClick={() => setState({
-          ...state,
-          isDialogOpen: true
-        })}/> :
-      <></>}
-    <ShelfCardDisplay
+    <Title1>Shelves
+      {user?.currentUser?.isLoggedIn ?
+        <Button
+          style={{float: "right"}}
+          icon={
+            <FontAwesomeIcon
+              icon={faPlus}/>}
+          onClick={() => setState({
+            ...state,
+            isDialogOpen: true
+          })}>Create Shelf</Button> :
+        <></>}</Title1>
+
+    <ShelfList
       shelves={state.shelves!}/>
   </>)
 }

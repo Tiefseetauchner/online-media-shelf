@@ -12,7 +12,7 @@ interface ShelfCardDisplayProps {
   shelves: IShelfModel[];
 }
 
-export function ShelfCardDisplay(props: ShelfCardDisplayProps) {
+export function ShelfList(props: ShelfCardDisplayProps) {
   return props.shelves == undefined ?
     <SkeletonItem/> :
     <div

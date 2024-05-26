@@ -26,6 +26,10 @@ interface HeroProps {
 }
 
 export function Hero(props: HeroProps) {
+  let textShadowStyle: CSSProperties = {
+    textShadow: `1px 1px 1px black`,
+  };
+
   return <div
     style={{
       ...props.style,
@@ -43,11 +47,20 @@ export function Hero(props: HeroProps) {
             style={{
               color: tokens.colorNeutralForegroundInverted
             }}>
-            <Title1>{props.title}</Title1><br/>
-            <Subtitle2>{props.subtitle}</Subtitle2>
+            <Title1
+              style={{
+                ...textShadowStyle
+              }}>{props.title}</Title1><br/>
+            <Subtitle2
+              style={{
+                ...textShadowStyle
+              }}>{props.subtitle}</Subtitle2>
             <Divider
               style={{height: "35px"}}></Divider>
-            <Caption1>{props.description}</Caption1><br/>
+            <Caption1
+              style={{
+                ...textShadowStyle
+              }}>{props.description}</Caption1><br/>
             <Container
               style={{marginTop: "15px"}}>
               <Row>
