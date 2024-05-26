@@ -1,5 +1,6 @@
 import {
   Button,
+  Card,
   Dialog,
   DialogActions,
   DialogBody,
@@ -8,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
   Field,
+  Title1,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -28,6 +30,15 @@ import {
 import SearchField, {
   SuggestionType
 } from "../SearchField.tsx";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faBarcode
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  BarcodeScanner
+} from "@thewirv/react-barcode-scanner";
 
 interface AddItemToShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -56,8 +67,34 @@ function mapItemToBarcodeSuggestionResult(item: IItemModel): SuggestionType<IIte
   };
 }
 
+function BarcodeReader(props: {
+  onRead: (barcode: string) => void
+}) {
+  return <>
+    <Card
+      style={{
+        display: "block",
+        background: "#ffffff",
+        zIndex: 1000,
+      }}>
+      <Title1>Scan Barcode</Title1>
+      <BarcodeScanner
+        onSuccess={(text: string) => console.log(text)}
+        onError={(error: Error) => {
+          if (error) {
+            console.error(error.message);
+          }
+        }}
+        onLoad={() => console.log('Video feed has loaded!')}
+        containerStyle={{width: '100%'}}
+      />
+    </Card>
+  </>;
+}
+
 export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
-  const [state, setState] = useState<AddItemToShelfDialogState>({})
+  const [state, setState] = useState<AddItemToShelfDialogState>({});
+  const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
 
   const itemClient = new ItemClient();
 
@@ -90,59 +127,77 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
     runCreate()
   };
 
-  return <Dialog
-    open={props.open}
-    onOpenChange={props.onOpenChange}>
-    <DialogSurface
-      aria-describedby={undefined}>
-      <form
-        onSubmit={handleSubmit}>
-        <DialogBody>
-          <DialogTitle>Dialog title</DialogTitle>
-          <DialogContent
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              rowGap: "10px",
-            }}>
-            <Field
-              label="Shelf Name">
-              <SearchField<IItemModel>
-                fetchSuggestionsDelegate={(query) =>
-                  itemClient.searchItem(query, undefined)
-                  .then(items => items.map(mapItemToTitleSuggestionResult))}
-                selectionPressed={selection => setState({
-                  ...state,
-                  itemId: selection.id
-                })}/>
-            </Field>
-            <Field
-              label="Shelf Barcode">
-              <SearchField<IItemModel>
-                fetchSuggestionsDelegate={(query) =>
-                  itemClient.searchItem(undefined, query)
-                  .then(items => items.map(mapItemToBarcodeSuggestionResult))}
-                selectionPressed={selection => setState({
-                  ...state,
-                  itemId: selection.id
-                })}/>
-            </Field>
-          </DialogContent>
-          <DialogActions>
-            <DialogTrigger
-              disableButtonEnhancement
-              action={"close"}>
+  return <>
+
+    <Dialog
+      open={props.open}
+      onOpenChange={(event, data) => {
+        props.onOpenChange(event, data);
+        setBarcodeReaderOpen(false);
+      }}>
+      <DialogSurface
+        aria-describedby={undefined}>
+        <form
+          onSubmit={handleSubmit}>
+          <DialogBody>
+            <DialogTitle>Dialog title</DialogTitle>
+            <DialogContent
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                rowGap: "10px",
+              }}>
+              <Field
+                label="Shelf Name">
+                <SearchField<IItemModel>
+                  fetchSuggestionsDelegate={(query) =>
+                    itemClient.searchItem(query, undefined)
+                    .then(items => items.map(mapItemToTitleSuggestionResult))}
+                  selectionPressed={selection => setState({
+                    ...state,
+                    itemId: selection.id
+                  })}/>
+              </Field>
+              <Field
+                label="Shelf Barcode">
+                <SearchField<IItemModel>
+                  fetchSuggestionsDelegate={(query) =>
+                    itemClient.searchItem(undefined, query)
+                    .then(items => items.map(mapItemToBarcodeSuggestionResult))}
+                  selectionPressed={selection => setState({
+                    ...state,
+                    itemId: selection.id
+                  })}/>
+              </Field>
               <Button
-                appearance="secondary">Cancel</Button>
-            </DialogTrigger>
-            <Button
-              type="submit"
-              appearance="primary">
-              Submit
-            </Button>
-          </DialogActions>
-        </DialogBody>
-      </form>
-    </DialogSurface>
-  </Dialog>;
+                onClick={() => setBarcodeReaderOpen(prev => !prev)}
+                icon={
+                  <FontAwesomeIcon
+                    icon={faBarcode}/>}>{barcodeReaderOpen ? "Open" : "Close"} barcode reader</Button>
+              {barcodeReaderOpen &&
+                  <BarcodeReader
+                      onRead={(barcode) => setState(prevState => ({
+                        ...prevState,
+                        barcode: barcode
+                      }))}/>}
+            </DialogContent>
+            <DialogActions>
+              <DialogTrigger
+                disableButtonEnhancement
+                action={"close"}>
+                <Button
+                  appearance="secondary">Cancel</Button>
+              </DialogTrigger>
+              <Button
+                type="submit"
+                appearance="primary">
+                Submit
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </form>
+      </DialogSurface>
+    </Dialog>
+  </>
+    ;
 }
