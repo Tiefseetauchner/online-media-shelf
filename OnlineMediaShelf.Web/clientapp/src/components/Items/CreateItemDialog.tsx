@@ -13,6 +13,7 @@ import {
   useToastController
 } from "@fluentui/react-components";
 import {
+  useEffect,
   useState
 } from "react";
 import {
@@ -31,6 +32,18 @@ import {
 import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faBarcode
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  BarcodeReader
+} from "../BarcodeReader.tsx";
+import {
+  uniqueId
+} from "lodash";
 
 interface AddItemDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -50,8 +63,11 @@ interface ErrorState {
 }
 
 export function CreateItemDialog(props: AddItemDialogProps) {
-  const [state, setState] = useState<AddItemDialogState>({})
+  const [state, setState] = useState<AddItemDialogState>({barcode: ""})
   const [errorState, setErrorState] = useState<ErrorState>({})
+  const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
+
+  const barcodeInputFieldId = uniqueId();
 
   const navigate = useNavigate();
 
@@ -127,6 +143,13 @@ export function CreateItemDialog(props: AddItemDialogProps) {
     runCreate()
   };
 
+  useEffect(() => {
+    if (document.getElementById(barcodeInputFieldId) == null || !state.barcode)
+      return;
+
+    (document.getElementById(barcodeInputFieldId) as HTMLInputElement).value = state.barcode;
+  }, [state.barcode]);
+
   return <Dialog
     open={props.open}
     onOpenChange={props.onOpenChange}>
@@ -162,10 +185,29 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Item Barcode"
               validationMessage={errorState.barcodeMessage}>
               <Input
+                id={barcodeInputFieldId}
+                value={state.barcode}
                 appearance={"underline"}
                 onChange={handleInput}
                 name={"barcode"}/>
             </Field>
+            <Button
+              onClick={() => setBarcodeReaderOpen(prev => !prev)}
+              icon={
+                <FontAwesomeIcon
+                  icon={faBarcode}/>}>{barcodeReaderOpen ? "Close" : "Open"} barcode reader</Button>
+            <BarcodeReader
+              enabled={barcodeReaderOpen}
+              style={{display: barcodeReaderOpen ? "block" : "none"}}
+              onRead={(barcode) => {
+                console.log(barcode);
+                setState(prevState => ({
+                  ...prevState,
+                  barcode: barcode,
+                }));
+
+                setTimeout(() => setBarcodeReaderOpen(false), 2000);
+              }}/>
           </DialogContent>
           <DialogActions>
             <DialogTrigger

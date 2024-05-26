@@ -35,11 +35,8 @@ import {
   faBarcode
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  Scanner
-} from "@caprado/react-barcode-scanner";
-import {
-  BarcodeFormat
-} from "@zxing/library";
+  BarcodeReader
+} from "../BarcodeReader.tsx";
 
 interface AddItemToShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -66,26 +63,6 @@ function mapItemToBarcodeSuggestionResult(item: IItemModel): SuggestionType<IIte
     name: item.barcode ?? "",
     value: item
   };
-}
-
-function BarcodeReader(props: {
-  onRead: (barcode: string) => void,
-  enabled: boolean
-}) {
-  const [error, setError] = useState("");
-
-  return <>
-    <Field
-      validationMessage={error}>
-      <Scanner
-        enabled={props.enabled}
-        options={{
-          delayBetweenScanSuccess: 100,
-        }}
-        onResult={(text, result) => result.getBarcodeFormat() === BarcodeFormat.EAN_13 ? props.onRead(text) : setError("This code could not be recognized.")}
-        onError={(error) => setError(error?.message)}/>
-    </Field>
-  </>;
 }
 
 export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
@@ -179,12 +156,21 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                   <BarcodeReader
                       enabled={barcodeReaderOpen}
                       onRead={(barcode) => {
+                        async function getItemFromBarcode() {
+                          let item = await itemClient.searchItem(undefined, barcode)
+                          .then(items => items.map(mapItemToBarcodeSuggestionResult))
 
-                        setState(prevState => ({
-                          ...prevState,
-                          barcode: barcode
-                        }));
-                        setBarcodeReaderOpen(false);
+                          setState(prevState => ({
+                            ...prevState,
+                            barcode: barcode,
+                            itemId: item[0].value.id,
+                            title: item[0].value.title
+                          }));
+
+                          setTimeout(() => setBarcodeReaderOpen(false), 200);
+                        }
+
+                        getItemFromBarcode();
                       }}/>}
             </DialogContent>
             <DialogActions>
