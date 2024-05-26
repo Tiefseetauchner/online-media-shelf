@@ -153,7 +153,8 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                     itemId: selection.id,
                     barcode: selection.barcode,
                     title: selection.title
-                  })}/>
+                  })}
+                  value={state.title ?? ""}/>
               </Field>
               <Field
                 label="Shelf Barcode">
@@ -166,7 +167,8 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                     itemId: selection.id,
                     barcode: selection.barcode,
                     title: selection.title
-                  })}/>
+                  })}
+                  value={state.barcode ?? ""}/>
               </Field>
               <Button
                 onClick={() => setBarcodeReaderOpen(prev => !prev)}
@@ -177,6 +179,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                   <BarcodeReader
                       enabled={barcodeReaderOpen}
                       onRead={(barcode) => {
+
                         setState(prevState => ({
                           ...prevState,
                           barcode: barcode
