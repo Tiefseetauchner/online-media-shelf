@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Dialog,
   DialogActions,
   DialogBody,
@@ -9,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
   Field,
-  Title1,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -37,8 +35,11 @@ import {
   faBarcode
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  BarcodeScanner
-} from "@thewirv/react-barcode-scanner";
+  Scanner
+} from "@caprado/react-barcode-scanner";
+import {
+  BarcodeFormat
+} from "@zxing/library";
 
 interface AddItemToShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -68,27 +69,22 @@ function mapItemToBarcodeSuggestionResult(item: IItemModel): SuggestionType<IIte
 }
 
 function BarcodeReader(props: {
-  onRead: (barcode: string) => void
+  onRead: (barcode: string) => void,
+  enabled: boolean
 }) {
+  const [error, setError] = useState("");
+
   return <>
-    <Card
-      style={{
-        display: "block",
-        background: "#ffffff",
-        zIndex: 1000,
-      }}>
-      <Title1>Scan Barcode</Title1>
-      <BarcodeScanner
-        onSuccess={(text: string) => console.log(text)}
-        onError={(error: Error) => {
-          if (error) {
-            console.error(error.message);
-          }
+    <Field
+      validationMessage={error}>
+      <Scanner
+        enabled={props.enabled}
+        options={{
+          delayBetweenScanSuccess: 100,
         }}
-        onLoad={() => console.log('Video feed has loaded!')}
-        containerStyle={{width: '100%'}}
-      />
-    </Card>
+        onResult={(text, result) => result.getBarcodeFormat() === BarcodeFormat.EAN_13 ? props.onRead(text) : setError("This code could not be recognized.")}
+        onError={(error) => setError(error?.message)}/>
+    </Field>
   </>;
 }
 
@@ -128,7 +124,6 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
   };
 
   return <>
-
     <Dialog
       open={props.open}
       onOpenChange={(event, data) => {
@@ -155,7 +150,9 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                     .then(items => items.map(mapItemToTitleSuggestionResult))}
                   selectionPressed={selection => setState({
                     ...state,
-                    itemId: selection.id
+                    itemId: selection.id,
+                    barcode: selection.barcode,
+                    title: selection.title
                   })}/>
               </Field>
               <Field
@@ -166,20 +163,26 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                     .then(items => items.map(mapItemToBarcodeSuggestionResult))}
                   selectionPressed={selection => setState({
                     ...state,
-                    itemId: selection.id
+                    itemId: selection.id,
+                    barcode: selection.barcode,
+                    title: selection.title
                   })}/>
               </Field>
               <Button
                 onClick={() => setBarcodeReaderOpen(prev => !prev)}
                 icon={
                   <FontAwesomeIcon
-                    icon={faBarcode}/>}>{barcodeReaderOpen ? "Open" : "Close"} barcode reader</Button>
+                    icon={faBarcode}/>}>{barcodeReaderOpen ? "Close" : "Open"} barcode reader</Button>
               {barcodeReaderOpen &&
                   <BarcodeReader
-                      onRead={(barcode) => setState(prevState => ({
-                        ...prevState,
-                        barcode: barcode
-                      }))}/>}
+                      enabled={barcodeReaderOpen}
+                      onRead={(barcode) => {
+                        setState(prevState => ({
+                          ...prevState,
+                          barcode: barcode
+                        }));
+                        setBarcodeReaderOpen(false);
+                      }}/>}
             </DialogContent>
             <DialogActions>
               <DialogTrigger
@@ -198,6 +201,5 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
         </form>
       </DialogSurface>
     </Dialog>
-  </>
-    ;
+  </>;
 }
