@@ -23,9 +23,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.2960026"
-     inkscape:cx="2398.6275"
-     inkscape:cy="847.96551"
+     inkscape:zoom="0.5920052"
+     inkscape:cx="8447.5609"
+     inkscape:cy="716.20993"
      inkscape:window-width="2560"
      inkscape:window-height="1372"
      inkscape:window-x="0"
@@ -62,6 +62,18 @@
        inkscape:export-xdpi="24.190475"
        inkscape:export-ydpi="24.190475"
        inkscape:label="WordMarkShort" />
+    <inkscape:page
+       x="2370"
+       y="0"
+       width="200"
+       height="200"
+       id="page1"
+       margin="0"
+       bleed="0"
+       inkscape:label="PictureMarkInverted"
+       inkscape:export-filename="PictureMarkInverted.svg"
+       inkscape:export-xdpi="24.190475"
+       inkscape:export-ydpi="24.190475" />
   </sodipodi:namedview>
   <defs
      id="defs1" />
@@ -128,5 +140,17 @@
        id="path15"
        style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
        d="m 7.9207314,346.85282 c 16.3089996,0 29.4389996,13.12976 29.4389996,29.43881 0,16.30909 -13.13,29.43838 -29.4389996,29.43838 H 161.56705 c 16.3085,0 29.4386,-13.12929 29.4386,-29.43838 0,-16.30905 -13.1301,-29.43881 -29.4386,-29.43881 z" />
+    <path
+       id="path1"
+       style="fill:#b9694d;fill-opacity:1;stroke:#ffffff;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 2378.9207,15.095187 c 16.309,0 29.439,13.130043 29.439,29.439015 0,16.30892 -13.13,29.438162 -29.439,29.438162 h 153.6463 c 16.3085,0 29.4386,-13.129242 29.4386,-29.438162 0,-16.308972 -13.1301,-29.439015 -29.4386,-29.439015 z" />
+    <path
+       id="path4"
+       style="fill:#d8a62e;fill-opacity:1;stroke:#ffffff;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 2378.9207,73.972364 c 16.309,0 29.439,13.130069 29.439,29.438756 0,16.3095 -13.13,29.43856 -29.439,29.43856 h 153.6463 c 16.3085,0 29.4386,-13.12906 29.4386,-29.43856 0,-16.308687 -13.1301,-29.438756 -29.4386,-29.438756 z" />
+    <path
+       id="path5"
+       style="fill:#489cbe;fill-opacity:1;stroke:#ffffff;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 2378.9207,132.84968 c 16.309,0 29.439,13.12976 29.439,29.43881 0,16.30909 -13.13,29.43838 -29.439,29.43838 h 153.6463 c 16.3085,0 29.4386,-13.12929 29.4386,-29.43838 0,-16.30905 -13.1301,-29.43881 -29.4386,-29.43881 z" />
   </g>
 </svg>

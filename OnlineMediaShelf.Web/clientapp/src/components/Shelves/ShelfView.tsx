@@ -86,18 +86,19 @@ export function ShelfView() {
               isDialogOpen: data.open
             })}/>
 
-          <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf</Title1>
+          <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
+            {user?.currentUser?.isLoggedIn ?
+              <Button
+                style={{float: "right"}}
+                icon={
+                  <FontAwesomeIcon
+                    icon={faPlus}/>}
+                onClick={() => setState({
+                  ...state,
+                  isDialogOpen: true
+                })}>Add Item to Shelf</Button> :
+              <></>}</Title1>
           <p>{state.shelf.description}</p>
-
-          {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
-            <Button
-              icon={
-                <FontAwesomeIcon
-                  icon={faPlus}/>}
-              onClick={() => setState({
-                ...state,
-                isDialogOpen: true
-              })}>Add item to shelf</Button> : <></>}
 
           {state.shelf.items !== undefined &&
               <ItemList
