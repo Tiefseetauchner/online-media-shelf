@@ -12,7 +12,8 @@ import {
   Text,
   Title1,
   Title3,
-  tokens
+  tokens,
+  useToastController
 } from "@fluentui/react-components";
 import {
   FontAwesomeIcon,
@@ -38,8 +39,37 @@ import {
 import {
   Link
 } from "react-router-dom";
+import {
+  useEffect,
+  useState
+} from "react";
+import {
+  IItemModel,
+  ItemClient
+} from "../OMSWebClient.ts";
+import {
+  showErrorToast
+} from "../utilities/toastHelper.tsx";
 
 export function HomePage() {
+  const [mostRecentItems, setMostRecentItems] = useState<IItemModel[]>([]);
+
+  const {dispatchToast} = useToastController();
+
+  useEffect(() => {
+    async function populateItems() {
+      try {
+        let itemClient = new ItemClient();
+
+        setMostRecentItems(await itemClient.getMostRecentItems(3));
+      } catch {
+        showErrorToast("Could not load most recent items", dispatchToast)
+      }
+    }
+
+    populateItems();
+  }, []);
+
   return <>
     <Hero
       title={"Online Media Shelf"}
@@ -176,33 +206,49 @@ export function HomePage() {
       </Row>
       <Row
         sm={"1"}
-        md={"2"}
-        xl={"3"}
+        md={"3"}
         className="gy-4">
-        <Col>
-          <Card>
-            <CardPreview>
-              <img
-                style={{
-                  height: "200px",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-                src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png"/>
-            </CardPreview>
-            <div
-              className="p-2">
-              <Text
-                style={{
-                  color: tokens.colorBrandForeground1
-                }}>DVD</Text>
-              <CardHeader
-                header={
-                  <Title3>Lorem libero donec</Title3>}/>
-              <Text>Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus.</Text>
-            </div>
-          </Card>
-        </Col>
+        {mostRecentItems.map(item => (
+          <Col>
+            <Card>
+              <CardPreview>
+                <img
+                  style={{
+                    height: "200px",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                  }}
+                  src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png"/>
+              </CardPreview>
+              <div
+                className="p-2">
+                <Text
+                  style={{
+                    color: tokens.colorBrandForeground1
+                  }}>{}</Text>
+                <CardHeader
+                  style={{
+                    overflow: "hidden",
+                  }}
+                  header={
+                    <Title3
+                      style={{
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 1,
+                      }}>{item.title}</Title3>}/>
+                <Text
+                  style={{
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 4,
+                  }}>{item.description}</Text>
+              </div>
+            </Card>
+          </Col>
+        ))}
       </Row>
     </Container>
   </>

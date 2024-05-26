@@ -31,6 +31,9 @@ import {
 import {
   ItemView
 } from "../components/Items/ItemView.tsx";
+import {
+  PrivacyPolicy
+} from "../components/PrivacyPolicy.tsx";
 
 export const routes = {
   root: "/",
@@ -39,6 +42,7 @@ export const routes = {
   login: "/login",
   register: "/register",
   userAccount: "/my-account",
+  privacy: "/privacy-policy",
 };
 
 export const router = createBrowserRouter([
@@ -78,6 +82,10 @@ export const router = createBrowserRouter([
       {
         path: "items/:itemId",
         Component: ItemView,
+      },
+      {
+        path: "privacy-policy",
+        Component: PrivacyPolicy,
       },
     ],
   },

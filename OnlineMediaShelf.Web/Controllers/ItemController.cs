@@ -41,6 +41,17 @@ public class ItemController(
     return Ok(items);
   }
 
+  [HttpGet("most-recent")]
+  public async Task<ActionResult<List<ItemModel>>> GetMostRecentItems([FromQuery] int limit)
+  {
+    var items = await unitOfWork.ItemRepository.GetQueryable()
+      .OrderByDescending(_ => _.Id)
+      .Take(limit)
+      .ToListAsync();
+
+    return Ok(items);
+  }
+
   [HttpGet("{id:int}")]
   public async Task<ActionResult<ItemModel>> GetItem(int id)
   {
