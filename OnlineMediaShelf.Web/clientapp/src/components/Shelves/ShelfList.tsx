@@ -12,7 +12,7 @@ interface ShelfCardDisplayProps {
   shelves: IShelfModel[];
 }
 
-export function ShelfCardDisplay(props: ShelfCardDisplayProps) {
+export function ShelfList(props: ShelfCardDisplayProps) {
   return props.shelves == undefined ?
     <SkeletonItem/> :
     <div
@@ -22,6 +22,7 @@ export function ShelfCardDisplay(props: ShelfCardDisplayProps) {
       }}>
       {props.shelves.map(shelf =>
         <ShelfCard
+          key={shelf.id}
           shelfId={shelf.id!}/>)}
     </div>;
 }

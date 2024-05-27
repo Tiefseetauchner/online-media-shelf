@@ -28,6 +28,15 @@ import {
 import SearchField, {
   SuggestionType
 } from "../SearchField.tsx";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faBarcode
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  BarcodeReader
+} from "../BarcodeReader.tsx";
 
 interface AddItemToShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -39,6 +48,8 @@ interface AddItemToShelfDialogProps {
 
 interface AddItemToShelfDialogState {
   itemId?: number;
+  title?: string;
+  barcode?: string;
   error?: string;
 }
 
@@ -57,7 +68,8 @@ function mapItemToBarcodeSuggestionResult(item: IItemModel): SuggestionType<IIte
 }
 
 export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
-  const [state, setState] = useState<AddItemToShelfDialogState>({})
+  const [state, setState] = useState<AddItemToShelfDialogState>({});
+  const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
 
   const itemClient = new ItemClient();
 
@@ -114,61 +126,97 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
       runCreate()
   };
 
-  return <Dialog
-    open={props.open}
-    onOpenChange={props.onOpenChange}>
-    <DialogSurface
-      aria-describedby={undefined}>
-      <form
-        onSubmit={handleSubmit}>
-        <DialogBody>
-          <DialogTitle>Dialog title</DialogTitle>
-          <DialogContent
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              rowGap: "10px",
-            }}>
-            <Field
-              label="Name"
-              validationMessage={state.error}>
-              <SearchField<IItemModel>
-                fetchSuggestionsDelegate={(query) =>
-                  itemClient.searchItem(query, undefined, 10, props.excludedItems)
-                  .then(items => items.map(mapItemToTitleSuggestionResult))}
-                selectionPressed={selection => setState({
-                  ...state,
-                  itemId: selection.id
-                })}/>
-            </Field>
-            <Field
-              label="Barcode">
-              <SearchField<IItemModel>
-                fetchSuggestionsDelegate={(query) =>
-                  itemClient.searchItem(undefined, query, 10, props.excludedItems)
-                  .then(items => items.map(mapItemToBarcodeSuggestionResult))}
-                selectionPressed={selection => setState({
-                  ...state,
-                  itemId: selection.id
-                })}/>
-            </Field>
-          </DialogContent>
-          <DialogActions>
-            <DialogTrigger
-              disableButtonEnhancement
-              action={"close"}>
+  return <>
+    <Dialog
+      open={props.open}
+      onOpenChange={(event, data) => {
+        props.onOpenChange(event, data);
+        setBarcodeReaderOpen(false);
+      }}>
+      <DialogSurface
+        aria-describedby={undefined}>
+        <form
+          onSubmit={handleSubmit}>
+          <DialogBody>
+            <DialogTitle>Dialog title</DialogTitle>
+            <DialogContent
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                rowGap: "10px",
+              }}>
+              <Field
+                label="Name"
+                validationMessage={state.error}>
+                <SearchField<IItemModel>
+                  fetchSuggestionsDelegate={(query) =>
+                    itemClient.searchItem(query, undefined, 10, props.excludedItems)
+                    .then(items => items.map(mapItemToTitleSuggestionResult))}
+                  selectionPressed={selection => setState({
+                    ...state,
+                    itemId: selection.id,
+                    barcode: selection.barcode,
+                    title: selection.title
+                  })}
+                  value={state.title ?? "empty!!!"}/>
+              </Field>
+              <Field
+                label="Barcode">
+                <SearchField<IItemModel>
+                  fetchSuggestionsDelegate={(query) =>
+                    itemClient.searchItem(undefined, query, 10, props.excludedItems)
+                    .then(items => items.map(mapItemToBarcodeSuggestionResult))}
+                  selectionPressed={selection => setState({
+                    ...state,
+                    itemId: selection.id,
+                    barcode: selection.barcode,
+                    title: selection.title
+                  })}
+                  value={state.barcode ?? "empty!!!"}/>
+              </Field>
               <Button
-                appearance="secondary">Cancel</Button>
-            </DialogTrigger>
-            <Button
-              id="SubmitAddItemToShelfButton"
-              type="submit"
-              appearance="primary">
-              Submit
-            </Button>
-          </DialogActions>
-        </DialogBody>
-      </form>
-    </DialogSurface>
-  </Dialog>;
+                onClick={() => setBarcodeReaderOpen(prev => !prev)}
+                icon={
+                  <FontAwesomeIcon
+                    icon={faBarcode}/>}>{barcodeReaderOpen ? "Close" : "Open"} barcode reader</Button>
+              <BarcodeReader
+                style={{display: barcodeReaderOpen ? "block" : "none"}}
+                enabled={barcodeReaderOpen}
+                onRead={(barcode) => {
+                  async function getItemFromBarcode() {
+                    let item = await itemClient.searchItem(undefined, barcode, undefined, undefined)
+                    .then(items => items.map(mapItemToBarcodeSuggestionResult))
+
+                    setState(prevState => ({
+                      ...prevState,
+                      barcode: barcode,
+                      itemId: item[0].value.id,
+                      title: item[0].value.title
+                    }));
+
+                    setTimeout(() => setBarcodeReaderOpen(false), 200);
+                  }
+
+                  getItemFromBarcode();
+                }}/>
+            </DialogContent>
+            <DialogActions>
+              <DialogTrigger
+                disableButtonEnhancement
+                action={"close"}>
+                <Button
+                  appearance="secondary">Cancel</Button>
+              </DialogTrigger>
+              <Button
+                id="SubmitAddItemToShelfButton"
+                type="submit"
+                appearance="primary">
+                Submit
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </form>
+      </DialogSurface>
+    </Dialog>
+  </>;
 }

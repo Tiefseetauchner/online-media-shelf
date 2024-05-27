@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="2150mm"
+   height="200mm"
+   viewBox="0 0 2150 200"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-210.5159,-3.4110288)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:52.5073px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.31269"
+       x="417.32745"
+       y="188.8512"
+       id="text7"><tspan
+         id="tspan7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:252.036px;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:1.31269"
+         x="417.32745"
+         y="188.8512">Online Media Shelf</tspan></text>
+    <path
+       id="path10"
+       style="fill:#b9694d;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 217.92073,15.095188 c 16.30893,0 29.43898,13.130043 29.43898,29.439015 0,16.30892 -13.13005,29.438162 -29.43898,29.438162 h 153.6463 c 16.30844,0 29.43857,-13.129242 29.43857,-29.438162 0,-16.308972 -13.13013,-29.439015 -29.43857,-29.439015 z" />
+    <path
+       id="path11"
+       style="fill:#d8a62e;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 217.92073,73.972365 c 16.30893,0 29.43898,13.130069 29.43898,29.438755 0,16.3095 -13.13005,29.43856 -29.43898,29.43856 h 153.6463 c 16.30844,0 29.43857,-13.12906 29.43857,-29.43856 0,-16.308686 -13.13013,-29.438755 -29.43857,-29.438755 z" />
+    <path
+       id="path12"
+       style="fill:#489cbe;fill-opacity:1;stroke:#000000;stroke-width:15.0206;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       d="m 217.92073,132.84968 c 16.30893,0 29.43898,13.12976 29.43898,29.43881 0,16.30909 -13.13005,29.43838 -29.43898,29.43838 h 153.6463 c 16.30844,0 29.43857,-13.12929 29.43857,-29.43838 0,-16.30905 -13.13013,-29.43881 -29.43857,-29.43881 z" />
+  </g>
+</svg>

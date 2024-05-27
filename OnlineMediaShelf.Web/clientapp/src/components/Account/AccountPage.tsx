@@ -18,8 +18,8 @@ import {
   ShelfClient
 } from "../../OMSWebClient.ts";
 import {
-  ShelfCardDisplay
-} from "../Shelves/ShelfCardDisplay.tsx";
+  ShelfList
+} from "../Shelves/ShelfList.tsx";
 
 interface AccountState {
   isLoaded: boolean;
@@ -122,7 +122,7 @@ export function AccountPage() {
 
         <Title2>Manage Shelves</Title2>
 
-        <ShelfCardDisplay
+        <ShelfList
           shelves={state.shelves ?? []}/>
 
         <form

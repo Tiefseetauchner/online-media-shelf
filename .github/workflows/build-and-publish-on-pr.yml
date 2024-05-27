@@ -3,6 +3,9 @@ name: Build and Publish on PR Push
 on:
   push:
     branches:
+      - 'main'
+  pull_request:
+    branches:
       - '**'
 
 jobs:
@@ -14,9 +17,14 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: 8.x
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Restore dependencies
         run: dotnet restore

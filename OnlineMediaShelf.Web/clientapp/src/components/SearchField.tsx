@@ -14,7 +14,8 @@ import {
   TreeItem
 } from '@fluentui/react-components';
 import {
-  debounce
+  debounce,
+  uniqueId
 } from "lodash";
 
 export interface SuggestionType<T> {
@@ -25,6 +26,7 @@ export interface SuggestionType<T> {
 interface SearchFieldProps<T> {
   fetchSuggestionsDelegate: (query: string) => Promise<SuggestionType<T>[]>;
   selectionPressed: (selection: T) => void;
+  value: string;
 }
 
 interface SearchFieldInputState<T> {
@@ -39,6 +41,7 @@ function SearchField<T>(props: SearchFieldProps<T>) {
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const inputFieldId = uniqueId()
 
   const fetchSuggestions = useCallback(
     debounce(async query => {
@@ -47,11 +50,15 @@ function SearchField<T>(props: SearchFieldProps<T>) {
         ...prev,
         suggestions: result,
       }));
-    }, 2000, {leading: true}), [state.input]);
+    }, 400, {leading: true}), [state.input]);
 
   useEffect(() => {
     fetchSuggestions(state.input);
   }, [state.input]);
+
+  useEffect(() => {
+    (document.getElementById(inputFieldId) as HTMLInputElement).value = props.value;
+  }, [props.value]);
 
   function selectionPressed(item: SuggestionType<T>) {
     props.selectionPressed(item.value);
@@ -81,6 +88,7 @@ function SearchField<T>(props: SearchFieldProps<T>) {
   return (
     <>
       <Input
+        id={inputFieldId}
         autoComplete={"off"}
         placeholder="Search"
         onChange={(e) => setState({
