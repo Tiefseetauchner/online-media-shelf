@@ -3,7 +3,7 @@ name: Build and Publish on PR Push
 on:
   push:
     branches:
-      - '**'
+      - 'main'
   pull_request:
     branches:
       - '**'
