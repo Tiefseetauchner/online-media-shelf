@@ -152,26 +152,26 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                 icon={
                   <FontAwesomeIcon
                     icon={faBarcode}/>}>{barcodeReaderOpen ? "Close" : "Open"} barcode reader</Button>
-              {barcodeReaderOpen &&
-                  <BarcodeReader
-                      enabled={barcodeReaderOpen}
-                      onRead={(barcode) => {
-                        async function getItemFromBarcode() {
-                          let item = await itemClient.searchItem(undefined, barcode)
-                          .then(items => items.map(mapItemToBarcodeSuggestionResult))
+              <BarcodeReader
+                style={{display: barcodeReaderOpen ? "block" : "none"}}
+                enabled={barcodeReaderOpen}
+                onRead={(barcode) => {
+                  async function getItemFromBarcode() {
+                    let item = await itemClient.searchItem(undefined, barcode)
+                    .then(items => items.map(mapItemToBarcodeSuggestionResult))
 
-                          setState(prevState => ({
-                            ...prevState,
-                            barcode: barcode,
-                            itemId: item[0].value.id,
-                            title: item[0].value.title
-                          }));
+                    setState(prevState => ({
+                      ...prevState,
+                      barcode: barcode,
+                      itemId: item[0].value.id,
+                      title: item[0].value.title
+                    }));
 
-                          setTimeout(() => setBarcodeReaderOpen(false), 200);
-                        }
+                    setTimeout(() => setBarcodeReaderOpen(false), 200);
+                  }
 
-                        getItemFromBarcode();
-                      }}/>}
+                  getItemFromBarcode();
+                }}/>
             </DialogContent>
             <DialogActions>
               <DialogTrigger

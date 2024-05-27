@@ -15,7 +15,7 @@ import {
 interface BarcodeReaderParams {
   onRead: (barcode: string) => void;
   enabled: boolean;
-  style: CSSProperties;
+  style?: CSSProperties;
 }
 
 export function BarcodeReader(props: BarcodeReaderParams) {
