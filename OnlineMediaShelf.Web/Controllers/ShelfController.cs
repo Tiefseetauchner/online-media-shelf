@@ -77,7 +77,7 @@ public class ShelfController(
     if (shelf == null)
       return NotFound();
 
-    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == item.Id || i.Barcode == item.Barcode));
+    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == item.Id));
 
     await unitOfWork.CommitAsync();
 

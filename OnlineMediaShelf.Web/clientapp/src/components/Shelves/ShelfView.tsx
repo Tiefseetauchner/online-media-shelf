@@ -84,7 +84,8 @@ export function ShelfView() {
             onOpenChange={(_, data) => setState({
               ...state,
               isDialogOpen: data.open
-            })}/>
+            })}
+            excludedItems={state.shelf.items?.map(i => i.id ?? -1) ?? []}/>
 
           <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
             {user?.currentUser?.isLoggedIn ?

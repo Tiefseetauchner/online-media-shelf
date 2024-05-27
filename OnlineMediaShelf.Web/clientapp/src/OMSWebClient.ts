@@ -649,12 +649,20 @@ export class ItemClient {
         return Promise.resolve<ItemModel[]>(null as any);
     }
 
-    searchItem(title: string | null | undefined, barcode: string | null | undefined): Promise<ItemModel[]> {
+    searchItem(title: string | null | undefined, barcode: string | null | undefined, limit: number | undefined, excludedItems: number[] | undefined): Promise<ItemModel[]> {
         let url_ = this.baseUrl + "/api/items/search?";
         if (title !== undefined && title !== null)
             url_ += "title=" + encodeURIComponent("" + title) + "&";
         if (barcode !== undefined && barcode !== null)
             url_ += "barcode=" + encodeURIComponent("" + barcode) + "&";
+        if (limit === null)
+            throw new Error("The parameter 'limit' cannot be null.");
+        else if (limit !== undefined)
+            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        if (excludedItems === null)
+            throw new Error("The parameter 'excludedItems' cannot be null.");
+        else if (excludedItems !== undefined)
+            excludedItems && excludedItems.forEach(item => { url_ += "excludedItems=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -2297,7 +2305,6 @@ export interface ICreateShelfModel {
 
 export class ItemAddModel implements IItemAddModel {
     id?: number | undefined;
-    barcode?: string | undefined;
 
     constructor(data?: IItemAddModel) {
         if (data) {
@@ -2311,7 +2318,6 @@ export class ItemAddModel implements IItemAddModel {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.barcode = _data["barcode"];
         }
     }
 
@@ -2325,14 +2331,12 @@ export class ItemAddModel implements IItemAddModel {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["barcode"] = this.barcode;
         return data;
     }
 }
 
 export interface IItemAddModel {
     id?: number | undefined;
-    barcode?: string | undefined;
 }
 
 export interface FileResponse {

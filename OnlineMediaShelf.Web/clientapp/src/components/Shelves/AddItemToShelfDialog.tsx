@@ -15,8 +15,8 @@ import {
 } from "react";
 import {
   IItemModel,
+  ItemAddModel,
   ItemClient,
-  ItemModel,
   ShelfClient
 } from "../../OMSWebClient.ts";
 import {
@@ -43,12 +43,12 @@ interface AddItemToShelfDialogProps {
   onAddItem: () => void;
   open: boolean;
   shelfId: number;
+  excludedItems: number[];
 }
 
 interface AddItemToShelfDialogState {
-  title?: string;
-  barcode?: string;
   itemId?: number;
+  error?: string;
 }
 
 function mapItemToTitleSuggestionResult(item: IItemModel): SuggestionType<IItemModel> {
@@ -76,14 +76,37 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
   const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
 
+    const validateForm = () => {
+      if (state.itemId == undefined) {
+        setState(prevState => ({
+          ...prevState,
+          error: "No Item was selected. Please select an item from the list."
+        }));
+
+        return false;
+      } else if (props.excludedItems.some(value => value === state.itemId)) {
+        setState(prevState => ({
+          ...prevState,
+          error: "The Item is already contained in the shelf."
+        }));
+
+        console.log(props.excludedItems, state.itemId);
+
+        return false;
+      }
+
+      return true;
+    }
+
     const runCreate = async () => {
-      const client = new ShelfClient();
+      const shelfClient = new ShelfClient();
 
       try {
-        await client.addItem(props.shelfId, new ItemModel({
-          id: state.itemId,
-          barcode: state.barcode
+        await shelfClient.addItem(props.shelfId, new ItemAddModel({
+          id: state.itemId
         }))
+
+        setState({});
 
         props.onOpenChange(null!, {
           open: false,
@@ -97,7 +120,8 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
       }
     };
 
-    runCreate()
+    if (validateForm())
+      runCreate()
   };
 
   return <>
@@ -120,10 +144,11 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                 rowGap: "10px",
               }}>
               <Field
-                label="Shelf Name">
+              label="Name"
+              validationMessage={state.error}>
                 <SearchField<IItemModel>
                   fetchSuggestionsDelegate={(query) =>
-                    itemClient.searchItem(query, undefined)
+                  itemClient.searchItem(query, undefined, 10, props.excludedItems)
                     .then(items => items.map(mapItemToTitleSuggestionResult))}
                   selectionPressed={selection => setState({
                     ...state,
@@ -134,10 +159,10 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                   value={state.title ?? ""}/>
               </Field>
               <Field
-                label="Shelf Barcode">
+              label="Barcode">
                 <SearchField<IItemModel>
                   fetchSuggestionsDelegate={(query) =>
-                    itemClient.searchItem(undefined, query)
+                  itemClient.searchItem(undefined, query, 10, props.excludedItems)
                     .then(items => items.map(mapItemToBarcodeSuggestionResult))}
                   selectionPressed={selection => setState({
                     ...state,
@@ -181,6 +206,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                   appearance="secondary">Cancel</Button>
               </DialogTrigger>
               <Button
+              id="SubmitAddItemToShelfButton"
                 type="submit"
                 appearance="primary">
                 Submit
