@@ -22,6 +22,7 @@ export function ShelfList(props: ShelfCardDisplayProps) {
       }}>
       {props.shelves.map(shelf =>
         <ShelfCard
+          key={shelf.id}
           shelfId={shelf.id!}/>)}
     </div>;
 }
