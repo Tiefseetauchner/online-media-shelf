@@ -50,7 +50,7 @@ function SearchField<T>(props: SearchFieldProps<T>) {
         ...prev,
         suggestions: result,
       }));
-    }, 2000, {leading: true}), [state.input]);
+    }, 400, {leading: true}), [state.input]);
 
   useEffect(() => {
     fetchSuggestions(state.input);
