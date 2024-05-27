@@ -21,6 +21,11 @@ jobs:
         with:
           dotnet-version: 8.x
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - name: Restore dependencies
         run: dotnet restore
 
