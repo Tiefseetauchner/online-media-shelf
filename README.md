@@ -1,7 +1,7 @@
 # Online Media Shelf
 
 [![Current Version](https://img.shields.io/github/v/tag/Tiefseetauchner/online-media-shelf)](https://github.com/Tiefseetauchner/online-media-shelf/releases)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/Tiefseetauchner/online-media-shelf/dotnet.yml)](https://github.com/Tiefseetauchner/online-media-shelf/actions)
+[![.NET](https://github.com/Tiefseetauchner/online-media-shelf/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Tiefseetauchner/online-media-shelf/actions/workflows/dotnet.yml)
 
 ## Overview
 Online Media Shelf is a collaborative platform designed to help users document and manage their media collections online. It aims to become the ultimate resource for cataloging and sharing collections of books, DVDs, Blu-rays, and CDs. Whether you're a casual collector or a dedicated archivist, Online Media Shelf provides tools to track your items and collaborate with others to create the most comprehensive media library on the internet.
