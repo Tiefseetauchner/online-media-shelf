@@ -36,7 +36,7 @@ export function Layout() {
 
   return (
     <div
-      style={{minHeight: "100vh"}}>
+      className={"d-flex flex-column min-vh-100"}>
       <Header/>
 
       <div
@@ -45,7 +45,7 @@ export function Layout() {
       </div>
 
       <footer
-        className="text-center bg-dark bottom-0">
+        className="text-center bg-dark mt-auto">
         <Container
           className="text-white py-4 py-lg-5">
           <ul
