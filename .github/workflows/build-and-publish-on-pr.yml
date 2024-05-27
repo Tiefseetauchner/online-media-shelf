@@ -1,12 +1,11 @@
-name: Build and Publish on PR Push
+name: Build and Publish on PR Push and main commit
 
 on:
   push:
     branches:
-      - 'main'
+      - main
   pull_request:
-    branches:
-      - '**'
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
