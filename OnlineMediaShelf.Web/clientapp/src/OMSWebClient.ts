@@ -784,11 +784,11 @@ export class ItemClient {
         return Promise.resolve<ItemModel>(null as any);
     }
 
-    createItem(shelf: CreateItemModel): Promise<ItemModel> {
+    createItem(item: CreateItemModel): Promise<ItemModel> {
         let url_ = this.baseUrl + "/api/items/create";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(shelf);
+        const content_ = JSON.stringify(item);
 
         let options_: RequestInit = {
             body: content_,
@@ -1888,6 +1888,9 @@ export class ItemModel implements IItemModel {
     barcode?: string | undefined;
     title?: string;
     description?: string | undefined;
+    authors?: string[];
+    releaseDate?: Date;
+    format?: string;
 
     constructor(data?: IItemModel) {
         if (data) {
@@ -1904,6 +1907,13 @@ export class ItemModel implements IItemModel {
             this.barcode = _data["barcode"];
             this.title = _data["title"];
             this.description = _data["description"];
+            if (Array.isArray(_data["authors"])) {
+                this.authors = [] as any;
+                for (let item of _data["authors"])
+                    this.authors!.push(item);
+            }
+            this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
+            this.format = _data["format"];
         }
     }
 
@@ -1920,6 +1930,13 @@ export class ItemModel implements IItemModel {
         data["barcode"] = this.barcode;
         data["title"] = this.title;
         data["description"] = this.description;
+        if (Array.isArray(this.authors)) {
+            data["authors"] = [];
+            for (let item of this.authors)
+                data["authors"].push(item);
+        }
+        data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
+        data["format"] = this.format;
         return data;
     }
 }
@@ -1929,6 +1946,9 @@ export interface IItemModel {
     barcode?: string | undefined;
     title?: string;
     description?: string | undefined;
+    authors?: string[];
+    releaseDate?: Date;
+    format?: string;
 }
 
 export class IdentityUserOfString implements IIdentityUserOfString {
@@ -2160,6 +2180,10 @@ export class Item implements IItem {
     barcode?: string | undefined;
     title!: string;
     description?: string | undefined;
+    authors?: string[];
+    coverImage?: string | undefined;
+    releaseDate?: Date;
+    format?: string;
     containingShelves?: Shelf[];
 
     constructor(data?: IItem) {
@@ -2177,6 +2201,14 @@ export class Item implements IItem {
             this.barcode = _data["barcode"];
             this.title = _data["title"];
             this.description = _data["description"];
+            if (Array.isArray(_data["authors"])) {
+                this.authors = [] as any;
+                for (let item of _data["authors"])
+                    this.authors!.push(item);
+            }
+            this.coverImage = _data["coverImage"];
+            this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
+            this.format = _data["format"];
             if (Array.isArray(_data["containingShelves"])) {
                 this.containingShelves = [] as any;
                 for (let item of _data["containingShelves"])
@@ -2198,6 +2230,14 @@ export class Item implements IItem {
         data["barcode"] = this.barcode;
         data["title"] = this.title;
         data["description"] = this.description;
+        if (Array.isArray(this.authors)) {
+            data["authors"] = [];
+            for (let item of this.authors)
+                data["authors"].push(item);
+        }
+        data["coverImage"] = this.coverImage;
+        data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
+        data["format"] = this.format;
         if (Array.isArray(this.containingShelves)) {
             data["containingShelves"] = [];
             for (let item of this.containingShelves)
@@ -2212,6 +2252,10 @@ export interface IItem {
     barcode?: string | undefined;
     title: string;
     description?: string | undefined;
+    authors?: string[];
+    coverImage?: string | undefined;
+    releaseDate?: Date;
+    format?: string;
     containingShelves?: Shelf[];
 }
 
@@ -2219,6 +2263,9 @@ export class CreateItemModel implements ICreateItemModel {
     barcode?: string | undefined;
     title?: string;
     description?: string | undefined;
+    authors?: string[];
+    releaseDate?: Date;
+    format?: string;
 
     constructor(data?: ICreateItemModel) {
         if (data) {
@@ -2234,6 +2281,13 @@ export class CreateItemModel implements ICreateItemModel {
             this.barcode = _data["barcode"];
             this.title = _data["title"];
             this.description = _data["description"];
+            if (Array.isArray(_data["authors"])) {
+                this.authors = [] as any;
+                for (let item of _data["authors"])
+                    this.authors!.push(item);
+            }
+            this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
+            this.format = _data["format"];
         }
     }
 
@@ -2249,6 +2303,13 @@ export class CreateItemModel implements ICreateItemModel {
         data["barcode"] = this.barcode;
         data["title"] = this.title;
         data["description"] = this.description;
+        if (Array.isArray(this.authors)) {
+            data["authors"] = [];
+            for (let item of this.authors)
+                data["authors"].push(item);
+        }
+        data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
+        data["format"] = this.format;
         return data;
     }
 }
@@ -2257,6 +2318,9 @@ export interface ICreateItemModel {
     barcode?: string | undefined;
     title?: string;
     description?: string | undefined;
+    authors?: string[];
+    releaseDate?: Date;
+    format?: string;
 }
 
 export class CreateShelfModel implements ICreateShelfModel {

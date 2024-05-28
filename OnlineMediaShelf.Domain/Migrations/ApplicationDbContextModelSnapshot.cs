@@ -244,13 +244,29 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Authors")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
                     b.Property<string>("Barcode")
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
+                    b.Property<byte[]>("CoverImage")
+                        .HasColumnType("longblob");
+
                     b.Property<string>("Description")
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("ReleaseDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Title")
                         .IsRequired()

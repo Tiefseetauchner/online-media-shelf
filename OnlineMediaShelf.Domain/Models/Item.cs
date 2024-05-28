@@ -1,5 +1,6 @@
 #region
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,6 +24,16 @@ public class Item : IEntity<int>
 
   [StringLength(512)]
   public string? Description { get; set; }
+
+  [StringLength(64)]
+  public List<string> Authors { get; set; } = [];
+
+  public byte[]? CoverImage { get; set; }
+
+  public DateTime ReleaseDate { get; set; }
+
+  [StringLength(20)]
+  public string Format { get; set; } = "";
 
   public List<Shelf> ContainingShelves { get; set; } = null!;
 }

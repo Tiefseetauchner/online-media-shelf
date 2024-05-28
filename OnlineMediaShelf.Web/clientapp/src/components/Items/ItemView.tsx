@@ -111,8 +111,10 @@ export function ItemView() {
       )*/}
       <Text
         className={styles.bookTitle}>{item.title}</Text>
-      <Text
-        className={styles.author}>by {/*item.author*/}</Text>
+      {item.authors && item.authors?.length > 0 &&
+          <Text
+              className={styles.author}>by {item.authors?.join(", ")}</Text>
+      }
       <Divider/>
       <Text
         className={styles.description}>{item.description}</Text>
