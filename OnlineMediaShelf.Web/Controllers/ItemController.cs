@@ -34,7 +34,7 @@ public class ItemController(
     [FromQuery]
     string? barcode,
     [FromQuery]
-    int limit,
+    int? limit,
     [FromQuery]
     List<int> excludedItems)
   {
@@ -43,7 +43,7 @@ public class ItemController(
       .Where(i => title == null || i.Title.Contains(title))
       .Where(i => barcode == null || i.Barcode == null || i.Barcode.Contains(barcode))
       .Where(i => !excludedItems.Contains(i.Id))
-      .Take(limit)
+      .Take(limit ?? 100)
       .ToListAsync();
 
     return Ok(items);

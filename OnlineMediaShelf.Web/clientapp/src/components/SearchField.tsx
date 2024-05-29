@@ -39,9 +39,10 @@ function SearchField<T>(props: SearchFieldProps<T>) {
     input: "",
     suggestions: []
   });
+  const [inputFieldId] = useState(uniqueId('searchFieldInput-'));
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const inputFieldId = uniqueId()
 
   const fetchSuggestions = useCallback(
     debounce(async query => {
@@ -51,6 +52,9 @@ function SearchField<T>(props: SearchFieldProps<T>) {
         suggestions: result,
       }));
     }, 400, {leading: true}), [state.input]);
+
+  useEffect(() => {
+  }, []);
 
   useEffect(() => {
     fetchSuggestions(state.input);

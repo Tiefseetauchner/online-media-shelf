@@ -51,6 +51,7 @@ interface AddItemToShelfDialogState {
   title?: string;
   barcode?: string;
   error?: string;
+  barcodeError?: string;
 }
 
 function mapItemToTitleSuggestionResult(item: IItemModel): SuggestionType<IItemModel> {
@@ -158,10 +159,11 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                     barcode: selection.barcode,
                     title: selection.title
                   })}
-                  value={state.title ?? "empty!!!"}/>
+                  value={state.title ?? ""}/>
               </Field>
               <Field
-                label="Barcode">
+                label="Barcode"
+                validationMessage={state.barcodeError}>
                 <SearchField<IItemModel>
                   fetchSuggestionsDelegate={(query) =>
                     itemClient.searchItem(undefined, query, 10, props.excludedItems)
@@ -172,7 +174,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                     barcode: selection.barcode,
                     title: selection.title
                   })}
-                  value={state.barcode ?? "empty!!!"}/>
+                  value={state.barcode ?? ""}/>
               </Field>
               <Button
                 onClick={() => setBarcodeReaderOpen(prev => !prev)}
@@ -186,6 +188,14 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                   async function getItemFromBarcode() {
                     let item = await itemClient.searchItem(undefined, barcode, undefined, undefined)
                     .then(items => items.map(mapItemToBarcodeSuggestionResult))
+                    if (item.length < 1) {
+                      setState(prevState => ({
+                        ...prevState,
+                        barcode: barcode,
+                        barcodeError: "Item could not be found."
+                      }));
+                      return;
+                    }
 
                     setState(prevState => ({
                       ...prevState,

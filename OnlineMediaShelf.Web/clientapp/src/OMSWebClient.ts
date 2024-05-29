@@ -649,15 +649,13 @@ export class ItemClient {
         return Promise.resolve<ItemModel[]>(null as any);
     }
 
-    searchItem(title: string | null | undefined, barcode: string | null | undefined, limit: number | undefined, excludedItems: number[] | undefined): Promise<ItemModel[]> {
+    searchItem(title: string | null | undefined, barcode: string | null | undefined, limit: number | null | undefined, excludedItems: number[] | undefined): Promise<ItemModel[]> {
         let url_ = this.baseUrl + "/api/items/search?";
         if (title !== undefined && title !== null)
             url_ += "title=" + encodeURIComponent("" + title) + "&";
         if (barcode !== undefined && barcode !== null)
             url_ += "barcode=" + encodeURIComponent("" + barcode) + "&";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
+        if (limit !== undefined && limit !== null)
             url_ += "limit=" + encodeURIComponent("" + limit) + "&";
         if (excludedItems === null)
             throw new Error("The parameter 'excludedItems' cannot be null.");
