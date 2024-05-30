@@ -11,64 +11,26 @@ import {
 } from "../../OMSWebClient.ts";
 
 import {
-  Divider,
-  makeStyles,
-  shorthands,
-  Text,
+  Button,
   useToastController
 } from "@fluentui/react-components";
 import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
+import {
+  Col,
+  Container,
+  Row
+} from "react-bootstrap";
+
+import styles
+  from "./ItemView.module.css";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
 }
 
-const useStyles = makeStyles({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    ...shorthands.padding('20px'),
-    ...shorthands.margin('20px'),
-  },
-  coverImage: {
-    width: '150px',
-    height: '220px',
-    objectFit: 'cover',
-    ...shorthands.margin('0', '0', '15px'),
-  },
-  bookTitle: {
-    fontWeight: 'bold',
-    fontSize: '1.5em',
-    ...shorthands.margin('0', '0', '5px'),
-  },
-  author: {
-    fontStyle: 'italic',
-    ...shorthands.margin('0', '0', '15px'),
-  },
-  description: {
-    whiteSpace: "pre-wrap",
-    ...shorthands.margin('0', '0', '15px'),
-  },
-  reviewsContainer: {
-    width: '100%',
-    textAlign: 'left',
-  },
-  reviewItem: {
-    ...shorthands.margin('0', '0', '10px'),
-  },
-  reviewer: {
-    fontWeight: 'bold',
-  },
-  stars: {
-    color: '#ffb400',
-  },
-});
-
 export function ItemView() {
-  const styles = useStyles();
   const [item, setItem] = useState<IItemModel>({})
 
   const {itemId} = useParams();
@@ -96,48 +58,46 @@ export function ItemView() {
     populateItem();
   }, []);
 
-  // const renderStars = (rating: number) => {
-  //   return '⭐'.repeat(rating);
-  // };
-
-  return (
-    <div
-      className={styles.container}>
-      {/*item.coverImage && (
-        <Image
-          className={styles.coverImage}
-          src={item.coverImage}
-          alt={`${item.title} cover`}/>
-      )*/}
-      <Text
-        className={styles.bookTitle}>{item.title}</Text>
-      {item.authors && item.authors?.length > 0 &&
-          <Text
-              className={styles.author}>by {item.authors?.join(", ")}</Text>
-      }
-      <Divider/>
-      <Text
-        className={styles.description}>{item.description}</Text>
-      {/*item.reviews && item.reviews.length > 0 && (
+  return (<>
+    <Container>
+      <Row>
+        <Col
+          md={"4"}
+          className="align-self-start">
+          <img
+            alt={"Cover of Media"}
+            className={`object-fit-contain overflow-hidden ${styles.mediaImage}`}
+            src={"http://via.placeholder.com/300x400"}/>
+        </Col>
+        <Col
+          md={"8"}>
+          <h1>{item.title}</h1>
+          {item.authors && item.authors.length > 0 &&
+              <p className="lead fs-6">By {item.authors.join(", ")}</p>}
+          <p
+            style={{whiteSpace: "pre-wrap"}}>{item.description}</p>
+        </Col>
+      </Row>
+    </Container>
+    <section
+      className="py-4 py-xl-5">
+      <Container>
         <div
-          className={styles.reviewsContainer}>
-          <Text
-            variant="medium">Reviews:</Text>
-          {item.reviews.map((review, index) => (
-            <div
-              key={index}
-              className={styles.reviewItem}>
-              <Text
-                className={styles.reviewer}>{review.reviewer}</Text>
-              <Text
-                className={styles.stars}>{renderStars(review.rating)}</Text>
-              {review.reviewText &&
-                  <Text>{review.reviewText}</Text>}
-            </div>
-          ))}
+          className="text-white bg-primary border rounded border-0 border-primary d-flex flex-column justify-content-between flex-lg-row p-4 p-md-5">
+          <div
+            className="pb-2 pb-lg-1">
+            <h2
+              className="fw-bold mb-2">I have this!</h2>
+            <p
+              className="mb-0">Add this {item.format} to one of your shelves now</p>
+          </div>
+          <div
+            className="my-2">
+            <Button>Add to Shelf</Button>
+          </div>
         </div>
-      )*/}
-    </div>
-  );
+      </Container>
+    </section>
+  </>);
 }
 
