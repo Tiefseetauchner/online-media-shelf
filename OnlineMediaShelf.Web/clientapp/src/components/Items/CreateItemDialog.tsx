@@ -131,8 +131,8 @@ export function CreateItemDialog(props: AddItemDialogProps) {
 
       if (state.description === undefined)
         descriptionError = "The field 'Description' is required.";
-      else if (state.description.length > 512)
-        descriptionError = "The description mustn't be longer than 512 characters.";
+      else if (state.description.length > 2048)
+        descriptionError = "The description mustn't be longer than 2048 characters.";
 
       if (state.authors?.some(author => author.length > 64))
         authorsError = "No author may be longer than 64 characters.";
