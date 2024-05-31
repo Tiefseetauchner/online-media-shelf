@@ -25,6 +25,12 @@ import {
 
 import styles
   from "./ItemView.module.css";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faEdit
+} from "@fortawesome/free-solid-svg-icons";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -32,6 +38,7 @@ function isNumeric(value: string) {
 
 export function ItemView() {
   const [item, setItem] = useState<IItemModel>({})
+  const [coverImageUrl, setCoverImageUrl] = useState("/no_cover.jpg");
 
   const {itemId} = useParams();
 
@@ -44,14 +51,21 @@ export function ItemView() {
         return;
       }
 
-      try {
-        let client = new ItemClient();
+      let client = new ItemClient();
 
+      try {
         let result = await client.getItem(parseInt(itemId));
 
         setItem(result);
       } catch {
         showErrorToast(`Item with id '${itemId}' could not be loaded.`, dispatchToast)
+      }
+
+      try {
+        let coverImage = await client.getItemCoverImage(parseInt(itemId));
+        setCoverImageUrl(URL.createObjectURL(coverImage.data));
+      } catch {
+        setCoverImageUrl("/no_cover.jpg");
       }
     }
 
@@ -64,16 +78,34 @@ export function ItemView() {
         <Col
           md={"4"}
           className="align-self-start">
-          <img
-            alt={"Cover of Media"}
-            className={`object-fit-contain overflow-hidden ${styles.mediaImage}`}
-            src={"http://via.placeholder.com/300x400"}/>
+          <Row>
+            <img
+              alt={"Cover of Media"}
+              className={`object-fit-contain overflow-hidden ${styles.mediaImage}`}
+              src={coverImageUrl}/>
+
+            <Button>Upload Cover Image</Button>
+          </Row>
         </Col>
         <Col
           md={"8"}>
-          <h1>{item.title}</h1>
+          <Row>
+            <Col>
+              <h1>{item.title}</h1>
+            </Col>
+            <Col
+              className={"d-flex justify-content-end"}>
+              <Button
+                className={"h-auto"}
+                icon={
+                  <FontAwesomeIcon
+                    icon={faEdit}/>}>Edit Item</Button>
+            </Col>
+          </Row>
+
           {item.authors && item.authors.length > 0 &&
               <p className="lead fs-6">By {item.authors.join(", ")}</p>}
+
           <p
             style={{whiteSpace: "pre-wrap"}}>{item.description}</p>
         </Col>

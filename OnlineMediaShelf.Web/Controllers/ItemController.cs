@@ -63,9 +63,21 @@ public class ItemController(
   [HttpGet("{id:int}")]
   public async Task<ActionResult<ItemModel>> GetItem(int id)
   {
-    return Ok(await unitOfWork.ItemRepository.GetByIdAsync(id));
+    var item = await unitOfWork.ItemRepository.GetByIdAsync(id);
+    if (item == null)
+      return NotFound();
+
+    return Ok(Mapper.ConvertToWebObject(item));
   }
 
+  [HttpGet("{id:int}/cover-image")]
+  public async Task<ActionResult> GetItemCoverImage(int id)
+  {
+    var fileContents = (await unitOfWork.ItemRepository.GetByIdAsync(id))?.CoverImage;
+
+    return fileContents == null || fileContents.Length == 0 ? NotFound() : File(fileContents, "image/jpg");
+  }
+  
   [HttpPost("create")]
   [Authorize]
   [ProducesResponseType<ItemModel>(201)]
@@ -80,6 +92,29 @@ public class ItemController(
       await unitOfWork.CommitAsync();
 
       return CreatedAtAction(nameof(GetItem), new { id = itemInDb.Id }, Mapper.ConvertToWebObject(itemInDb));
+    }
+    catch (Exception)
+    {
+      return StatusCode(500, "An error occured while saving changes. Try again later.");
+    }
+  }
+
+  [HttpPost("update/{id:int}/cover-image")]
+  [Authorize]
+  [ProducesResponseType<ItemModel>(201)]
+  public async Task<ActionResult<ItemModel>> UpdateItemCoverImage(int id, [FromBody] byte[] fileContent)
+  {
+    try
+    {
+      var item = await unitOfWork.ItemRepository.GetByIdAsync(id);
+      if (item == null)
+        return NotFound();
+
+      item.CoverImage = fileContent;
+
+      await unitOfWork.CommitAsync();
+
+      return Ok();
     }
     catch (Exception)
     {
