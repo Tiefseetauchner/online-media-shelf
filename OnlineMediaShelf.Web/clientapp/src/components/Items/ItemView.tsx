@@ -1,36 +1,15 @@
-import {
-  useParams
-} from "react-router-dom";
-import {
-  useEffect,
-  useState
-} from "react";
-import {
-  IItemModel,
-  ItemClient
-} from "../../OMSWebClient.ts";
+import {useParams} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {IItemModel, ItemClient} from "../../OMSWebClient.ts";
 
-import {
-  Button,
-  useToastController
-} from "@fluentui/react-components";
-import {
-  showErrorToast
-} from "../../utilities/toastHelper.tsx";
-import {
-  Col,
-  Container,
-  Row
-} from "react-bootstrap";
+import {Button, useToastController} from "@fluentui/react-components";
+import {showErrorToast} from "../../utilities/toastHelper.tsx";
+import {Col, Container, Row} from "react-bootstrap";
 
-import styles
-  from "./ItemView.module.css";
-import {
-  FontAwesomeIcon
-} from "@fortawesome/react-fontawesome";
-import {
-  faEdit
-} from "@fortawesome/free-solid-svg-icons";
+import styles from "./ItemView.module.css";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import Barcode from "react-barcode";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -84,7 +63,19 @@ export function ItemView() {
               className={`object-fit-contain overflow-hidden ${styles.mediaImage}`}
               src={coverImageUrl}/>
 
-            <Button>Upload Cover Image</Button>
+            <Button>Upload Cover Image (WIP)</Button>
+
+
+            {item.barcode ?
+              <Barcode
+                height={15}
+                width={1.3}
+                fontSize={12}
+                renderer={"svg"}
+                background={"#0000"}
+                format={"EAN13"}
+                value={item.barcode}/> :
+              <>No barcode available</>}
           </Row>
         </Col>
         <Col
@@ -99,7 +90,7 @@ export function ItemView() {
                 className={"h-auto"}
                 icon={
                   <FontAwesomeIcon
-                    icon={faEdit}/>}>Edit Item</Button>
+                    icon={faEdit}/>}>Edit Item (WIP)</Button>
             </Col>
           </Row>
 
@@ -125,7 +116,7 @@ export function ItemView() {
           </div>
           <div
             className="my-2">
-            <Button>Add to Shelf</Button>
+            <Button>Add to Shelf (WIP)</Button>
           </div>
         </div>
       </Container>
