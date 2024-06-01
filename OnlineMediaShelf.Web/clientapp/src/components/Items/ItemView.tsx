@@ -65,12 +65,11 @@ export function ItemView() {
 
             <Button>Upload Cover Image (WIP)</Button>
 
-
             {item.barcode ?
               <Barcode
-                height={15}
-                width={1.3}
-                fontSize={12}
+                height={40}
+                width={2}
+                fontSize={24}
                 renderer={"svg"}
                 background={"#0000"}
                 format={"EAN13"}
