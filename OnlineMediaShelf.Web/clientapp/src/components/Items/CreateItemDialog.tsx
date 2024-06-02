@@ -12,38 +12,16 @@ import {
   Textarea,
   useToastController
 } from "@fluentui/react-components";
-import {
-  useEffect,
-  useState
-} from "react";
-import {
-  CreateItemModel,
-  ItemClient
-} from "../../OMSWebClient.ts";
-import {
-  DialogOpenChangeEventHandler
-} from "@fluentui/react-dialog";
-import {
-  useNavigate
-} from "react-router-dom";
-import {
-  routes
-} from "../../utilities/routes.ts";
-import {
-  showErrorToast
-} from "../../utilities/toastHelper.tsx";
-import {
-  FontAwesomeIcon
-} from "@fortawesome/react-fontawesome";
-import {
-  faBarcode
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  BarcodeReader
-} from "../BarcodeReader.tsx";
-import {
-  uniqueId
-} from "lodash";
+import {useEffect, useState} from "react";
+import {CreateItemModel, ItemClient} from "../../OMSWebClient.ts";
+import {DialogOpenChangeEventHandler} from "@fluentui/react-dialog";
+import {useNavigate} from "react-router-dom";
+import {routes} from "../../utilities/routes.ts";
+import {showErrorToast} from "../../utilities/toastHelper.tsx";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faBarcode} from "@fortawesome/free-solid-svg-icons";
+import {BarcodeReader} from "../BarcodeReader.tsx";
+import {uniqueId} from "lodash";
 
 interface AddItemDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -131,8 +109,8 @@ export function CreateItemDialog(props: AddItemDialogProps) {
 
       if (state.description === undefined)
         descriptionError = "The field 'Description' is required.";
-      else if (state.description.length > 512)
-        descriptionError = "The description mustn't be longer than 512 characters.";
+      else if (state.description.length > 2048)
+        descriptionError = "The description mustn't be longer than 2048 characters.";
 
       if (state.authors?.some(author => author.length > 64))
         authorsError = "No author may be longer than 64 characters.";

@@ -22,7 +22,6 @@ public class Item : IEntity<int>
   [Required]
   public string Title { get; set; } = null!;
 
-  [StringLength(512)]
   public string? Description { get; set; }
 
   [StringLength(64)]
