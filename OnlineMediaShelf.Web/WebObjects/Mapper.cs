@@ -16,13 +16,21 @@ public static class Mapper
     new(user.Id, user.UserName ?? "", user.SignUpDate);
 
   public static ItemModel ConvertToWebObject(Item item) =>
-    new(item.Id, item.Barcode, item.Title, item.Description);
+    new(item.Id, item.Barcode, item.Title, item.Description, item.Authors, item.ReleaseDate, item.Format);
 
   public static Shelf ConvertToDomainObject(CreateShelfModel shelf) =>
     new() { ShelfName = shelf.Name, ShelfDescription = shelf.Description };
 
   public static Item ConvertToDomainObject(CreateItemModel item) =>
-    new() { Barcode = item.Barcode, Title = item.Title, Description = item.Description };
+    new()
+    {
+      Barcode = item.Barcode,
+      Title = item.Title,
+      Description = item.Description,
+      ReleaseDate = item.ReleaseDate,
+      Format = item.Format,
+      Authors = item.Authors
+    };
 
   public static Shelf ConvertToDomainObject(ShelfModel shelf) =>
     new()
@@ -40,5 +48,12 @@ public static class Mapper
     };
 
   public static Item ConvertToDomainObject(ItemModel itemModel) =>
-    new() { Barcode = itemModel.Barcode, Title = itemModel.Title };
+    new()
+    {
+      Barcode = itemModel.Barcode,
+      Title = itemModel.Title,
+      ReleaseDate = itemModel.ReleaseDate,
+      Format = itemModel.Format,
+      Authors = itemModel.Authors,
+    };
 }

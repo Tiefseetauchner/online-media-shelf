@@ -69,11 +69,11 @@ public class ItemController(
   [HttpPost("create")]
   [Authorize]
   [ProducesResponseType<ItemModel>(201)]
-  public async Task<ActionResult<ItemModel>> CreateItem([FromBody] CreateItemModel shelf)
+  public async Task<ActionResult<ItemModel>> CreateItem([FromBody] CreateItemModel item)
   {
     try
     {
-      var mappedItem = Mapper.ConvertToDomainObject(shelf);
+      var mappedItem = Mapper.ConvertToDomainObject(item);
 
       var itemInDb = await unitOfWork.ItemRepository.CreateAsync(mappedItem);
 
