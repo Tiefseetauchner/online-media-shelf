@@ -16,7 +16,7 @@ function isNumeric(value: string) {
 }
 
 export function ItemView() {
-  const [item, setItem] = useState<IItemModel>({})
+  const [item, setItem] = useState<IItemModel>({});
   const [coverImageUrl, setCoverImageUrl] = useState("/no_cover.jpg");
 
   const {itemId} = useParams();
@@ -62,9 +62,7 @@ export function ItemView() {
               alt={"Cover of Media"}
               className={`object-fit-contain overflow-hidden ${styles.mediaImage}`}
               src={coverImageUrl}/>
-
-            <Button>Upload Cover Image (WIP)</Button>
-
+            
             {item.barcode ?
               <Barcode
                 height={40}

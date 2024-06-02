@@ -22,6 +22,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBarcode} from "@fortawesome/free-solid-svg-icons";
 import {BarcodeReader} from "../BarcodeReader.tsx";
 import {uniqueId} from "lodash";
+import {ItemInputValidator} from "../../utilities/itemInputValidator.ts";
 
 interface AddItemDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
@@ -82,66 +83,19 @@ export function CreateItemDialog(props: AddItemDialogProps) {
     ev.preventDefault();
 
     const validateForm = (): boolean => {
-      let barcodeError: string | undefined = undefined;
-      let descriptionError: string | undefined = undefined;
-      let titleError: string | undefined = undefined;
-      let authorsError: string | undefined = undefined;
-      let releaseYearError: string | undefined = undefined;
-      let releaseMonthError: string | undefined = undefined;
-      let releaseDayError: string | undefined = undefined;
-      let formatError: string | undefined = undefined;
-
-      function isValidBarcode(barcode: string) {
-        return barcode.split('').reduce(function (p, v, i) {
-          return i % 2 == 0 ? p + parseInt(v) : p + 3 * parseInt(v);
-        }, 0) % 10 == 0;
-      }
-
-      if (state.barcode?.length !== 13)
-        barcodeError = "The barcode must be 13 digits long.";
-      else if (!isValidBarcode(state.barcode!))
-        barcodeError = "The barcode must have a valid check digit.";
-
-      if (state.title === undefined)
-        titleError = "The field 'Title' is required.";
-      else if (state.title.length > 128)
-        titleError = "The title mustn't be longer than 128 characters.";
-
-      if (state.description === undefined)
-        descriptionError = "The field 'Description' is required.";
-      else if (state.description.length > 2048)
-        descriptionError = "The description mustn't be longer than 2048 characters.";
-
-      if (state.authors?.some(author => author.length > 64))
-        authorsError = "No author may be longer than 64 characters.";
-
-      if (state.format?.length === undefined)
-        formatError = "The field 'Format' is required.";
-      else if (state.format?.length > 20)
-        formatError = "The format mustn't be longer than 20 characters.";
-
-      const yearInt = parseInt(state.releaseYear ?? "0");
-      const monthInt = parseInt(state.releaseMonth ?? "0");
-      const dayInt = parseInt(state.releaseDay ?? "0");
-
-      if (!state.releaseMonth && (state.releaseDay)) releaseMonthError = "Month is required.";
-      if (!state.releaseYear && (state.releaseMonth || state.releaseYear)) releaseYearError = "Year is required.";
-
-      if (state.releaseYear && (isNaN(yearInt) || yearInt < 1)) releaseYearError = "Invalid year.";
-      if (state.releaseMonth && (isNaN(monthInt) || monthInt < 1 || monthInt > 12)) releaseMonthError = "Invalid month.";
-      if (state.releaseDay && (isNaN(dayInt) || dayInt < 1 || dayInt > 31)) releaseDayError = "Invalid day.";
-
-      if (yearInt && monthInt && dayInt) {
-        const date = new Date(yearInt, monthInt - 1, dayInt);
-        if (date.getFullYear() !== yearInt || date.getMonth() !== monthInt - 1 || date.getDate() !== dayInt) {
-          releaseYearError = releaseMonthError = releaseDayError = "Invalid date.";
-        }
-      }
+      let barcodeError = ItemInputValidator.validateBarcode(state.barcode);
+      let titleError = ItemInputValidator.validateTitle(state.title);
+      let descriptionError = ItemInputValidator.validateDescription(state.description);
+      let authorsError = ItemInputValidator.validateAuthors(state.authors);
+      let formatError = ItemInputValidator.validateFormat(state.format);
+      let {
+        releaseYearError, releaseMonthError, releaseDayError
+      } = ItemInputValidator.validateDate(state.releaseYear ?? "", state.releaseMonth ?? "", state.releaseDay ?? "");
 
       setErrorState({
         barcodeMessage: barcodeError,
-        descriptionMessage: descriptionError,
         titleMessage: titleError,
+        descriptionMessage: descriptionError,
         authorsMessage: authorsError,
         releaseYearMessage: releaseYearError,
         releaseMonthMessage: releaseMonthError,
@@ -150,8 +104,13 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       })
 
       return barcodeError == undefined &&
+        titleError == undefined &&
         descriptionError == undefined &&
-        titleError == undefined;
+        authorsError == undefined &&
+        releaseYearError == undefined &&
+        releaseMonthError == undefined &&
+        releaseDayError == undefined &&
+        formatError == undefined;
     }
 
     if (!validateForm())
