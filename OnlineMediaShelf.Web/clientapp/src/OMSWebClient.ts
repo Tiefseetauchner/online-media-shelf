@@ -863,6 +863,44 @@ export class ItemClient {
         return Promise.resolve<ItemModel>(null as any);
     }
 
+    updateItem(item: UpdateItemModel): Promise<ItemModel> {
+        let url_ = this.baseUrl + "/api/items/update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(item);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateItem(_response);
+        });
+    }
+
+    protected processUpdateItem(response: Response): Promise<ItemModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = ItemModel.fromJS(resultData201);
+            return result201;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ItemModel>(null as any);
+    }
+
     updateItemCoverImage(id: number, fileContent: string): Promise<ItemModel> {
         let url_ = this.baseUrl + "/api/items/update/{id}/cover-image";
         if (id === undefined || id === null)
@@ -2259,6 +2297,7 @@ export interface IShelf {
 
 export class Item implements IItem {
     id?: number;
+    version?: number;
     barcode?: string | undefined;
     title!: string;
     description?: string | undefined;
@@ -2280,6 +2319,7 @@ export class Item implements IItem {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.version = _data["version"];
             this.barcode = _data["barcode"];
             this.title = _data["title"];
             this.description = _data["description"];
@@ -2309,6 +2349,7 @@ export class Item implements IItem {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["version"] = this.version;
         data["barcode"] = this.barcode;
         data["title"] = this.title;
         data["description"] = this.description;
@@ -2331,6 +2372,7 @@ export class Item implements IItem {
 
 export interface IItem {
     id?: number;
+    version?: number;
     barcode?: string | undefined;
     title: string;
     description?: string | undefined;
@@ -2403,6 +2445,74 @@ export interface ICreateItemModel {
     authors?: string[];
     releaseDate?: Date;
     format?: string;
+}
+
+export class UpdateItemModel implements IUpdateItemModel {
+    id?: number;
+    barcode?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    authors?: string[] | undefined;
+    releaseDate?: Date | undefined;
+    format?: string | undefined;
+
+    constructor(data?: IUpdateItemModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.barcode = _data["barcode"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["authors"])) {
+                this.authors = [] as any;
+                for (let item of _data["authors"])
+                    this.authors!.push(item);
+            }
+            this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
+            this.format = _data["format"];
+        }
+    }
+
+    static fromJS(data: any): UpdateItemModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateItemModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["barcode"] = this.barcode;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        if (Array.isArray(this.authors)) {
+            data["authors"] = [];
+            for (let item of this.authors)
+                data["authors"].push(item);
+        }
+        data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
+        data["format"] = this.format;
+        return data;
+    }
+}
+
+export interface IUpdateItemModel {
+    id?: number;
+    barcode?: string | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    authors?: string[] | undefined;
+    releaseDate?: Date | undefined;
+    format?: string | undefined;
 }
 
 export class CreateShelfModel implements ICreateShelfModel {

@@ -32,6 +32,23 @@ public static class Mapper
       Authors = item.Authors
     };
 
+  public static Item ConvertToDomainObject(UpdateItemModel item, Item oldDbItem)
+  {
+    var domainItem = new Item
+    {
+      Id = item.Id,
+      Version = oldDbItem.Version + 1,
+      Barcode = item.Barcode,
+      Title = item.Title,
+      Description = item.Description,
+      Authors = item.Authors,
+      ReleaseDate = item.ReleaseDate ?? default,
+      Format = item.Format
+    };
+
+    return domainItem;
+  }
+
   public static Shelf ConvertToDomainObject(ShelfModel shelf) =>
     new()
     {

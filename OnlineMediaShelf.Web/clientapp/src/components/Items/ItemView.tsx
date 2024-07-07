@@ -1,15 +1,41 @@
-import {useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
-import {IItemModel, ItemClient} from "../../OMSWebClient.ts";
+import {
+  useParams
+} from "react-router-dom";
+import {
+  useEffect,
+  useState
+} from "react";
+import {
+  IItemModel,
+  ItemClient
+} from "../../OMSWebClient.ts";
 
-import {Button, useToastController} from "@fluentui/react-components";
-import {showErrorToast} from "../../utilities/toastHelper.tsx";
-import {Col, Container, Row} from "react-bootstrap";
+import {
+  Button,
+  useToastController
+} from "@fluentui/react-components";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
+import {
+  Col,
+  Container,
+  Row
+} from "react-bootstrap";
 
-import styles from "./ItemView.module.css";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
-import Barcode from "react-barcode";
+import styles
+  from "./ItemView.module.css";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faEdit
+} from "@fortawesome/free-solid-svg-icons";
+import Barcode
+  from "react-barcode";
+import {
+  UpdateItemDialog
+} from "./UpdateItemDialog.tsx";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -18,6 +44,8 @@ function isNumeric(value: string) {
 export function ItemView() {
   const [item, setItem] = useState<IItemModel>({});
   const [coverImageUrl, setCoverImageUrl] = useState("/no_cover.jpg");
+  const [hover, setHover] = useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 
   const {itemId} = useParams();
 
@@ -52,17 +80,35 @@ export function ItemView() {
   }, []);
 
   return (<>
+    <UpdateItemDialog
+      onOpenChange={(_, data) => setUpdateDialogOpen(data.open)}
+      open={updateDialogOpen}
+      id={item.id!}
+      item={item}/>
+
     <Container>
       <Row>
         <Col
           md={"4"}
           className="align-self-start">
           <Row>
-            <img
-              alt={"Cover of Media"}
-              className={`object-fit-contain overflow-hidden ${styles.mediaImage}`}
-              src={coverImageUrl}/>
-            
+            <div
+              className={`${styles.imageContainer} ${styles.mediaImage}`}
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}>
+              <img
+                alt={"Cover of Media"}
+                className={`object-fit-contain overflow-hidden ${styles.mediaImage} ${styles.image}`}
+                src={coverImageUrl}/>
+
+              {hover &&
+                  <Button
+                      className={styles.editButton}
+                      icon={
+                        <FontAwesomeIcon
+                          icon={faEdit}/>}/>}
+            </div>
+
             {item.barcode ?
               <Barcode
                 height={40}
@@ -84,10 +130,11 @@ export function ItemView() {
             <Col
               className={"d-flex justify-content-end"}>
               <Button
+                onClick={() => setUpdateDialogOpen(true)}
                 className={"h-auto"}
                 icon={
                   <FontAwesomeIcon
-                    icon={faEdit}/>}>Edit Item (WIP)</Button>
+                    icon={faEdit}/>}>Edit Item</Button>
             </Col>
           </Row>
 

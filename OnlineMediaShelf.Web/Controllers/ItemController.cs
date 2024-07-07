@@ -77,7 +77,7 @@ public class ItemController(
 
     return fileContents == null || fileContents.Length == 0 ? NotFound() : File(fileContents, "image/jpg");
   }
-  
+
   [HttpPost("create")]
   [Authorize]
   [ProducesResponseType<ItemModel>(201)]
@@ -88,6 +88,33 @@ public class ItemController(
       var mappedItem = Mapper.ConvertToDomainObject(item);
 
       var itemInDb = await unitOfWork.ItemRepository.CreateAsync(mappedItem);
+
+      await unitOfWork.CommitAsync();
+
+      return CreatedAtAction(nameof(GetItem), new { id = itemInDb.Id }, Mapper.ConvertToWebObject(itemInDb));
+    }
+    catch (Exception)
+    {
+      return StatusCode(500, "An error occured while saving changes. Try again later.");
+    }
+  }
+
+  [HttpPost("update")]
+  [Authorize]
+  [ProducesResponseType<ItemModel>(201)]
+  public async Task<ActionResult<ItemModel>> UpdateItem([FromBody] UpdateItemModel item)
+  {
+    var itemRepository = unitOfWork.ItemRepository;
+
+    var oldDbItem = await itemRepository.GetByIdAsync(item.Id);
+    if (oldDbItem == null)
+      return NotFound();
+
+    try
+    {
+      var mappedItem = Mapper.ConvertToDomainObject(item, oldDbItem);
+
+      var itemInDb = await itemRepository.CreateAsync(mappedItem);
 
       await unitOfWork.CommitAsync();
 

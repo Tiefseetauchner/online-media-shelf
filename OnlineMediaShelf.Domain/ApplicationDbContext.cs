@@ -18,6 +18,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     base.OnModelCreating(builder);
 
     builder.Entity<Shelf>().HasMany(s => s.Items).WithMany(i => i.ContainingShelves);
-    builder.Entity<Item>().HasIndex(_ => _.Barcode).IsUnique();
+    builder.Entity<Item>().HasIndex(_ => new { _.Barcode, _.Version }).IsUnique();
   }
 }

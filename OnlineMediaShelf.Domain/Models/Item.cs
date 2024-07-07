@@ -15,6 +15,8 @@ public class Item : IEntity<int>
   [Key]
   public int Id { get; set; }
 
+  public int Version { get; set; }
+
   [StringLength(64)]
   public string? Barcode { get; set; }
 

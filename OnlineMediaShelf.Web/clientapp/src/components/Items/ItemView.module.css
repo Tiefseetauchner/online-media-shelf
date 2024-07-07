@@ -14,3 +14,19 @@
         aspect-ratio: 3 / 4;
     }
 }
+
+.imageContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.image {
+    display: block;
+}
+
+.editButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: block;
+}
