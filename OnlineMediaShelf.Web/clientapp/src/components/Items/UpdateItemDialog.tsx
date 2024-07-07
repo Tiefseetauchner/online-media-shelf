@@ -195,9 +195,12 @@ export function UpdateItemDialog(props: AddItemDialogProps) {
   };
 
   useEffect(() => {
+    if (!props.open)
+      return;
+
     let titleInputElement = document.getElementById(titleInputFieldId) as HTMLInputElement;
     let barcodeInputElement = document.getElementById(barcodeInputFieldId) as HTMLInputElement;
-    let authorsInputElement = document.getElementById(authorsInputFieldId) as HTMLInputElement;
+    //let authorsInputElement = document.getElementById(authorsInputFieldId) as HTMLInputElement;
     let formatInputElement = document.getElementById(formatInputFieldId) as HTMLInputElement;
     let descriptionInputElement = document.getElementById(descriptionInputFieldId) as HTMLInputElement;
     let releaseDayInputElement = document.getElementById(releaseDayInputFieldId) as HTMLInputElement;
@@ -217,13 +220,13 @@ export function UpdateItemDialog(props: AddItemDialogProps) {
 
     titleInputElement.value = props.item.title ?? "";
     barcodeInputElement.value = props.item.barcode ?? "";
-    authorsInputElement.value = (props.item.authors ?? [""])[0] ?? "";
+    //authorsInputElement.value = (props.item.authors ?? [""])[0] ?? "";
     formatInputElement.value = props.item.format ?? "";
     descriptionInputElement.value = props.item.description ?? "";
     releaseDayInputElement.value = props.item.releaseDate?.getDay()?.toString() ?? "";
     releaseMonthInputElement.value = props.item.releaseDate?.getMonth()?.toString() ?? "";
     releaseYearInputElement.value = props.item.releaseDate?.getFullYear()?.toString() ?? "";
-  }, [props.item]);
+  }, [props.item, props.open]);
 
   useEffect(() => {
     if (document.getElementById(barcodeInputFieldId) == null || !state.barcode)
