@@ -236,9 +236,9 @@ export function CreateItemDialog(props: AddItemDialogProps) {
     };
 
     if (props.update)
-      runCreate()
-    else
       runUpdate();
+    else
+      runCreate();
   };
 
   useEffect(() => {

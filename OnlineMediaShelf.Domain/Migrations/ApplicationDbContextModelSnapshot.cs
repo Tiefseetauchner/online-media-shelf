@@ -17,7 +17,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -30,9 +30,12 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                     b.Property<int>("ItemsId")
                         .HasColumnType("int");
 
-                    b.HasKey("ContainingShelvesId", "ItemsId");
+                    b.Property<int>("ItemsVersion")
+                        .HasColumnType("int");
 
-                    b.HasIndex("ItemsId");
+                    b.HasKey("ContainingShelvesId", "ItemsId", "ItemsVersion");
+
+                    b.HasIndex("ItemsId", "ItemsVersion");
 
                     b.ToTable("ItemShelf");
                 });
@@ -244,6 +247,9 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.Property<string>("Authors")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -272,10 +278,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
+                    b.HasKey("Id", "Version");
 
                     b.HasIndex("Barcode", "Version")
                         .IsUnique();
@@ -321,7 +324,7 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
                     b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", null)
                         .WithMany()
-                        .HasForeignKey("ItemsId")
+                        .HasForeignKey("ItemsId", "ItemsVersion")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
