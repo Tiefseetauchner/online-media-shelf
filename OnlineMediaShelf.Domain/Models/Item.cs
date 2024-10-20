@@ -4,15 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 #endregion
 
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 
+[PrimaryKey(nameof(Id), nameof(Version))]
 public class Item : IEntity<int>
 {
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  [Key]
   public int Id { get; set; }
 
   public int Version { get; set; }

@@ -26,6 +26,7 @@ public static class Mapper
     {
       Barcode = item.Barcode,
       Title = item.Title,
+      Version = 0,
       Description = item.Description,
       ReleaseDate = item.ReleaseDate,
       Format = item.Format,

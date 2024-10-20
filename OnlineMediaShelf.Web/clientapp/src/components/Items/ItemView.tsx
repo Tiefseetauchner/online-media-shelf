@@ -34,8 +34,8 @@ import {
 import Barcode
   from "react-barcode";
 import {
-  UpdateItemDialog
-} from "./UpdateItemDialog.tsx";
+  CreateItemDialog
+} from "./CreateItemDialog.tsx";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -80,10 +80,10 @@ export function ItemView() {
   }, []);
 
   return (<>
-    <UpdateItemDialog
+    <CreateItemDialog
       onOpenChange={(_, data) => setUpdateDialogOpen(data.open)}
       open={updateDialogOpen}
-      id={item.id!}
+      update={true}
       item={item}/>
 
     <Container>

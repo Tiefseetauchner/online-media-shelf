@@ -14,11 +14,14 @@ import {
 } from "@fluentui/react-components";
 import {
   useEffect,
+  useRef,
   useState
 } from "react";
 import {
   CreateItemModel,
-  ItemClient
+  IItemModel,
+  ItemClient,
+  UpdateItemModel
 } from "../../OMSWebClient.ts";
 import {
   DialogOpenChangeEventHandler
@@ -42,15 +45,14 @@ import {
   BarcodeReader
 } from "../BarcodeReader.tsx";
 import {
-  uniqueId
-} from "lodash";
-import {
   ItemInputValidator
 } from "../../utilities/itemInputValidator.ts";
 
 interface AddItemDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
   open: boolean;
+  item?: IItemModel;
+  update?: boolean;
 }
 
 interface AddItemDialogState {
@@ -83,11 +85,55 @@ export function CreateItemDialog(props: AddItemDialogProps) {
   const [errorState, setErrorState] = useState<ErrorState>({})
   const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
 
-  const barcodeInputFieldId = uniqueId();
+  const titleInputFieldRef = useRef<HTMLInputElement>(null);
+  const descriptionInputFieldRef = useRef<HTMLTextAreaElement>(null);
+  const barcodeInputFieldRef = useRef<HTMLInputElement>(null);
+  const authorsInputFieldRef = useRef<HTMLInputElement>(null);
+  const releaseYearInputFieldRef = useRef<HTMLInputElement>(null);
+  const releaseMonthInputFieldRef = useRef<HTMLInputElement>(null);
+  const releaseDayInputFieldRef = useRef<HTMLInputElement>(null);
+  const formatInputFieldRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
 
   const {dispatchToast} = useToastController();
+
+  useEffect(() => {
+    const setInputFieldValuesFromProps = () => {
+      titleInputFieldRef.current!.value = props.item!.title ?? "";
+      descriptionInputFieldRef.current!.value = props.item!.description ?? "";
+      barcodeInputFieldRef.current!.value = props.item!.barcode ?? "";
+      authorsInputFieldRef.current!.value = props.item!.authors?.join(", ") ?? "";
+      releaseYearInputFieldRef.current!.value = props.item!.releaseDate?.getFullYear().toString() ?? "";
+      releaseMonthInputFieldRef.current!.value = ((props.item!.releaseDate?.getMonth() ?? 0) + 1).toString() ?? "";
+      releaseDayInputFieldRef.current!.value = props.item!.releaseDate?.getDay().toString() ?? "";
+      formatInputFieldRef.current!.value = props.item!.format ?? "";
+    };
+
+    if (!(props.open && props.update && props.item))
+      return;
+
+    setState(prevState => ({
+      ...prevState,
+      title: props.item!.title,
+      description: props.item!.description,
+      barcode: props.item!.barcode,
+      authors: props.item!.authors,
+      releaseYear: props.item!.releaseDate?.getFullYear().toString(),
+      releaseMonth: ((props.item!.releaseDate?.getMonth() ?? 0) + 1).toString(),
+      releaseDay: props.item!.releaseDate?.getDay().toString(),
+      format: props.item!.format,
+    }));
+
+    // Wait for the DOM to be ready
+    const timer = setTimeout(() => {
+      // Now you can set the input fields safely
+      setInputFieldValuesFromProps();
+    }, 50); // You can adjust this delay based on your needs
+
+    // Cleanup timeout
+    return () => clearTimeout(timer);
+  }, [props.open]);
 
   const handleInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
@@ -99,7 +145,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
   const handleAuthorInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
       ...state,
-      [ev.target.name]: [ev.target.value]
+      [ev.target.name]: ev.target.value.split(",").map(e => e.trim())
     });
   }
 
@@ -159,21 +205,47 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           format: state.format,
         }))
 
-
         navigate(`${routes.item}/${result.id}`)
       } catch (e: any) {
-        showErrorToast("An error occurred when creating shelf.", dispatchToast);
+        showErrorToast("An error occurred when creating item.", dispatchToast);
       }
     };
 
-    runCreate()
+    const runUpdate = async () => {
+      const itemClient = new ItemClient();
+
+      try {
+        const yearInt = parseInt(state.releaseYear ?? "0");
+        const monthInt = parseInt(state.releaseMonth ?? "0");
+        const dayInt = parseInt(state.releaseDay ?? "1");
+
+        let result = await itemClient.updateItem(new UpdateItemModel({
+          id: props.item?.id,
+          title: state.title,
+          description: state.description,
+          barcode: state.barcode,
+          releaseDate: new Date(yearInt, monthInt - 1, dayInt),
+          authors: state.authors,
+          format: state.format,
+        }))
+
+        navigate(`${routes.item}/${result.id}`)
+      } catch (e: any) {
+        showErrorToast("An error occurred when updating item.", dispatchToast);
+      }
+    };
+
+    if (props.update)
+      runCreate()
+    else
+      runUpdate();
   };
 
   useEffect(() => {
-    if (document.getElementById(barcodeInputFieldId) == null || !state.barcode)
+    if (!state.barcode)
       return;
 
-    (document.getElementById(barcodeInputFieldId) as HTMLInputElement).value = state.barcode;
+    barcodeInputFieldRef.current!.value = state.barcode;
   }, [state.barcode]);
 
   return <Dialog
@@ -184,7 +256,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       <form
         onSubmit={handleSubmit}>
         <DialogBody>
-          <DialogTitle>Create Item</DialogTitle>
+          <DialogTitle>{props.update ? "Update" : "Create"} Item</DialogTitle>
           <DialogContent
             style={{
               display: "flex",
@@ -195,6 +267,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Title"
               validationMessage={errorState.titleMessage}>
               <Input
+                ref={titleInputFieldRef}
                 appearance={"underline"}
                 onChange={handleInput}
                 name={"title"}/>
@@ -203,6 +276,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Description"
               validationMessage={errorState.descriptionMessage}>
               <Textarea
+                ref={descriptionInputFieldRef}
                 onChange={handleInput}
                 style={{height: "100px"}}
                 name={"description"}/>
@@ -212,6 +286,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               validationMessage={errorState.formatMessage}
               hint={"This is the type of media, like DVD, BluRay or Book."}>
               <Input
+                ref={formatInputFieldRef}
                 appearance={"underline"}
                 onChange={handleInput}
                 name={"format"}/>
@@ -220,6 +295,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Author"
               validationMessage={errorState.authorsMessage}>
               <Input
+                ref={authorsInputFieldRef}
                 appearance={"underline"}
                 onChange={handleAuthorInput}
                 name={"authors"}/>
@@ -228,6 +304,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Release Year"
               validationMessage={errorState.releaseYearMessage}>
               <Input
+                ref={releaseYearInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={new Date().getFullYear()}
@@ -239,6 +316,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Release Month"
               validationMessage={errorState.releaseMonthMessage}>
               <Input
+                ref={releaseMonthInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={12}
@@ -251,6 +329,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Release Day"
               validationMessage={errorState.releaseDayMessage}>
               <Input
+                ref={releaseDayInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={31}
@@ -263,7 +342,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Item Barcode"
               validationMessage={errorState.barcodeMessage}>
               <Input
-                id={barcodeInputFieldId}
+                ref={barcodeInputFieldRef}
                 value={state.barcode}
                 appearance={"underline"}
                 onChange={handleInput}
