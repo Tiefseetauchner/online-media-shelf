@@ -40,8 +40,8 @@ public class ItemController(
   {
     // TODO (Tiefseetauchner): Fuzzy Search?
     var items = await unitOfWork.ItemRepository.GetQueryable()
-      .Where(i => title == null || i.Title.Contains(title))
-      .Where(i => barcode == null || i.Barcode == null || i.Barcode.Contains(barcode))
+      .Where(i => title == null || i.Data.Title.Contains(title))
+      .Where(i => barcode == null || i.Data.Barcode == null || i.Data.Barcode.Contains(barcode))
       .Where(i => !excludedItems.Contains(i.Id))
       .Take(limit)
       .ToListAsync();
@@ -73,7 +73,7 @@ public class ItemController(
   [HttpGet("{id:int}/cover-image")]
   public async Task<ActionResult> GetItemCoverImage(int id)
   {
-    var fileContents = (await unitOfWork.ItemRepository.GetByIdAsync(id))?.CoverImage;
+    var fileContents = (await unitOfWork.ItemRepository.GetByIdAsync(id))?.Data.CoverImage;
 
     return fileContents == null || fileContents.Length == 0 ? NotFound() : File(fileContents, "image/jpg");
   }
@@ -137,7 +137,7 @@ public class ItemController(
       if (item == null)
         return NotFound();
 
-      item.CoverImage = fileContent;
+      item.Data.CoverImage = fileContent;
 
       await unitOfWork.CommitAsync();
 
