@@ -14,9 +14,13 @@ Online Media Shelf is a collaborative platform designed to help users document a
 ## Build
 This being my first real ASP.Net core project I created all on my own (for now), compiling and deploying is not a hashed out solution, and it's a bit involved. Compiling requires an **active Database**. If you want to compile the solution, you'll need to adjust the connection string in [appsettings.json](OnlineMediaShelf.Web/appsettings.json) to a database on your system.
 
-Adding a migration is currently done with a Rider plugin, though if you understand EF Migrations, you can probably do it manually. **You'll need to change the connection string in [ApplicationContextFactory.cs](OnlineMediaShelf.Domain/ApplicationContextFactory.cs) to create a migration or update the database**
+Adding a migration is currently done with a Rider plugin, though if you understand EF Migrations, you can probably do it manually. **You'll need to change the connection string in [ApplicationContextFactory.cs](OnlineMediaShelf.Domain/ApplicationContextFactory.cs) to create a migration or update the database.**
 
 Deployment is currently not a concern and thusly I'll ignore it ^^
+
+## Database Setup
+
+Setting up a database is as easy as just creating a Docker Container and starting the Web.Service against it. Docker run command for development I use: `docker run --name OMS_DB -e MYSQL_ROOT_PASSWORD=sql_pw --network=host -d mysql`
 
 ## Code of Conduct
 We are committed to providing a friendly, safe, and welcoming environment for all. Please:
@@ -36,8 +40,6 @@ If you want to contribute to Online Media Shelf, please follow these steps:
 3. **Make Necessary Changes**: Add new functionalities or fix issues. Be sure that your code meets the project standards and is consistently formatted.
 5. **Open a Pull Request**: After you have made your changes, open a pull request from your forked repository to our main project. Provide a concise and detailed description of your changes and the purpose of your pull request.
 6. **Code Review**: Wait for the code review process. Maintainers will review your submission, and suggestions for improvement may be made.
-
-Please note that all participants are expected to follow the community guidelines laid out in the Code of Conduct.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
