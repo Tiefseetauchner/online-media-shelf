@@ -16,21 +16,45 @@ public static class Mapper
     new(user.Id, user.UserName ?? "", user.SignUpDate);
 
   public static ItemModel ConvertToWebObject(Item item) =>
-    new(item.Id, item.Barcode, item.Title, item.Description, item.Authors, item.ReleaseDate, item.Format);
+    new(item.Id, item.Data.Barcode, item.Data.Title, item.Data.Description, item.Data.Authors, item.Data.ReleaseDate, item.Data.Format);
 
   public static Shelf ConvertToDomainObject(CreateShelfModel shelf) =>
     new() { ShelfName = shelf.Name, ShelfDescription = shelf.Description };
 
-  public static Item ConvertToDomainObject(CreateItemModel item) =>
-    new()
+  public static Item ConvertToDomainObject(CreateItemModel item)
+  {
+    var itemData = new ItemData
     {
       Barcode = item.Barcode,
       Title = item.Title,
+      Version = 0,
       Description = item.Description,
       ReleaseDate = item.ReleaseDate,
       Format = item.Format,
       Authors = item.Authors
     };
+
+    return new Item
+    {
+      Data = itemData
+    };
+  }
+
+  public static ItemData ConvertToDomainObject(UpdateItemModel item, Item oldDbItem)
+  {
+    var itemData = new ItemData
+    {
+      Version = oldDbItem.Data.Version + 1,
+      Barcode = item.Barcode ?? oldDbItem.Data.Barcode,
+      Title = item.Title ?? oldDbItem.Data.Title,
+      Description = item.Description ?? oldDbItem.Data.Description,
+      Authors = item.Authors ?? oldDbItem.Data.Authors,
+      ReleaseDate = item.ReleaseDate ?? oldDbItem.Data.ReleaseDate,
+      Format = item.Format ?? oldDbItem.Data.Format
+    };
+
+    return itemData;
+  }
 
   public static Shelf ConvertToDomainObject(ShelfModel shelf) =>
     new()
@@ -47,13 +71,17 @@ public static class Mapper
       Id = user.UserId,
     };
 
-  public static Item ConvertToDomainObject(ItemModel itemModel) =>
+  private static Item ConvertToDomainObject(ItemModel itemModel) =>
     new()
     {
-      Barcode = itemModel.Barcode,
-      Title = itemModel.Title,
-      ReleaseDate = itemModel.ReleaseDate,
-      Format = itemModel.Format,
-      Authors = itemModel.Authors,
+      Id = itemModel.Id,
+      Data =
+      {
+        Barcode = itemModel.Barcode,
+        Title = itemModel.Title,
+        ReleaseDate = itemModel.ReleaseDate,
+        Format = itemModel.Format,
+        Authors = itemModel.Authors,
+      }
     };
 }

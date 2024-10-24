@@ -13,6 +13,7 @@ public class UnitOfWork(ApplicationDbContext context)
   public IUserRepository UserRepository { get; private set; } = new UserRepository(context.Users);
   public IShelfRepository ShelfRepository { get; private set; } = new ShelfRepository(context.Shelves);
   public IItemRepository ItemRepository { get; private set; } = new ItemRepository(context.Items);
+  public IItemDataRepository ItemDataRepository { get; private set; } = new ItemDataRepository(context.ItemData);
 
   public async Task CommitAsync()
   {

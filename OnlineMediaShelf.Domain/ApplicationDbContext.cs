@@ -12,12 +12,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
   public DbSet<Shelf> Shelves { get; set; } = null!;
   public DbSet<Item> Items { get; set; } = null!;
+  public DbSet<ItemData> ItemData { get; set; } = null!;
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
     base.OnModelCreating(builder);
 
     builder.Entity<Shelf>().HasMany(s => s.Items).WithMany(i => i.ContainingShelves);
-    builder.Entity<Item>().HasIndex(_ => _.Barcode).IsUnique();
+    builder.Entity<ItemData>().HasIndex(_ => new { _.Barcode, _.Version }).IsUnique();
   }
 }
