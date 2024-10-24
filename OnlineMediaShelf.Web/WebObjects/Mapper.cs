@@ -40,26 +40,20 @@ public static class Mapper
     };
   }
 
-  public static Item ConvertToDomainObject(UpdateItemModel item, Item oldDbItem)
+  public static ItemData ConvertToDomainObject(UpdateItemModel item, Item oldDbItem)
   {
     var itemData = new ItemData
     {
       Version = oldDbItem.Data.Version + 1,
-      Barcode = item.Barcode,
-      Title = item.Title,
-      Description = item.Description,
-      Authors = item.Authors,
-      ReleaseDate = item.ReleaseDate ?? default,
-      Format = item.Format
+      Barcode = item.Barcode ?? oldDbItem.Data.Barcode,
+      Title = item.Title ?? oldDbItem.Data.Title,
+      Description = item.Description ?? oldDbItem.Data.Description,
+      Authors = item.Authors ?? oldDbItem.Data.Authors,
+      ReleaseDate = item.ReleaseDate ?? oldDbItem.Data.ReleaseDate,
+      Format = item.Format ?? oldDbItem.Data.Format
     };
 
-    var domainItem = new Item
-    {
-      Id = item.Id,
-      Data = itemData
-    };
-
-    return domainItem;
+    return itemData;
   }
 
   public static Shelf ConvertToDomainObject(ShelfModel shelf) =>

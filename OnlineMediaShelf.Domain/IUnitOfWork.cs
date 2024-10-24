@@ -13,5 +13,6 @@ public interface IUnitOfWork : IDisposable
   IUserRepository UserRepository { get; }
   IShelfRepository ShelfRepository { get; }
   IItemRepository ItemRepository { get; }
+  IItemDataRepository ItemDataRepository { get; }
   Task CommitAsync();
 }

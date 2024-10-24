@@ -105,6 +105,7 @@ public class ItemController(
   public async Task<ActionResult<ItemModel>> UpdateItem([FromBody] UpdateItemModel item)
   {
     var itemRepository = unitOfWork.ItemRepository;
+    var itemDataRepository = unitOfWork.ItemDataRepository;
 
     var oldDbItem = await itemRepository.GetByIdAsync(item.Id);
     if (oldDbItem == null)
@@ -114,11 +115,13 @@ public class ItemController(
     {
       var mappedItem = Mapper.ConvertToDomainObject(item, oldDbItem);
 
-      var itemInDb = await itemRepository.CreateAsync(mappedItem);
+      oldDbItem.Data = mappedItem;
+
+      var itemInDb = itemRepository.Update(oldDbItem);
 
       await unitOfWork.CommitAsync();
 
-      return CreatedAtAction(nameof(GetItem), new { id = itemInDb.Id }, Mapper.ConvertToWebObject(itemInDb));
+      return CreatedAtAction(nameof(GetItem), new { id = item.Id }, Mapper.ConvertToWebObject(itemInDb));
     }
     catch (Exception)
     {

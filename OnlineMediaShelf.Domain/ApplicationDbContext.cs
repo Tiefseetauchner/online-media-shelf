@@ -12,6 +12,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
   public DbSet<Shelf> Shelves { get; set; } = null!;
   public DbSet<Item> Items { get; set; } = null!;
+  public DbSet<ItemData> ItemData { get; set; } = null!;
 
   protected override void OnModelCreating(ModelBuilder builder)
   {

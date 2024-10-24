@@ -2297,6 +2297,58 @@ export interface IShelf {
 
 export class Item implements IItem {
     id?: number;
+    data?: ItemData;
+    containingShelves?: Shelf[];
+
+    constructor(data?: IItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.data = _data["data"] ? ItemData.fromJS(_data["data"]) : <any>undefined;
+            if (Array.isArray(_data["containingShelves"])) {
+                this.containingShelves = [] as any;
+                for (let item of _data["containingShelves"])
+                    this.containingShelves!.push(Shelf.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Item {
+        data = typeof data === 'object' ? data : {};
+        let result = new Item();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        if (Array.isArray(this.containingShelves)) {
+            data["containingShelves"] = [];
+            for (let item of this.containingShelves)
+                data["containingShelves"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IItem {
+    id?: number;
+    data?: ItemData;
+    containingShelves?: Shelf[];
+}
+
+export class ItemData implements IItemData {
+    id?: string;
     version?: number;
     barcode?: string | undefined;
     title!: string;
@@ -2305,9 +2357,8 @@ export class Item implements IItem {
     coverImage?: string | undefined;
     releaseDate?: Date;
     format?: string;
-    containingShelves?: Shelf[];
 
-    constructor(data?: IItem) {
+    constructor(data?: IItemData) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2331,17 +2382,12 @@ export class Item implements IItem {
             this.coverImage = _data["coverImage"];
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
-            if (Array.isArray(_data["containingShelves"])) {
-                this.containingShelves = [] as any;
-                for (let item of _data["containingShelves"])
-                    this.containingShelves!.push(Shelf.fromJS(item));
-            }
         }
     }
 
-    static fromJS(data: any): Item {
+    static fromJS(data: any): ItemData {
         data = typeof data === 'object' ? data : {};
-        let result = new Item();
+        let result = new ItemData();
         result.init(data);
         return result;
     }
@@ -2361,17 +2407,12 @@ export class Item implements IItem {
         data["coverImage"] = this.coverImage;
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
-        if (Array.isArray(this.containingShelves)) {
-            data["containingShelves"] = [];
-            for (let item of this.containingShelves)
-                data["containingShelves"].push(item.toJSON());
-        }
         return data;
     }
 }
 
-export interface IItem {
-    id?: number;
+export interface IItemData {
+    id?: string;
     version?: number;
     barcode?: string | undefined;
     title: string;
@@ -2380,7 +2421,6 @@ export interface IItem {
     coverImage?: string | undefined;
     releaseDate?: Date;
     format?: string;
-    containingShelves?: Shelf[];
 }
 
 export class CreateItemModel implements ICreateItemModel {
