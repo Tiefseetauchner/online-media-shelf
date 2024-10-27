@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NSwag.Annotations;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
@@ -21,6 +23,9 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 public class ItemController(
   IUnitOfWork unitOfWork) : ControllerBase
 {
+  private const int c_imageMaxWidth = 600;
+  private const int c_imageMaxHeight = 800;
+
   [HttpGet]
   // TODO (Tiefseetauchner): Implement pagination
   public async Task<ActionResult<List<ItemModel>>> GetAllItems()
@@ -143,11 +148,15 @@ public class ItemController(
       if (item == null)
         return NotFound();
 
-      using (var fileContentMemoryStream = new MemoryStream())
+      using (var convertedImageStream = new MemoryStream())
       {
-        await Request.Body.CopyToAsync(fileContentMemoryStream);
+        var image = await Image.LoadAsync(Request.Body);
 
-        item.Data.CoverImage = fileContentMemoryStream.ToArray();
+        image.Mutate(_ => _.Resize(new ResizeOptions { Size = new Size(c_imageMaxWidth, c_imageMaxHeight), Mode = ResizeMode.Max }));
+
+        await image.SaveAsJpegAsync(convertedImageStream);
+
+        item.Data.CoverImage = convertedImageStream.ToArray();
       }
 
       await unitOfWork.CommitAsync();
