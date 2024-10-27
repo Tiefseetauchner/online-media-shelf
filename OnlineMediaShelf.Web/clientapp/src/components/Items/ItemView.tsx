@@ -36,6 +36,9 @@ import Barcode
 import {
   CreateItemDialog
 } from "./CreateItemDialog.tsx";
+import {
+  UploadImageDialog
+} from "./UploadImageDialog.tsx";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -46,6 +49,7 @@ export function ItemView() {
   const [coverImageUrl, setCoverImageUrl] = useState("/no_cover.jpg");
   const [hover, setHover] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [uploadImageDialogOpen, setUploadImageDialogOpen] = useState(false);
 
   const {itemId} = useParams();
 
@@ -85,6 +89,11 @@ export function ItemView() {
       open={updateDialogOpen}
       update={true}
       item={item}/>
+    
+    <UploadImageDialog
+      onOpenChange={(_, data) => setUploadImageDialogOpen(data.open)}
+      open={uploadImageDialogOpen}
+      itemId={item.id}/>
 
     <Container>
       <Row>
@@ -104,6 +113,7 @@ export function ItemView() {
               {hover &&
                   <Button
                       className={styles.editButton}
+                      onClick={() => setUploadImageDialogOpen(true)}    
                       icon={
                         <FontAwesomeIcon
                           icon={faEdit}/>}/>}

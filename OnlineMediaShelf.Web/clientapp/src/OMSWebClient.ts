@@ -901,20 +901,20 @@ export class ItemClient {
         return Promise.resolve<ItemModel>(null as any);
     }
 
-    updateItemCoverImage(id: number, fileContent: string): Promise<ItemModel> {
+    updateItemCoverImage(id: number, body: Blob | undefined): Promise<ItemModel> {
         let url_ = this.baseUrl + "/api/items/update/{id}/cover-image";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(fileContent);
+        const content_ = body;
 
         let options_: RequestInit = {
             body: content_,
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/octet-stream",
                 "Accept": "application/json"
             }
         };
@@ -2633,6 +2633,11 @@ export class ItemAddModel implements IItemAddModel {
 
 export interface IItemAddModel {
     id?: number | undefined;
+}
+
+export interface FileParameter {
+    data: any;
+    fileName: string;
 }
 
 export interface FileResponse {

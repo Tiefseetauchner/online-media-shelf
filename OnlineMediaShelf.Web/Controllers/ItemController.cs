@@ -2,11 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NSwag.Annotations;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
@@ -132,7 +134,8 @@ public class ItemController(
   [HttpPost("update/{id:int}/cover-image")]
   [Authorize]
   [ProducesResponseType<ItemModel>(201)]
-  public async Task<ActionResult<ItemModel>> UpdateItemCoverImage(int id, [FromBody] byte[] fileContent)
+  [OpenApiBodyParameter("application/octet-stream")]
+  public async Task<ActionResult<ItemModel>> UpdateItemCoverImage(int id)
   {
     try
     {
@@ -140,7 +143,12 @@ public class ItemController(
       if (item == null)
         return NotFound();
 
-      item.Data.CoverImage = fileContent;
+      using (var fileContentMemoryStream = new MemoryStream())
+      {
+        await Request.Body.CopyToAsync(fileContentMemoryStream);
+
+        item.Data.CoverImage = fileContentMemoryStream.ToArray();
+      }
 
       await unitOfWork.CommitAsync();
 
