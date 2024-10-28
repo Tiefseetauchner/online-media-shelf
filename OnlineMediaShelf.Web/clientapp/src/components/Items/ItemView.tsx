@@ -157,7 +157,7 @@ export function ItemView() {
           <div
             className="my-2">
             <Button
-              onClick={() => setAddItemToShelfDialogOpen(true)}>Add to Shelf (WIP)</Button>
+              onClick={() => setAddItemToShelfDialogOpen(true)}>Add to Shelf</Button>
           </div>
         </div>
       </Container>
