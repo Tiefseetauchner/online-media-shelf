@@ -44,7 +44,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
   
   const navigate = useNavigate();
   
-  const handleSubmit = (ev) => {
+  const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
     
     async function addItemToShelf() {
