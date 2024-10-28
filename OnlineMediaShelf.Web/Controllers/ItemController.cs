@@ -51,9 +51,10 @@ public class ItemController(
       .Where(i => barcode == null || i.Data.Barcode == null || i.Data.Barcode.Contains(barcode))
       .Where(i => !excludedItems.Contains(i.Id))
       .Take(limit)
+      .Include(_ => _.Data)
       .ToListAsync();
 
-    return Ok(items);
+    return Ok(items.Select(Mapper.ConvertToWebObject));
   }
 
   [HttpGet("most-recent")]
