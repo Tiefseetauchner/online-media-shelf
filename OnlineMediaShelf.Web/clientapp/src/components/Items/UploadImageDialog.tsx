@@ -20,12 +20,6 @@ import {
   ItemClient
 } from "../../OMSWebClient.ts";
 import {
-  useNavigate
-} from "react-router-dom";
-import {
-  routes
-} from "../../utilities/routes.ts";
-import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
 
@@ -37,8 +31,6 @@ interface UploadImageDialogProps {
 
 export function UploadImageDialog(props: UploadImageDialogProps) {
   const inputField = useRef<HTMLInputElement>(null);
-
-  const navigate = useNavigate();
 
   const {dispatchToast} = useToastController();
 
@@ -61,7 +53,7 @@ export function UploadImageDialog(props: UploadImageDialogProps) {
       const client = new ItemClient();
       await client.updateItemCoverImage(props.itemId, fileData);
 
-      navigate(`${routes.item}/${props.itemId}`);
+      location.reload();
     }
 
     uploadImage();

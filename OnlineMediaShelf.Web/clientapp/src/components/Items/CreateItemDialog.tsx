@@ -98,18 +98,20 @@ export function CreateItemDialog(props: AddItemDialogProps) {
 
   const {dispatchToast} = useToastController();
 
-  useEffect(() => {
-    const setInputFieldValuesFromProps = () => {
-      titleInputFieldRef.current!.value = props.item!.title ?? "";
-      descriptionInputFieldRef.current!.value = props.item!.description ?? "";
-      barcodeInputFieldRef.current!.value = props.item!.barcode ?? "";
-      authorsInputFieldRef.current!.value = props.item!.authors?.join(", ") ?? "";
-      releaseYearInputFieldRef.current!.value = props.item!.releaseDate?.getFullYear().toString() ?? "";
-      releaseMonthInputFieldRef.current!.value = ((props.item!.releaseDate?.getMonth() ?? 0) + 1).toString() ?? "";
-      releaseDayInputFieldRef.current!.value = props.item!.releaseDate?.getDay().toString() ?? "";
-      formatInputFieldRef.current!.value = props.item!.format ?? "";
-    };
+  const setInputFieldValuesFromState = () => {
+    console.log(state);
 
+    titleInputFieldRef.current!.value = state.title ?? "";
+    descriptionInputFieldRef.current!.value = state.description ?? "";
+    barcodeInputFieldRef.current!.value = state.barcode ?? "";
+    authorsInputFieldRef.current!.value = state.authors?.join(", ") ?? "";
+    releaseYearInputFieldRef.current!.value = state.releaseYear ?? "";
+    releaseMonthInputFieldRef.current!.value = state.releaseMonth ?? "";
+    releaseDayInputFieldRef.current!.value = state.releaseDay ?? "";
+    formatInputFieldRef.current!.value = state.format ?? "";
+  };
+
+  useEffect(() => {
     if (!(props.open && props.update && props.item))
       return;
 
@@ -125,13 +127,10 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       format: props.item!.format,
     }));
 
-    // Wait for the DOM to be ready
     const timer = setTimeout(() => {
-      // Now you can set the input fields safely
-      setInputFieldValuesFromProps();
-    }, 50); // You can adjust this delay based on your needs
+      setInputFieldValuesFromState();
+    }, 50);
 
-    // Cleanup timeout
     return () => clearTimeout(timer);
   }, [props.open]);
 
@@ -140,6 +139,8 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       ...state,
       [ev.target.name]: ev.target.value
     });
+
+    setInputFieldValuesFromState();
   }
 
   const handleAuthorInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -205,7 +206,13 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           format: state.format,
         }))
 
-        navigate(`${routes.item}/${result.id}`)
+        navigate(`${routes.item}/${result.id}`);
+
+        props.onOpenChange(undefined!, {
+          open: false,
+          type: undefined!,
+          event: undefined!
+        });
       } catch (e: any) {
         showErrorToast("An error occurred when creating item.", dispatchToast);
       }
@@ -219,7 +226,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
         const monthInt = parseInt(state.releaseMonth ?? "0");
         const dayInt = parseInt(state.releaseDay ?? "1");
 
-        let result = await itemClient.updateItem(new UpdateItemModel({
+        await itemClient.updateItem(new UpdateItemModel({
           id: props.item?.id,
           title: state.title,
           description: state.description,
@@ -227,9 +234,9 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           releaseDate: new Date(yearInt, monthInt - 1, dayInt),
           authors: state.authors,
           format: state.format,
-        }))
+        }));
 
-        navigate(`${routes.item}/${result.id}`)
+        location.reload();
       } catch (e: any) {
         showErrorToast("An error occurred when updating item.", dispatchToast);
       }
@@ -357,7 +364,6 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               enabled={barcodeReaderOpen}
               style={{display: barcodeReaderOpen ? "block" : "none"}}
               onRead={(barcode) => {
-                console.log(barcode);
                 setState(prevState => ({
                   ...prevState,
                   barcode: barcode,

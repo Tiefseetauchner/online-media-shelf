@@ -2,6 +2,7 @@ import {
   useParams
 } from "react-router-dom";
 import {
+  useContext,
   useEffect,
   useState
 } from "react";
@@ -39,6 +40,9 @@ import {
 import {
   UploadImageDialog
 } from "./UploadImageDialog.tsx";
+import {
+  UserContext
+} from "../../App.tsx";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -52,6 +56,8 @@ export function ItemView() {
   const [uploadImageDialogOpen, setUploadImageDialogOpen] = useState(false);
 
   const {itemId} = useParams();
+
+  const {user} = useContext(UserContext);
 
   const {dispatchToast} = useToastController();
 
@@ -89,7 +95,7 @@ export function ItemView() {
       open={updateDialogOpen}
       update={true}
       item={item}/>
-    
+
     <UploadImageDialog
       onOpenChange={(_, data) => setUploadImageDialogOpen(data.open)}
       open={uploadImageDialogOpen}
@@ -110,10 +116,10 @@ export function ItemView() {
                 className={`object-fit-contain overflow-hidden ${styles.mediaImage} ${styles.image}`}
                 src={coverImageUrl}/>
 
-              {hover &&
+              {hover && user?.currentUser?.isLoggedIn &&
                   <Button
                       className={styles.editButton}
-                      onClick={() => setUploadImageDialogOpen(true)}    
+                      onClick={() => setUploadImageDialogOpen(true)}
                       icon={
                         <FontAwesomeIcon
                           icon={faEdit}/>}/>}
@@ -137,15 +143,18 @@ export function ItemView() {
             <Col>
               <h1>{item.title}</h1>
             </Col>
-            <Col
-              className={"d-flex justify-content-end"}>
-              <Button
-                onClick={() => setUpdateDialogOpen(true)}
-                className={"h-auto"}
-                icon={
-                  <FontAwesomeIcon
-                    icon={faEdit}/>}>Edit Item</Button>
-            </Col>
+            {
+              user?.currentUser?.isLoggedIn &&
+                <Col
+                    className={"d-flex justify-content-end"}>
+                    <Button
+                        onClick={() => setUpdateDialogOpen(true)}
+                        className={"h-auto"}
+                        icon={
+                          <FontAwesomeIcon
+                            icon={faEdit}/>}>Edit Item</Button>
+                </Col>
+            }
           </Row>
 
           {item.authors && item.authors.length > 0 &&

@@ -85,7 +85,7 @@ function Header() {
             <img
               style={{width: "24px"}}
               src={"/PictureMark.svg"}
-              alt={"Logo"}/>}>Online Media Shelves </ToolbarButton>
+              alt={"Logo"}/>}>Mega Autism Simulator</ToolbarButton>
       </Link>
       <div
         style={{
