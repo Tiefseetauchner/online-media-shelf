@@ -225,7 +225,7 @@ export function HomePage() {
                 <Text
                   style={{
                     color: tokens.colorBrandForeground1
-                  }}>{}</Text>
+                  }}>{item.format}</Text>
                 <CardHeader
                   style={{
                     overflow: "hidden",

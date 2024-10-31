@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
 
@@ -11,13 +12,15 @@ using Tiefseetauchner.OnlineMediaShelf.Domain;
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240601130947_DescriptionToVarcharMax")]
+    partial class DescriptionToVarcharMax
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -244,22 +247,6 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("DataId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DataId");
-
-                    b.ToTable("Items");
-                });
-
-            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ItemData", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
                     b.Property<string>("Authors")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -288,15 +275,12 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Barcode", "Version")
+                    b.HasIndex("Barcode")
                         .IsUnique();
 
-                    b.ToTable("ItemData");
+                    b.ToTable("Items");
                 });
 
             modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Shelf", b =>
@@ -391,17 +375,6 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", b =>
-                {
-                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ItemData", "Data")
-                        .WithMany()
-                        .HasForeignKey("DataId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Data");
                 });
 
             modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Shelf", b =>

@@ -14,15 +14,7 @@ public class Item : IEntity<int>
   [Key]
   public int Id { get; set; }
 
-  [StringLength(64)]
-  public string? Barcode { get; set; }
-
-  [StringLength(128)]
-  [Required]
-  public string Title { get; set; } = null!;
-
-  [StringLength(512)]
-  public string? Description { get; set; }
+  public ItemData Data { get; set; } = null!;
 
   public List<Shelf> ContainingShelves { get; set; } = null!;
 }

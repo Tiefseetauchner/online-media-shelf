@@ -7,10 +7,11 @@ using System.Collections.Generic;
 
 namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
-public record CreateItemModel(
+public record UpdateItemModel(
+  int Id,
   string? Barcode,
-  string Title,
+  string? Title,
   string? Description,
-  List<string> Authors,
-  DateTime ReleaseDate,
-  string Format);
+  List<string>? Authors,
+  DateTime? ReleaseDate,
+  string? Format);
