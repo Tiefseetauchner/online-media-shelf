@@ -26,5 +26,6 @@ public class ShelfRepository(DbSet<Shelf> dbSet) : CrudRepository<Shelf, int>(db
 
   protected override IQueryable<Shelf> ConfigureIncludes(DbSet<Shelf> dbSet) =>
     dbSet.Include(shelf => shelf.User)
-      .Include(shelf => shelf.Items);
+      .Include(shelf => shelf.Items)
+      .ThenInclude(item => item.Data);
 }

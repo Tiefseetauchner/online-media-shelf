@@ -20,7 +20,7 @@ import {
 
 export interface SuggestionType<T> {
   name: string;
-  value: T
+  value: T;
 }
 
 interface SearchFieldProps<T> {

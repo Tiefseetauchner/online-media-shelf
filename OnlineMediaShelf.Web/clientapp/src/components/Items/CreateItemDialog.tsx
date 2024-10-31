@@ -12,20 +12,47 @@ import {
   Textarea,
   useToastController
 } from "@fluentui/react-components";
-import {useEffect, useState} from "react";
-import {CreateItemModel, ItemClient} from "../../OMSWebClient.ts";
-import {DialogOpenChangeEventHandler} from "@fluentui/react-dialog";
-import {useNavigate} from "react-router-dom";
-import {routes} from "../../utilities/routes.ts";
-import {showErrorToast} from "../../utilities/toastHelper.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBarcode} from "@fortawesome/free-solid-svg-icons";
-import {BarcodeReader} from "../BarcodeReader.tsx";
-import {uniqueId} from "lodash";
+import {
+  useEffect,
+  useRef,
+  useState
+} from "react";
+import {
+  CreateItemModel,
+  IItemModel,
+  ItemClient,
+  UpdateItemModel
+} from "../../OMSWebClient.ts";
+import {
+  DialogOpenChangeEventHandler
+} from "@fluentui/react-dialog";
+import {
+  useNavigate
+} from "react-router-dom";
+import {
+  routes
+} from "../../utilities/routes.ts";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faBarcode
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  BarcodeReader
+} from "../BarcodeReader.tsx";
+import {
+  ItemInputValidator
+} from "../../utilities/itemInputValidator.ts";
 
 interface AddItemDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
   open: boolean;
+  item?: IItemModel;
+  update?: boolean;
 }
 
 interface AddItemDialogState {
@@ -58,23 +85,68 @@ export function CreateItemDialog(props: AddItemDialogProps) {
   const [errorState, setErrorState] = useState<ErrorState>({})
   const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
 
-  const barcodeInputFieldId = uniqueId();
+  const titleInputFieldRef = useRef<HTMLInputElement>(null);
+  const descriptionInputFieldRef = useRef<HTMLTextAreaElement>(null);
+  const barcodeInputFieldRef = useRef<HTMLInputElement>(null);
+  const authorsInputFieldRef = useRef<HTMLInputElement>(null);
+  const releaseYearInputFieldRef = useRef<HTMLInputElement>(null);
+  const releaseMonthInputFieldRef = useRef<HTMLInputElement>(null);
+  const releaseDayInputFieldRef = useRef<HTMLInputElement>(null);
+  const formatInputFieldRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
 
   const {dispatchToast} = useToastController();
+
+  const setInputFieldValuesFromState = () => {
+    console.log(state);
+
+    titleInputFieldRef.current!.value = state.title ?? "";
+    descriptionInputFieldRef.current!.value = state.description ?? "";
+    barcodeInputFieldRef.current!.value = state.barcode ?? "";
+    authorsInputFieldRef.current!.value = state.authors?.join(", ") ?? "";
+    releaseYearInputFieldRef.current!.value = state.releaseYear ?? "";
+    releaseMonthInputFieldRef.current!.value = state.releaseMonth ?? "";
+    releaseDayInputFieldRef.current!.value = state.releaseDay ?? "";
+    formatInputFieldRef.current!.value = state.format ?? "";
+  };
+
+  useEffect(() => {
+    if (!(props.open && props.update && props.item))
+      return;
+
+    setState(prevState => ({
+      ...prevState,
+      title: props.item!.title,
+      description: props.item!.description,
+      barcode: props.item!.barcode,
+      authors: props.item!.authors,
+      releaseYear: props.item!.releaseDate?.getFullYear().toString(),
+      releaseMonth: ((props.item!.releaseDate?.getMonth() ?? 0) + 1).toString(),
+      releaseDay: props.item!.releaseDate?.getDay().toString(),
+      format: props.item!.format,
+    }));
+
+    const timer = setTimeout(() => {
+      setInputFieldValuesFromState();
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [props.open]);
 
   const handleInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
       ...state,
       [ev.target.name]: ev.target.value
     });
+
+    setInputFieldValuesFromState();
   }
 
   const handleAuthorInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
       ...state,
-      [ev.target.name]: [ev.target.value]
+      [ev.target.name]: ev.target.value.split(",").map(e => e.trim())
     });
   }
 
@@ -82,66 +154,21 @@ export function CreateItemDialog(props: AddItemDialogProps) {
     ev.preventDefault();
 
     const validateForm = (): boolean => {
-      let barcodeError: string | undefined = undefined;
-      let descriptionError: string | undefined = undefined;
-      let titleError: string | undefined = undefined;
-      let authorsError: string | undefined = undefined;
-      let releaseYearError: string | undefined = undefined;
-      let releaseMonthError: string | undefined = undefined;
-      let releaseDayError: string | undefined = undefined;
-      let formatError: string | undefined = undefined;
-
-      function isValidBarcode(barcode: string) {
-        return barcode.split('').reduce(function (p, v, i) {
-          return i % 2 == 0 ? p + parseInt(v) : p + 3 * parseInt(v);
-        }, 0) % 10 == 0;
-      }
-
-      if (state.barcode?.length !== 13)
-        barcodeError = "The barcode must be 13 digits long.";
-      else if (!isValidBarcode(state.barcode!))
-        barcodeError = "The barcode must have a valid check digit.";
-
-      if (state.title === undefined)
-        titleError = "The field 'Title' is required.";
-      else if (state.title.length > 128)
-        titleError = "The title mustn't be longer than 128 characters.";
-
-      if (state.description === undefined)
-        descriptionError = "The field 'Description' is required.";
-      else if (state.description.length > 2048)
-        descriptionError = "The description mustn't be longer than 2048 characters.";
-
-      if (state.authors?.some(author => author.length > 64))
-        authorsError = "No author may be longer than 64 characters.";
-
-      if (state.format?.length === undefined)
-        formatError = "The field 'Format' is required.";
-      else if (state.format?.length > 20)
-        formatError = "The format mustn't be longer than 20 characters.";
-
-      const yearInt = parseInt(state.releaseYear ?? "0");
-      const monthInt = parseInt(state.releaseMonth ?? "0");
-      const dayInt = parseInt(state.releaseDay ?? "0");
-
-      if (!state.releaseMonth && (state.releaseDay)) releaseMonthError = "Month is required.";
-      if (!state.releaseYear && (state.releaseMonth || state.releaseYear)) releaseYearError = "Year is required.";
-
-      if (state.releaseYear && (isNaN(yearInt) || yearInt < 1)) releaseYearError = "Invalid year.";
-      if (state.releaseMonth && (isNaN(monthInt) || monthInt < 1 || monthInt > 12)) releaseMonthError = "Invalid month.";
-      if (state.releaseDay && (isNaN(dayInt) || dayInt < 1 || dayInt > 31)) releaseDayError = "Invalid day.";
-
-      if (yearInt && monthInt && dayInt) {
-        const date = new Date(yearInt, monthInt - 1, dayInt);
-        if (date.getFullYear() !== yearInt || date.getMonth() !== monthInt - 1 || date.getDate() !== dayInt) {
-          releaseYearError = releaseMonthError = releaseDayError = "Invalid date.";
-        }
-      }
+      let barcodeError = ItemInputValidator.validateBarcode(state.barcode);
+      let titleError = ItemInputValidator.validateTitle(state.title);
+      let descriptionError = ItemInputValidator.validateDescription(state.description);
+      let authorsError = ItemInputValidator.validateAuthors(state.authors);
+      let formatError = ItemInputValidator.validateFormat(state.format);
+      let {
+        releaseYearError,
+        releaseMonthError,
+        releaseDayError
+      } = ItemInputValidator.validateDate(state.releaseYear ?? "", state.releaseMonth ?? "", state.releaseDay ?? "");
 
       setErrorState({
         barcodeMessage: barcodeError,
-        descriptionMessage: descriptionError,
         titleMessage: titleError,
+        descriptionMessage: descriptionError,
         authorsMessage: authorsError,
         releaseYearMessage: releaseYearError,
         releaseMonthMessage: releaseMonthError,
@@ -150,8 +177,13 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       })
 
       return barcodeError == undefined &&
+        titleError == undefined &&
         descriptionError == undefined &&
-        titleError == undefined;
+        authorsError == undefined &&
+        releaseYearError == undefined &&
+        releaseMonthError == undefined &&
+        releaseDayError == undefined &&
+        formatError == undefined;
     }
 
     if (!validateForm())
@@ -174,21 +206,53 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           format: state.format,
         }))
 
+        navigate(`${routes.item}/${result.id}`);
 
-        navigate(`${routes.item}/${result.id}`)
+        props.onOpenChange(undefined!, {
+          open: false,
+          type: undefined!,
+          event: undefined!
+        });
       } catch (e: any) {
-        showErrorToast("An error occurred when creating shelf.", dispatchToast);
+        showErrorToast("An error occurred when creating item.", dispatchToast);
       }
     };
 
-    runCreate()
+    const runUpdate = async () => {
+      const itemClient = new ItemClient();
+
+      try {
+        const yearInt = parseInt(state.releaseYear ?? "0");
+        const monthInt = parseInt(state.releaseMonth ?? "0");
+        const dayInt = parseInt(state.releaseDay ?? "1");
+
+        await itemClient.updateItem(new UpdateItemModel({
+          id: props.item?.id,
+          title: state.title,
+          description: state.description,
+          barcode: state.barcode,
+          releaseDate: new Date(yearInt, monthInt - 1, dayInt),
+          authors: state.authors,
+          format: state.format,
+        }));
+
+        location.reload();
+      } catch (e: any) {
+        showErrorToast("An error occurred when updating item.", dispatchToast);
+      }
+    };
+
+    if (props.update)
+      runUpdate();
+    else
+      runCreate();
   };
 
   useEffect(() => {
-    if (document.getElementById(barcodeInputFieldId) == null || !state.barcode)
+    if (!state.barcode)
       return;
 
-    (document.getElementById(barcodeInputFieldId) as HTMLInputElement).value = state.barcode;
+    barcodeInputFieldRef.current!.value = state.barcode;
   }, [state.barcode]);
 
   return <Dialog
@@ -199,7 +263,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       <form
         onSubmit={handleSubmit}>
         <DialogBody>
-          <DialogTitle>Create Item</DialogTitle>
+          <DialogTitle>{props.update ? "Update" : "Create"} Item</DialogTitle>
           <DialogContent
             style={{
               display: "flex",
@@ -210,6 +274,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Title"
               validationMessage={errorState.titleMessage}>
               <Input
+                ref={titleInputFieldRef}
                 appearance={"underline"}
                 onChange={handleInput}
                 name={"title"}/>
@@ -218,6 +283,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Description"
               validationMessage={errorState.descriptionMessage}>
               <Textarea
+                ref={descriptionInputFieldRef}
                 onChange={handleInput}
                 style={{height: "100px"}}
                 name={"description"}/>
@@ -227,6 +293,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               validationMessage={errorState.formatMessage}
               hint={"This is the type of media, like DVD, BluRay or Book."}>
               <Input
+                ref={formatInputFieldRef}
                 appearance={"underline"}
                 onChange={handleInput}
                 name={"format"}/>
@@ -235,6 +302,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Author"
               validationMessage={errorState.authorsMessage}>
               <Input
+                ref={authorsInputFieldRef}
                 appearance={"underline"}
                 onChange={handleAuthorInput}
                 name={"authors"}/>
@@ -243,6 +311,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Release Year"
               validationMessage={errorState.releaseYearMessage}>
               <Input
+                ref={releaseYearInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={new Date().getFullYear()}
@@ -254,6 +323,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Release Month"
               validationMessage={errorState.releaseMonthMessage}>
               <Input
+                ref={releaseMonthInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={12}
@@ -266,6 +336,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Release Day"
               validationMessage={errorState.releaseDayMessage}>
               <Input
+                ref={releaseDayInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={31}
@@ -278,7 +349,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Item Barcode"
               validationMessage={errorState.barcodeMessage}>
               <Input
-                id={barcodeInputFieldId}
+                ref={barcodeInputFieldRef}
                 value={state.barcode}
                 appearance={"underline"}
                 onChange={handleInput}
@@ -293,7 +364,6 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               enabled={barcodeReaderOpen}
               style={{display: barcodeReaderOpen ? "block" : "none"}}
               onRead={(barcode) => {
-                console.log(barcode);
                 setState(prevState => ({
                   ...prevState,
                   barcode: barcode,
