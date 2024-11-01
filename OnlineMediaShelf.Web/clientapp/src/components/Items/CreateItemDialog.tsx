@@ -79,7 +79,13 @@ interface ErrorState {
 export function CreateItemDialog(props: AddItemDialogProps) {
   const [state, setState] = useState<AddItemDialogState>({
     authors: [],
-    barcode: ""
+    barcode: "",
+    title: "",
+    releaseYear: "",
+    releaseMonth: "",
+    releaseDay: "",
+    format: "",
+    description: "",
   })
   const [errorState, setErrorState] = useState<ErrorState>({})
   const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
@@ -105,12 +111,11 @@ export function CreateItemDialog(props: AddItemDialogProps) {
     }));
   }, [props.open]);
 
-  const handleInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setState({
       ...state,
       [ev.target.name]: ev.target.value
     });
-  }
 
   const handleAuthorInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
@@ -305,7 +310,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
                 placeholder={new Date().getDate().toString()}
                 onChange={handleInput}
                 value={state.releaseDay}
-                    name={"releaseDay"}/>
+                name={"releaseDay"}/>
             </Field>
             <Field
               label="Item Barcode"
