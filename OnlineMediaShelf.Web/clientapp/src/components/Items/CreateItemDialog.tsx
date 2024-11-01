@@ -14,7 +14,6 @@ import {
 } from "@fluentui/react-components";
 import {
   useEffect,
-  useRef,
   useState
 } from "react";
 import {
@@ -85,31 +84,9 @@ export function CreateItemDialog(props: AddItemDialogProps) {
   const [errorState, setErrorState] = useState<ErrorState>({})
   const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
 
-  const titleInputFieldRef = useRef<HTMLInputElement>(null);
-  const descriptionInputFieldRef = useRef<HTMLTextAreaElement>(null);
-  const barcodeInputFieldRef = useRef<HTMLInputElement>(null);
-  const authorsInputFieldRef = useRef<HTMLInputElement>(null);
-  const releaseYearInputFieldRef = useRef<HTMLInputElement>(null);
-  const releaseMonthInputFieldRef = useRef<HTMLInputElement>(null);
-  const releaseDayInputFieldRef = useRef<HTMLInputElement>(null);
-  const formatInputFieldRef = useRef<HTMLInputElement>(null);
-
   const navigate = useNavigate();
 
   const {dispatchToast} = useToastController();
-
-  const setInputFieldValuesFromState = () => {
-    console.log(state);
-
-    titleInputFieldRef.current!.value = state.title ?? "";
-    descriptionInputFieldRef.current!.value = state.description ?? "";
-    barcodeInputFieldRef.current!.value = state.barcode ?? "";
-    authorsInputFieldRef.current!.value = state.authors?.join(", ") ?? "";
-    releaseYearInputFieldRef.current!.value = state.releaseYear ?? "";
-    releaseMonthInputFieldRef.current!.value = state.releaseMonth ?? "";
-    releaseDayInputFieldRef.current!.value = state.releaseDay ?? "";
-    formatInputFieldRef.current!.value = state.format ?? "";
-  };
 
   useEffect(() => {
     if (!(props.open && props.update && props.item))
@@ -123,15 +100,9 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       authors: props.item!.authors,
       releaseYear: props.item!.releaseDate?.getFullYear().toString(),
       releaseMonth: ((props.item!.releaseDate?.getMonth() ?? 0) + 1).toString(),
-      releaseDay: props.item!.releaseDate?.getDay().toString(),
+      releaseDay: ((props.item!.releaseDate?.getDay() ?? 0) + 1).toString(),
       format: props.item!.format,
     }));
-
-    const timer = setTimeout(() => {
-      setInputFieldValuesFromState();
-    }, 50);
-
-    return () => clearTimeout(timer);
   }, [props.open]);
 
   const handleInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -139,8 +110,6 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       ...state,
       [ev.target.name]: ev.target.value
     });
-
-    setInputFieldValuesFromState();
   }
 
   const handleAuthorInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -248,13 +217,6 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       runCreate();
   };
 
-  useEffect(() => {
-    if (!state.barcode)
-      return;
-
-    barcodeInputFieldRef.current!.value = state.barcode;
-  }, [state.barcode]);
-
   return <Dialog
     open={props.open}
     onOpenChange={props.onOpenChange}>
@@ -274,18 +236,18 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               label="Title"
               validationMessage={errorState.titleMessage}>
               <Input
-                ref={titleInputFieldRef}
                 appearance={"underline"}
                 onChange={handleInput}
+                value={state.title}
                 name={"title"}/>
             </Field>
             <Field
               label="Description"
               validationMessage={errorState.descriptionMessage}>
               <Textarea
-                ref={descriptionInputFieldRef}
                 onChange={handleInput}
                 style={{height: "100px"}}
+                value={state.description}
                 name={"description"}/>
             </Field>
             <Field
@@ -293,63 +255,62 @@ export function CreateItemDialog(props: AddItemDialogProps) {
               validationMessage={errorState.formatMessage}
               hint={"This is the type of media, like DVD, BluRay or Book."}>
               <Input
-                ref={formatInputFieldRef}
                 appearance={"underline"}
                 onChange={handleInput}
+                value={state.format}
                 name={"format"}/>
             </Field>
             <Field
               label="Author"
               validationMessage={errorState.authorsMessage}>
               <Input
-                ref={authorsInputFieldRef}
                 appearance={"underline"}
                 onChange={handleAuthorInput}
+                value={state.authors?.join(", ")}
                 name={"authors"}/>
             </Field>
             <Field
               label="Release Year"
               validationMessage={errorState.releaseYearMessage}>
               <Input
-                ref={releaseYearInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={new Date().getFullYear()}
                 placeholder={new Date().getFullYear().toString()}
                 onChange={handleInput}
+                value={state.releaseYear}
                 name={"releaseYear"}/>
             </Field>
             <Field
               label="Release Month"
               validationMessage={errorState.releaseMonthMessage}>
               <Input
-                ref={releaseMonthInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={12}
                 min={1}
                 placeholder={new Date().getMonth().toString()}
                 onChange={handleInput}
+                value={state.releaseMonth}
                 name={"releaseMonth"}/>
             </Field>
             <Field
               label="Release Day"
               validationMessage={errorState.releaseDayMessage}>
               <Input
-                ref={releaseDayInputFieldRef}
                 appearance={"underline"}
                 type={"number"}
                 max={31}
                 min={1}
                 placeholder={new Date().getDate().toString()}
                 onChange={handleInput}
-                name={"releaseDay"}/>
+                value={state.releaseDay}
+                    name={"releaseDay"}/>
             </Field>
             <Field
               label="Item Barcode"
               validationMessage={errorState.barcodeMessage}>
               <Input
-                ref={barcodeInputFieldRef}
                 value={state.barcode}
                 appearance={"underline"}
                 onChange={handleInput}
