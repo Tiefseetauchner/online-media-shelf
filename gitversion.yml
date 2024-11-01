@@ -1,5 +1,4 @@
 mode: Mainline
-next-version: 0.2.0
 tag-prefix: 'release/'
 branches:
   main:
