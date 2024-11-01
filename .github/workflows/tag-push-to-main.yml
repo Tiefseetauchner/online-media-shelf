@@ -1,0 +1,29 @@
+name: Tag on Push to Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'  # Ensure this matches your project’s .NET version
+
+      - name: Install GitVersion tool
+        run: dotnet tool restore
+
+      - name: Run GitVersion and Create Tag
+        run: |
+          VERSION=$(dotnet gitversion /showvariable NuGetVersionV2)
+          git tag -a "release/$VERSION" -m "Release $VERSION"
+          git push origin "release/$VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
