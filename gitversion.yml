@@ -1,0 +1,14 @@
+mode: Mainline
+next-version: 0.2.0
+tag-prefix: 'release/'
+branches:
+  main:
+    regex: ^main$
+    is-main-branch: true
+    tag: ''
+    increment: Patch
+    mode: ContinuousDeployment
+ignore:
+  sha: []
+commit-message-incrementing: Enabled
+assembly-informational-format: '{Major}.{Minor}.{Patch}-{PreReleaseLabel}'
