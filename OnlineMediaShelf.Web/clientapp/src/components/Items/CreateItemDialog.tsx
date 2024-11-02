@@ -167,9 +167,9 @@ export function CreateItemDialog(props: AddItemDialogProps) {
       const itemClient = new ItemClient();
 
       try {
-        const yearInt = parseInt(state.releaseYear ?? "0");
-        const monthInt = parseInt(state.releaseMonth ?? "0");
-        const dayInt = parseInt(state.releaseDay ?? "1");
+        const yearInt = parseInt(state.releaseYear != "" ? state.releaseYear! : "0");
+        const monthInt = parseInt(state.releaseMonth != "" ? state.releaseMonth! : "1");
+        const dayInt = parseInt(state.releaseDay != "" ? state.releaseDay! : "1");
 
         let result = await itemClient.createItem(new CreateItemModel({
           title: state.title,

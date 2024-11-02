@@ -14,7 +14,7 @@ export class ItemInputValidator {
   }
 
   static validateTitle(title: string | undefined): string | undefined {
-    if (title === undefined)
+    if (title === undefined || title.length === 0)
       return "The field 'Title' is required.";
 
     if (title.length > 128)
@@ -23,7 +23,7 @@ export class ItemInputValidator {
 
   static validateDescription(description: string | undefined): string | undefined {
     if (description === undefined)
-      return "The field 'Description' is required.";
+      return undefined;
 
     if (description.length > 2048)
       return "The description mustn't be longer than 2048 characters.";
@@ -36,7 +36,7 @@ export class ItemInputValidator {
   }
 
   static validateFormat(format: string | undefined): string | undefined {
-    if (format?.length === undefined)
+    if (format?.length === undefined || format?.length === 0)
       return "The field 'Format' is required.";
 
     if (format?.length > 20)
@@ -70,6 +70,10 @@ export class ItemInputValidator {
       }
     }
 
-    return {releaseYearError: releaseYearError, releaseMonthError: releaseMonthError, releaseDayError: releaseDayError}
+    return {
+      releaseYearError: releaseYearError,
+      releaseMonthError: releaseMonthError,
+      releaseDayError: releaseDayError
+    }
   }
 }
