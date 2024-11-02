@@ -4,9 +4,6 @@ import {
   Input,
   Spinner,
   Title1,
-  Toast,
-  ToastBody,
-  ToastTitle,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -15,6 +12,7 @@ import {
 } from "react";
 import {
   AccountClient,
+  ApiException,
   RegisterModel,
 } from "../../OMSWebClient.ts";
 import {
@@ -25,6 +23,9 @@ import {
 import {
   routes
 } from "../../utilities/routes.ts";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
 
 interface RegisterPageState {
   loading: boolean;
@@ -48,20 +49,6 @@ export function RegisterPage() {
 
   const navigate = useNavigate();
 
-  function showErrorToast(message: string) {
-    dispatchToast(
-      <Toast>
-        <ToastTitle>An Error occured while trying to log in:</ToastTitle>
-        <ToastBody>{message}</ToastBody>
-      </Toast>,
-      {
-        intent: "error",
-        position: "bottom",
-        timeout: 5000
-      }
-    );
-  }
-
   async function loginUser() {
     var client = new AccountClient();
 
@@ -74,7 +61,14 @@ export function RegisterPage() {
 
       navigate(routes.login)
     } catch (e: any) {
-      showErrorToast("An unexpected Server Error has occured")
+      console.log(e.response)
+      if (e instanceof ApiException) {
+        let parsedResponse = JSON.parse(e.response)
+
+        showErrorToast(`${parsedResponse.title}`, dispatchToast);
+      } else {
+        showErrorToast(`An unexpected error occurred`, dispatchToast);
+      }
     }
 
     setState({

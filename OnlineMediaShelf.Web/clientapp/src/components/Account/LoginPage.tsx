@@ -14,6 +14,7 @@ import {
 } from "react";
 import {
   AccountClient,
+  ApiException,
   LoginModel,
 } from "../../OMSWebClient.ts";
 import {
@@ -74,13 +75,10 @@ export function LoginPage() {
 
       navigate(routes.root);
     } catch (e: any) {
-      if (e.status === 401)
-        showErrorToast("E-Mail and Password don't match", dispatchToast);
-      else if (e.status === 403)
-        showErrorToast("You're currently not allowed to log in!", dispatchToast);
-      else {
-        showErrorToast("An unexpected Server Error has occured", dispatchToast);
-      }
+      if (e instanceof ApiException)
+        showErrorToast(`An error occurred: ${e.response}.`, dispatchToast);
+      else
+        showErrorToast(`An unexpected error occurred.`, dispatchToast);
     }
 
     setState(prevState => ({
