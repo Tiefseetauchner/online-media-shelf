@@ -14,7 +14,7 @@ public class ItemData : IEntity<Guid>
   public int Version { get; set; }
 
   [StringLength(64)]
-  public string? Barcode { get; set; }
+  public string Barcode { get; set; } = null!;
 
   [StringLength(128)]
   [Required]
@@ -27,8 +27,8 @@ public class ItemData : IEntity<Guid>
 
   public byte[]? CoverImage { get; set; }
 
-  public DateTime ReleaseDate { get; set; }
+  public DateTime? ReleaseDate { get; set; }
 
   [StringLength(20)]
-  public string Format { get; set; } = "";
+  public string Format { get; set; } = null!;
 }

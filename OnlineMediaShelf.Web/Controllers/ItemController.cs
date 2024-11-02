@@ -113,7 +113,6 @@ public class ItemController(
   public async Task<ActionResult<ItemModel>> UpdateItem([FromBody] UpdateItemModel item)
   {
     var itemRepository = unitOfWork.ItemRepository;
-    var itemDataRepository = unitOfWork.ItemDataRepository;
 
     var oldDbItem = await itemRepository.GetByIdAsync(item.Id);
     if (oldDbItem == null)

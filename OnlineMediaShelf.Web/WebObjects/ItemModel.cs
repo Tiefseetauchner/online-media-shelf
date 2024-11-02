@@ -9,9 +9,9 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 public record ItemModel(
   int Id,
-  string? Barcode,
+  string Barcode,
   string Title,
   string? Description,
   List<string> Authors,
-  DateTime ReleaseDate,
+  DateTime? ReleaseDate,
   string Format);
