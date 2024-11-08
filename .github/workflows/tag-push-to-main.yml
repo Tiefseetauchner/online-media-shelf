@@ -29,17 +29,6 @@ jobs:
           echo "TAG_NAME=$(dotnet gitversion /showvariable MajorMinorPatch)" >> $GITHUB_OUTPUT
         id: version
 
-      - name: Create release tag
-        uses: actions/github-script@v5
-        with:
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/release/${{ steps.version.outputs.TAG_NAME}}',
-              sha: context.sha
-            })
-
       - name: Create version tag
         uses: actions/github-script@v5
         with:
