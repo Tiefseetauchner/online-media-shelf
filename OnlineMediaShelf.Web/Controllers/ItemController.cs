@@ -79,12 +79,12 @@ public class ItemController(
     return Ok(Mapper.ConvertToWebObject(item));
   }
 
-  [HttpGet("{id:int}/cover-image")]
-  public async Task<ActionResult> GetItemCoverImage(int id)
+  [HttpGet("{itemId:int}/cover-image")]
+  public async Task<ActionResult> GetItemCoverImage(int itemId)
   {
-    var fileContents = (await unitOfWork.ItemRepository.GetByIdAsync(id))?.Data.CoverImage.Data;
+    var fileContents = (await unitOfWork.ItemImageRepository.GetByItemId(itemId)).FirstOrDefault();
 
-    return fileContents == null || fileContents.Length == 0 ? NotFound() : File(fileContents, "image/jpg");
+    return fileContents == null || fileContents.Data.Length == 0 ? NotFound() : File(fileContents.Data, "image/jpg");
   }
 
   [HttpPost("create")]
@@ -157,12 +157,11 @@ public class ItemController(
 
         await image.SaveAsJpegAsync(convertedImageStream);
 
-        var coverImageEntity = await unitOfWork.CoverImageRepository.CreateAsync(new CoverImage
+        await unitOfWork.ItemImageRepository.CreateAsync(new ItemImage
         {
           Data = convertedImageStream.ToArray(),
+          OwningItem = item,
         });
-
-        item.Data.CoverImage = coverImageEntity;
       }
 
       await unitOfWork.CommitAsync();

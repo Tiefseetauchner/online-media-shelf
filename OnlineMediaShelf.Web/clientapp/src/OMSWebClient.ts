@@ -784,11 +784,11 @@ export class ItemClient {
         return Promise.resolve<ItemModel>(null as any);
     }
 
-    getItemCoverImage(id: number): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/items/{id}/cover-image";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    getItemCoverImage(itemId: number): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/items/{itemId}/cover-image";
+        if (itemId === undefined || itemId === null)
+            throw new Error("The parameter 'itemId' must be defined.");
+        url_ = url_.replace("{itemId}", encodeURIComponent("" + itemId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -2298,6 +2298,7 @@ export interface IShelf {
 export class Item implements IItem {
     id?: number;
     data?: ItemData;
+    images?: ItemImage[];
     containingShelves?: Shelf[];
 
     constructor(data?: IItem) {
@@ -2313,6 +2314,11 @@ export class Item implements IItem {
         if (_data) {
             this.id = _data["id"];
             this.data = _data["data"] ? ItemData.fromJS(_data["data"]) : <any>undefined;
+            if (Array.isArray(_data["images"])) {
+                this.images = [] as any;
+                for (let item of _data["images"])
+                    this.images!.push(ItemImage.fromJS(item));
+            }
             if (Array.isArray(_data["containingShelves"])) {
                 this.containingShelves = [] as any;
                 for (let item of _data["containingShelves"])
@@ -2332,6 +2338,11 @@ export class Item implements IItem {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        if (Array.isArray(this.images)) {
+            data["images"] = [];
+            for (let item of this.images)
+                data["images"].push(item.toJSON());
+        }
         if (Array.isArray(this.containingShelves)) {
             data["containingShelves"] = [];
             for (let item of this.containingShelves)
@@ -2344,6 +2355,7 @@ export class Item implements IItem {
 export interface IItem {
     id?: number;
     data?: ItemData;
+    images?: ItemImage[];
     containingShelves?: Shelf[];
 }
 
@@ -2354,7 +2366,6 @@ export class ItemData implements IItemData {
     title!: string;
     description?: string | undefined;
     authors?: string[];
-    coverImage?: string | undefined;
     releaseDate?: Date | undefined;
     format?: string;
 
@@ -2379,7 +2390,6 @@ export class ItemData implements IItemData {
                 for (let item of _data["authors"])
                     this.authors!.push(item);
             }
-            this.coverImage = _data["coverImage"];
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
         }
@@ -2404,7 +2414,6 @@ export class ItemData implements IItemData {
             for (let item of this.authors)
                 data["authors"].push(item);
         }
-        data["coverImage"] = this.coverImage;
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
         return data;
@@ -2418,9 +2427,52 @@ export interface IItemData {
     title: string;
     description?: string | undefined;
     authors?: string[];
-    coverImage?: string | undefined;
     releaseDate?: Date | undefined;
     format?: string;
+}
+
+export class ItemImage implements IItemImage {
+    id?: string;
+    owningItem?: Item;
+    data?: string;
+
+    constructor(data?: IItemImage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.owningItem = _data["owningItem"] ? Item.fromJS(_data["owningItem"]) : <any>undefined;
+            this.data = _data["data"];
+        }
+    }
+
+    static fromJS(data: any): ItemImage {
+        data = typeof data === 'object' ? data : {};
+        let result = new ItemImage();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["owningItem"] = this.owningItem ? this.owningItem.toJSON() : <any>undefined;
+        data["data"] = this.data;
+        return data;
+    }
+}
+
+export interface IItemImage {
+    id?: string;
+    owningItem?: Item;
+    data?: string;
 }
 
 export class CreateItemModel implements ICreateItemModel {

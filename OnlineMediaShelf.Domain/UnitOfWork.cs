@@ -14,7 +14,7 @@ public class UnitOfWork(ApplicationDbContext context)
   public IShelfRepository ShelfRepository { get; private set; } = new ShelfRepository(context.Shelves);
   public IItemRepository ItemRepository { get; private set; } = new ItemRepository(context.Items);
   public IItemDataRepository ItemDataRepository { get; private set; } = new ItemDataRepository(context.ItemData);
-  public ICoverImageRepository CoverImageRepository { get; private set; } = new CoverImageRepository(context.CoverImages);
+  public IItemImageRepository ItemImageRepository { get; private set; } = new ItemImageRepository(context.ItemImages);
 
   public async Task CommitAsync()
   {

@@ -239,7 +239,8 @@ export function CreateItemDialog(props: AddItemDialogProps) {
             }}>
             <Field
               label="Title"
-              validationMessage={errorState.titleMessage}>
+              validationMessage={errorState.titleMessage}
+              required={true}>
               <Input
                 appearance={"underline"}
                 onChange={handleInput}
@@ -258,6 +259,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
             <Field
               label="Format"
               validationMessage={errorState.formatMessage}
+              required={true}
               hint={"This is the type of media, like DVD, BluRay or Book."}>
               <Input
                 appearance={"underline"}
@@ -314,7 +316,8 @@ export function CreateItemDialog(props: AddItemDialogProps) {
             </Field>
             <Field
               label="Item Barcode"
-              validationMessage={errorState.barcodeMessage}>
+              validationMessage={errorState.barcodeMessage}
+              required={true}   >
               <Input
                 value={state.barcode}
                 appearance={"underline"}

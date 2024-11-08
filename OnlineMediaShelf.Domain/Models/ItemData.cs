@@ -27,8 +27,6 @@ public class ItemData : IEntity<Guid>
 
   public DateTime? ReleaseDate { get; set; }
 
-  public CoverImage CoverImage { get; set; } = null!;
-
   [StringLength(20)]
   public string Format { get; set; } = null!;
 }
