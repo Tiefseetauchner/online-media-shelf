@@ -2005,11 +2005,11 @@ export interface IUserModel {
 
 export class ItemModel implements IItemModel {
     id?: number;
-    barcode?: string | undefined;
+    barcode?: string;
     title?: string;
     description?: string | undefined;
     authors?: string[];
-    releaseDate?: Date;
+    releaseDate?: Date | undefined;
     format?: string;
 
     constructor(data?: IItemModel) {
@@ -2063,11 +2063,11 @@ export class ItemModel implements IItemModel {
 
 export interface IItemModel {
     id?: number;
-    barcode?: string | undefined;
+    barcode?: string;
     title?: string;
     description?: string | undefined;
     authors?: string[];
-    releaseDate?: Date;
+    releaseDate?: Date | undefined;
     format?: string;
 }
 
@@ -2350,12 +2350,12 @@ export interface IItem {
 export class ItemData implements IItemData {
     id?: string;
     version?: number;
-    barcode?: string | undefined;
+    barcode?: string;
     title!: string;
     description?: string | undefined;
     authors?: string[];
     coverImage?: string | undefined;
-    releaseDate?: Date;
+    releaseDate?: Date | undefined;
     format?: string;
 
     constructor(data?: IItemData) {
@@ -2414,21 +2414,21 @@ export class ItemData implements IItemData {
 export interface IItemData {
     id?: string;
     version?: number;
-    barcode?: string | undefined;
+    barcode?: string;
     title: string;
     description?: string | undefined;
     authors?: string[];
     coverImage?: string | undefined;
-    releaseDate?: Date;
+    releaseDate?: Date | undefined;
     format?: string;
 }
 
 export class CreateItemModel implements ICreateItemModel {
-    barcode?: string | undefined;
+    barcode?: string;
     title?: string;
     description?: string | undefined;
     authors?: string[];
-    releaseDate?: Date;
+    releaseDate?: Date | undefined;
     format?: string;
 
     constructor(data?: ICreateItemModel) {
@@ -2479,11 +2479,11 @@ export class CreateItemModel implements ICreateItemModel {
 }
 
 export interface ICreateItemModel {
-    barcode?: string | undefined;
+    barcode?: string;
     title?: string;
     description?: string | undefined;
     authors?: string[];
-    releaseDate?: Date;
+    releaseDate?: Date | undefined;
     format?: string;
 }
 

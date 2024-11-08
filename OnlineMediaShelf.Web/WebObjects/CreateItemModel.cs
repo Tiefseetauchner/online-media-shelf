@@ -8,9 +8,9 @@ using System.Collections.Generic;
 namespace Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 public record CreateItemModel(
-  string? Barcode,
+  string Barcode,
   string Title,
   string? Description,
   List<string> Authors,
-  DateTime ReleaseDate,
+  DateTime? ReleaseDate,
   string Format);
