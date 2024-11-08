@@ -157,6 +157,12 @@ public class ItemController(
 
         await image.SaveAsJpegAsync(convertedImageStream);
 
+        // TODO (lena): Currently, we only have one image so we'll the delete the old one.
+        var oldImage = (await unitOfWork.ItemImageRepository.GetByItemId(id)).SingleOrDefault();
+
+        if (oldImage != null)
+          unitOfWork.ItemImageRepository.Delete(oldImage);
+
         await unitOfWork.ItemImageRepository.CreateAsync(new ItemImage
         {
           Data = convertedImageStream.ToArray(),
@@ -171,6 +177,28 @@ public class ItemController(
     catch (Exception)
     {
       return StatusCode(500, "An error occured while saving changes. Try again later.");
+    }
+  }
+
+  [HttpDelete("{id:int}/cover-image/{imageId:guid}")]
+  public async Task<ActionResult> DeleteItemCoverImage(int id, Guid imageId)
+  {
+    try
+    {
+      var image = await unitOfWork.ItemImageRepository.GetQueryable().Where(_ => _.OwningItem.Id == id && _.Id == imageId).SingleOrDefaultAsync();
+
+      if (image == null)
+        return NotFound();
+
+      unitOfWork.ItemImageRepository.Delete(image);
+
+      await unitOfWork.CommitAsync();
+
+      return Ok();
+    }
+    catch
+    {
+      return StatusCode(503, "An error occured while deleting an image.");
     }
   }
 }
