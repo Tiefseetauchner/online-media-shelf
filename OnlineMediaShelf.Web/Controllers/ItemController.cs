@@ -12,6 +12,7 @@ using NSwag.Annotations;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 #endregion
@@ -81,7 +82,7 @@ public class ItemController(
   [HttpGet("{id:int}/cover-image")]
   public async Task<ActionResult> GetItemCoverImage(int id)
   {
-    var fileContents = (await unitOfWork.ItemRepository.GetByIdAsync(id))?.Data.CoverImage;
+    var fileContents = (await unitOfWork.ItemRepository.GetByIdAsync(id))?.Data.CoverImage.Data;
 
     return fileContents == null || fileContents.Length == 0 ? NotFound() : File(fileContents, "image/jpg");
   }
@@ -156,7 +157,12 @@ public class ItemController(
 
         await image.SaveAsJpegAsync(convertedImageStream);
 
-        item.Data.CoverImage = convertedImageStream.ToArray();
+        var coverImageEntity = await unitOfWork.CoverImageRepository.CreateAsync(new CoverImage
+        {
+          Data = convertedImageStream.ToArray(),
+        });
+
+        item.Data.CoverImage = coverImageEntity;
       }
 
       await unitOfWork.CommitAsync();

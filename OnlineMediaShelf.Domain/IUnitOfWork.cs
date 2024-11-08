@@ -14,5 +14,7 @@ public interface IUnitOfWork : IDisposable
   IShelfRepository ShelfRepository { get; }
   IItemRepository ItemRepository { get; }
   IItemDataRepository ItemDataRepository { get; }
+  public ICoverImageRepository CoverImageRepository { get; }
+
   Task CommitAsync();
 }
