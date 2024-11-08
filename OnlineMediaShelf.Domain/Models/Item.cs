@@ -16,5 +16,7 @@ public class Item : IEntity<int>
 
   public ItemData Data { get; set; } = null!;
 
+  public List<ItemImage> Images { get; set; } = null!;
+
   public List<Shelf> ContainingShelves { get; set; } = null!;
 }

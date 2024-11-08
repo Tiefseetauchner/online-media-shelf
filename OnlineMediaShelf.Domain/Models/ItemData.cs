@@ -25,8 +25,6 @@ public class ItemData : IEntity<Guid>
   [StringLength(64)]
   public List<string> Authors { get; set; } = [];
 
-  public byte[]? CoverImage { get; set; }
-
   public DateTime? ReleaseDate { get; set; }
 
   [StringLength(20)]

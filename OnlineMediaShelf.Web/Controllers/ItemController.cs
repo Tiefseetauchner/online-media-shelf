@@ -12,6 +12,7 @@ using NSwag.Annotations;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
+using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
 #endregion
@@ -78,12 +79,12 @@ public class ItemController(
     return Ok(Mapper.ConvertToWebObject(item));
   }
 
-  [HttpGet("{id:int}/cover-image")]
-  public async Task<ActionResult> GetItemCoverImage(int id)
+  [HttpGet("{itemId:int}/cover-image")]
+  public async Task<ActionResult> GetItemCoverImage(int itemId)
   {
-    var fileContents = (await unitOfWork.ItemRepository.GetByIdAsync(id))?.Data.CoverImage;
+    var fileContents = (await unitOfWork.ItemImageRepository.GetByItemId(itemId)).FirstOrDefault();
 
-    return fileContents == null || fileContents.Length == 0 ? NotFound() : File(fileContents, "image/jpg");
+    return fileContents == null || fileContents.Data.Length == 0 ? NotFound() : File(fileContents.Data, "image/jpg");
   }
 
   [HttpPost("create")]
@@ -156,7 +157,17 @@ public class ItemController(
 
         await image.SaveAsJpegAsync(convertedImageStream);
 
-        item.Data.CoverImage = convertedImageStream.ToArray();
+        // TODO (lena): Currently, we only have one image so we'll the delete the old one.
+        var oldImage = (await unitOfWork.ItemImageRepository.GetByItemId(id)).SingleOrDefault();
+
+        if (oldImage != null)
+          unitOfWork.ItemImageRepository.Delete(oldImage);
+
+        await unitOfWork.ItemImageRepository.CreateAsync(new ItemImage
+        {
+          Data = convertedImageStream.ToArray(),
+          OwningItem = item,
+        });
       }
 
       await unitOfWork.CommitAsync();
@@ -166,6 +177,28 @@ public class ItemController(
     catch (Exception)
     {
       return StatusCode(500, "An error occured while saving changes. Try again later.");
+    }
+  }
+
+  [HttpDelete("{id:int}/cover-image/{imageId:guid}")]
+  public async Task<ActionResult> DeleteItemCoverImage(int id, Guid imageId)
+  {
+    try
+    {
+      var image = await unitOfWork.ItemImageRepository.GetQueryable().Where(_ => _.OwningItem.Id == id && _.Id == imageId).SingleOrDefaultAsync();
+
+      if (image == null)
+        return NotFound();
+
+      unitOfWork.ItemImageRepository.Delete(image);
+
+      await unitOfWork.CommitAsync();
+
+      return Ok();
+    }
+    catch
+    {
+      return StatusCode(503, "An error occured while deleting an image.");
     }
   }
 }
