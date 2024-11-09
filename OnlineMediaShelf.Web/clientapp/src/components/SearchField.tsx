@@ -27,6 +27,7 @@ interface SearchFieldProps<T> {
   fetchSuggestionsDelegate: (query: string) => Promise<SuggestionType<T>[]>;
   selectionPressed: (selection: T) => void;
   value: string;
+  onInputChange: (value: string) => void;
 }
 
 interface SearchFieldInputState<T> {
@@ -91,12 +92,15 @@ function SearchField<T>(props: SearchFieldProps<T>) {
         id={inputFieldId}
         autoComplete={"off"}
         placeholder="Search"
-        onChange={(e) => setState({
-          ...state,
-          input: e.target.value
-        })}
+        onChange={(e) => {
+          setState({
+            ...state,
+            input: e.target.value
+          });
+          props.onInputChange(e.target.value);
+        }}
         onKeyDown={handleKeyDown}
-        value={state.input}
+        value={props.value}
         onFocus={() => state && setIsOpen(true)}
         onBlur={() => setTimeout(() => setIsOpen(false), 500)}/>
 

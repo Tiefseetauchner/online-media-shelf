@@ -46,10 +46,13 @@ public class ItemController(
     [FromQuery]
     List<int> excludedItems)
   {
+    if (limit == 0)
+      limit = 10;
+
     // TODO (Tiefseetauchner): Fuzzy Search?
     var items = await unitOfWork.ItemRepository.GetQueryable()
       .Where(i => title == null || i.Data.Title.Contains(title))
-      .Where(i => barcode == null || i.Data.Barcode == null || i.Data.Barcode.Contains(barcode))
+      .Where(i => barcode == null || i.Data.Barcode.Contains(barcode))
       .Where(i => !excludedItems.Contains(i.Id))
       .Take(limit)
       .Include(_ => _.Data)
