@@ -126,7 +126,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                 value={state.selectedShelfTitle}
                 onInputChange={(value) => setState(prevState => ({
                   ...prevState,
-                  selectedShelfTitle: value 
+                  selectedShelfTitle: value
                 }))}/>
             </Field>
           </DialogContent>
