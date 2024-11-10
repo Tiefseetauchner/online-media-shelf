@@ -48,8 +48,8 @@ interface AddItemToShelfDialogProps {
 
 interface AddItemToShelfDialogState {
   itemId?: number;
-  title?: string;
-  barcode?: string;
+  title: string;
+  barcode: string;
   error?: string;
 }
 
@@ -68,7 +68,10 @@ function mapItemToBarcodeSuggestionResult(item: IItemModel): SuggestionType<IIte
 }
 
 export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
-  const [state, setState] = useState<AddItemToShelfDialogState>({});
+  const [state, setState] = useState<AddItemToShelfDialogState>({
+    barcode: "",
+    title: "",
+  });
   const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
 
   const itemClient = new ItemClient();
@@ -107,8 +110,6 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
         await shelfClient.addItem(props.shelfId, new ItemAddModel({
           id: state.itemId
         }))
-
-        setState({});
 
         props.onOpenChange(null!, {
           open: false,
@@ -155,10 +156,14 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                   selectionPressed={selection => setState({
                     ...state,
                     itemId: selection.id,
-                    barcode: selection.barcode,
-                    title: selection.title
+                    barcode: selection.barcode ?? "",
+                    title: selection.title ?? ""
                   })}
-                  value={state.title ?? "empty!!!"}/>
+                  value={state.title}
+                  onInputChange={(value) => setState(prevState => ({
+                    ...prevState,
+                    title: value
+                  }))}/>
               </Field>
               <Field
                 label="Barcode">
@@ -166,13 +171,17 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                   fetchSuggestionsDelegate={(query) =>
                     itemClient.searchItem(undefined, query, 10, props.excludedItems)
                     .then(items => items.map(mapItemToBarcodeSuggestionResult))}
-                  selectionPressed={selection => setState({
-                    ...state,
+                  selectionPressed={selection => setState(prevState => ({
+                    ...prevState,
                     itemId: selection.id,
-                    barcode: selection.barcode,
-                    title: selection.title
-                  })}
-                  value={state.barcode ?? "empty!!!"}/>
+                    barcode: selection.barcode ?? "",
+                    title: selection.title ?? ""
+                  }))}
+                  value={state.barcode}
+                  onInputChange={(value) => setState(prevState => ({
+                    ...prevState,
+                    barcode: value
+                  }))}/>
               </Field>
               <Button
                 onClick={() => setBarcodeReaderOpen(prev => !prev)}
@@ -184,14 +193,13 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                 enabled={barcodeReaderOpen}
                 onRead={(barcode) => {
                   async function getItemFromBarcode() {
-                    let item = await itemClient.searchItem(undefined, barcode, undefined, undefined)
-                    .then(items => items.map(mapItemToBarcodeSuggestionResult))
+                    let item = (await itemClient.searchItem(undefined, barcode, undefined, undefined)).map(mapItemToBarcodeSuggestionResult)
 
                     setState(prevState => ({
                       ...prevState,
                       barcode: barcode,
                       itemId: item[0].value.id,
-                      title: item[0].value.title
+                      title: item[0].value.title ?? ""
                     }));
 
                     setTimeout(() => setBarcodeReaderOpen(false), 200);

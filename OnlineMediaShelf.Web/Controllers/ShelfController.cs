@@ -21,18 +21,25 @@ public class ShelfController(
   IUnitOfWork unitOfWork) : ControllerBase
 {
   [HttpGet]
-  public async Task<ActionResult<IEnumerable<ShelfModel>>> GetAllShelves([FromQuery] string? userName)
+  public async Task<ActionResult<IEnumerable<ShelfModel>>> GetAllShelves([FromQuery] string? userName, [FromQuery] int? page, [FromQuery] int? pageSize)
   {
     List<Shelf> shelvesFromDb;
     if (userName != null)
       shelvesFromDb = await unitOfWork.ShelfRepository.GetByUserAsync(await unitOfWork.UserRepository.GetByUserNameAsync(userName));
-    else
+    else if (page == null || pageSize == null || pageSize <= 0)
       shelvesFromDb = await unitOfWork.ShelfRepository.GetAllAsync();
+    else
+      shelvesFromDb = await unitOfWork.ShelfRepository.GetPaged(page.Value, pageSize.Value);
 
     var shelves = shelvesFromDb.Select(Mapper.ConvertToWebObject);
 
     return Ok(shelves);
   }
+
+  [HttpGet("count")]
+  public async Task<ActionResult<int>> GetShelfCount() =>
+    Ok(await unitOfWork.ShelfRepository.AsQueryable().CountAsync());
+
 
   [HttpGet("{id:int}")]
   public async Task<ActionResult<ShelfModel>> GetShelf(int id)
@@ -77,7 +84,7 @@ public class ShelfController(
     if (shelf == null)
       return NotFound();
 
-    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == item.Id));
+    shelf.Items.Add(await unitOfWork.ItemRepository.AsQueryable().SingleAsync(i => i.Id == item.Id));
 
     await unitOfWork.CommitAsync();
 

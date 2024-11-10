@@ -18,5 +18,5 @@ public interface IReadRepository<T, TKey>
 
   Task<List<T>> GetAllAsync();
 
-  IQueryable<T> GetQueryable();
+  IQueryable<T> AsQueryable();
 }

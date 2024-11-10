@@ -61,7 +61,7 @@ export function HomePage() {
       try {
         let itemClient = new ItemClient();
 
-        setMostRecentItems(await itemClient.getMostRecentItems(3));
+        setMostRecentItems(await itemClient.getItems(3, 0));
       } catch {
         showErrorToast("Could not load most recent items", dispatchToast)
       }

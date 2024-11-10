@@ -608,8 +608,16 @@ export class ItemClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAllItems(): Promise<ItemModel[]> {
-        let url_ = this.baseUrl + "/api/items";
+    getItems(pageSize: number | undefined, page: number | undefined): Promise<ItemModel[]> {
+        let url_ = this.baseUrl + "/api/items?";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -620,11 +628,11 @@ export class ItemClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetAllItems(_response);
+            return this.processGetItems(_response);
         });
     }
 
-    protected processGetAllItems(response: Response): Promise<ItemModel[]> {
+    protected processGetItems(response: Response): Promise<ItemModel[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -647,6 +655,41 @@ export class ItemClient {
             });
         }
         return Promise.resolve<ItemModel[]>(null as any);
+    }
+
+    getItemCount(): Promise<number> {
+        let url_ = this.baseUrl + "/api/items/count";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetItemCount(_response);
+        });
+    }
+
+    protected processGetItemCount(response: Response): Promise<number> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<number>(null as any);
     }
 
     searchItem(title: string | null | undefined, barcode: string | null | undefined, limit: number | undefined, excludedItems: number[] | undefined): Promise<ItemModel[]> {
@@ -678,51 +721,6 @@ export class ItemClient {
     }
 
     protected processSearchItem(response: Response): Promise<ItemModel[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(ItemModel.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ItemModel[]>(null as any);
-    }
-
-    getMostRecentItems(limit: number | undefined): Promise<ItemModel[]> {
-        let url_ = this.baseUrl + "/api/items/most-recent?";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
-            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetMostRecentItems(_response);
-        });
-    }
-
-    protected processGetMostRecentItems(response: Response): Promise<ItemModel[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -997,10 +995,14 @@ export class ShelfClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAllShelves(userName: string | null | undefined): Promise<ShelfModel[]> {
+    getAllShelves(userName: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<ShelfModel[]> {
         let url_ = this.baseUrl + "/api/shelves?";
         if (userName !== undefined && userName !== null)
             url_ += "userName=" + encodeURIComponent("" + userName) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -1038,6 +1040,41 @@ export class ShelfClient {
             });
         }
         return Promise.resolve<ShelfModel[]>(null as any);
+    }
+
+    getShelfCount(): Promise<number> {
+        let url_ = this.baseUrl + "/api/shelves/count";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetShelfCount(_response);
+        });
+    }
+
+    protected processGetShelfCount(response: Response): Promise<number> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<number>(null as any);
     }
 
     getShelf(id: number): Promise<ShelfModel> {
