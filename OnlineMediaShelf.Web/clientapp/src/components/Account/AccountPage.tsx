@@ -91,7 +91,7 @@ export function AccountPage() {
     async function loadUserShelves() {
       const shelfClient = new ShelfClient();
       try {
-        let shelfResult = await shelfClient.getAllShelves(state.userName);
+        let shelfResult = await shelfClient.getAllShelves(state.userName, null, null);
 
         setState(prevState => {
           return {
