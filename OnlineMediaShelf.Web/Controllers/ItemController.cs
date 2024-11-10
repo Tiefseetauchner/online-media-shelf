@@ -29,9 +29,9 @@ public class ItemController(
 
   [HttpGet]
   // TODO (Tiefseetauchner): Implement pagination
-  public async Task<ActionResult<List<ItemModel>>> GetAllItems()
+  public async Task<ActionResult<List<ItemModel>>> GetItems([FromQuery] int pageSize, [FromQuery] int page)
   {
-    var items = await unitOfWork.ItemRepository.GetAllAsync();
+    var items = pageSize <= 0 ? await unitOfWork.ItemRepository.GetAllAsync() : await unitOfWork.ItemRepository.GetPaged(page, pageSize);
     var itemModels = items.Select(Mapper.ConvertToWebObject);
 
     return Ok(itemModels);

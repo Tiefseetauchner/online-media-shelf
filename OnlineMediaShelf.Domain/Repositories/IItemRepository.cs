@@ -7,6 +7,7 @@ using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 public interface IItemRepository :
-  ICrudRepository<Item, int>
+  ICrudRepository<Item, int>,
+  IPaginatedRepository<Item>
 {
 }

@@ -608,8 +608,16 @@ export class ItemClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAllItems(): Promise<ItemModel[]> {
-        let url_ = this.baseUrl + "/api/items";
+    getItems(pageSize: number | undefined, page: number | undefined): Promise<ItemModel[]> {
+        let url_ = this.baseUrl + "/api/items?";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -620,11 +628,11 @@ export class ItemClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetAllItems(_response);
+            return this.processGetItems(_response);
         });
     }
 
-    protected processGetAllItems(response: Response): Promise<ItemModel[]> {
+    protected processGetItems(response: Response): Promise<ItemModel[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -997,10 +1005,14 @@ export class ShelfClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAllShelves(userName: string | null | undefined): Promise<ShelfModel[]> {
+    getAllShelves(userName: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<ShelfModel[]> {
         let url_ = this.baseUrl + "/api/shelves?";
         if (userName !== undefined && userName !== null)
             url_ += "userName=" + encodeURIComponent("" + userName) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {

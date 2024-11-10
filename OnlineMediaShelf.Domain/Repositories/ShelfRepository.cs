@@ -24,6 +24,13 @@ public class ShelfRepository(DbSet<Shelf> dbSet) : CrudRepository<Shelf, int>(db
       .Where(shelf => shelf.User.Id == user.Id)
       .ToListAsync();
 
+  public Task<List<Shelf>> GetPaged(int pageNumber, int pageSize) =>
+    GetQueryable()
+      .OrderBy(_ => _.Id)
+      .Skip(pageSize * pageNumber)
+      .Take(pageSize)
+      .ToListAsync();
+
   protected override IQueryable<Shelf> ConfigureIncludes(DbSet<Shelf> dbSet) =>
     dbSet.Include(shelf => shelf.User)
       .Include(shelf => shelf.Items)

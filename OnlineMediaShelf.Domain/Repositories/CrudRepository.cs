@@ -28,19 +28,19 @@ public abstract class CrudRepository<T, TKey>(DbSet<T> dbSet)
     (await DbSet.AddAsync(entity)).Entity;
 
   public T? GetById(TKey id) =>
-    ConfigureIncludes(DbSet).Single(e => e.Id.Equals(id));
+    GetQueryable().Single(e => e.Id.Equals(id));
 
   public async Task<T?> GetByIdAsync(TKey id) =>
-    await ConfigureIncludes(DbSet).SingleAsync(e => e.Id.Equals(id));
+    await GetQueryable().SingleAsync(e => e.Id.Equals(id));
 
   public List<T> GetAll() =>
-    ConfigureIncludes(DbSet).ToList();
+    GetQueryable().ToList();
 
   public Task<List<T>> GetAllAsync() =>
-    ConfigureIncludes(DbSet).ToListAsync();
+    GetQueryable().ToListAsync();
 
   public IQueryable<T> GetQueryable() =>
-    DbSet.AsQueryable();
+    GetQueryable().AsQueryable();
 
   public T Update(T entity) =>
     DbSet.Update(entity).Entity;

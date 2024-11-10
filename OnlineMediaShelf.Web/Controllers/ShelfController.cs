@@ -21,13 +21,15 @@ public class ShelfController(
   IUnitOfWork unitOfWork) : ControllerBase
 {
   [HttpGet]
-  public async Task<ActionResult<IEnumerable<ShelfModel>>> GetAllShelves([FromQuery] string? userName)
+  public async Task<ActionResult<IEnumerable<ShelfModel>>> GetAllShelves([FromQuery] string? userName, [FromQuery] int? page, [FromQuery] int? pageSize)
   {
     List<Shelf> shelvesFromDb;
     if (userName != null)
       shelvesFromDb = await unitOfWork.ShelfRepository.GetByUserAsync(await unitOfWork.UserRepository.GetByUserNameAsync(userName));
-    else
+    else if (page == null || pageSize == null || pageSize <= 0)
       shelvesFromDb = await unitOfWork.ShelfRepository.GetAllAsync();
+    else
+      shelvesFromDb = await unitOfWork.ShelfRepository.GetPaged(page.Value, pageSize.Value);
 
     var shelves = shelvesFromDb.Select(Mapper.ConvertToWebObject);
 
