@@ -36,6 +36,11 @@ public class ShelfController(
     return Ok(shelves);
   }
 
+  [HttpGet("count")]
+  public async Task<ActionResult<int>> GetShelfCount() =>
+    Ok(await unitOfWork.ShelfRepository.AsQueryable().CountAsync());
+
+
   [HttpGet("{id:int}")]
   public async Task<ActionResult<ShelfModel>> GetShelf(int id)
   {
@@ -79,7 +84,7 @@ public class ShelfController(
     if (shelf == null)
       return NotFound();
 
-    shelf.Items.Add(await unitOfWork.ItemRepository.GetQueryable().SingleAsync(i => i.Id == item.Id));
+    shelf.Items.Add(await unitOfWork.ItemRepository.AsQueryable().SingleAsync(i => i.Id == item.Id));
 
     await unitOfWork.CommitAsync();
 

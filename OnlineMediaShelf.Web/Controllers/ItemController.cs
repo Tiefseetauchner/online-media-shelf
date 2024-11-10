@@ -28,7 +28,6 @@ public class ItemController(
   private const int c_imageMaxHeight = 800;
 
   [HttpGet]
-  // TODO (Tiefseetauchner): Implement pagination
   public async Task<ActionResult<List<ItemModel>>> GetItems([FromQuery] int pageSize, [FromQuery] int page)
   {
     var items = pageSize <= 0 ? await unitOfWork.ItemRepository.GetAllAsync() : await unitOfWork.ItemRepository.GetPaged(page, pageSize);
@@ -36,6 +35,10 @@ public class ItemController(
 
     return Ok(itemModels);
   }
+
+  [HttpGet("count")]
+  public async Task<ActionResult<int>> GetItemCount() =>
+    Ok(await unitOfWork.ItemRepository.AsQueryable().CountAsync());
 
   [HttpGet("search")]
   public async Task<ActionResult<List<ItemModel>>> SearchItem([FromQuery] string? title,
@@ -47,7 +50,7 @@ public class ItemController(
     List<int> excludedItems)
   {
     // TODO (Tiefseetauchner): Fuzzy Search?
-    var items = await unitOfWork.ItemRepository.GetQueryable()
+    var items = await unitOfWork.ItemRepository.AsQueryable()
       .Where(i => title == null || i.Data.Title.Contains(title))
       .Where(i => barcode == null || i.Data.Barcode == null || i.Data.Barcode.Contains(barcode))
       .Where(i => !excludedItems.Contains(i.Id))
@@ -56,17 +59,6 @@ public class ItemController(
       .ToListAsync();
 
     return Ok(items.Select(Mapper.ConvertToWebObject));
-  }
-
-  [HttpGet("most-recent")]
-  public async Task<ActionResult<List<ItemModel>>> GetMostRecentItems([FromQuery] int limit)
-  {
-    var items = await unitOfWork.ItemRepository.GetQueryable()
-      .OrderByDescending(_ => _.Id)
-      .Take(limit)
-      .ToListAsync();
-
-    return Ok(items);
   }
 
   [HttpGet("{id:int}")]
@@ -185,7 +177,7 @@ public class ItemController(
   {
     try
     {
-      var image = await unitOfWork.ItemImageRepository.GetQueryable().Where(_ => _.OwningItem.Id == id && _.Id == imageId).SingleOrDefaultAsync();
+      var image = await unitOfWork.ItemImageRepository.AsQueryable().Where(_ => _.OwningItem.Id == id && _.Id == imageId).SingleOrDefaultAsync();
 
       if (image == null)
         return NotFound();

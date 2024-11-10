@@ -25,7 +25,7 @@ public class ShelfRepository(DbSet<Shelf> dbSet) : CrudRepository<Shelf, int>(db
       .ToListAsync();
 
   public Task<List<Shelf>> GetPaged(int pageNumber, int pageSize) =>
-    GetQueryable()
+    AsQueryable()
       .OrderBy(_ => _.Id)
       .Skip(pageSize * pageNumber)
       .Take(pageSize)

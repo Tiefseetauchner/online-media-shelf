@@ -15,5 +15,5 @@ public class ItemImageRepository(DbSet<ItemImage> dbSet) : CrudRepository<ItemIm
 
 
   public Task<List<ItemImage>> GetByItemId(int itemId) =>
-    GetQueryable().Where(_ => _.OwningItem.Id == itemId).ToListAsync();
+    AsQueryable().Where(_ => _.OwningItem.Id == itemId).ToListAsync();
 }

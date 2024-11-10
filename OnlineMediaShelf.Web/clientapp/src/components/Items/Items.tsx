@@ -30,15 +30,26 @@ import {
 import {
   ItemList
 } from "./ItemList.tsx";
+import {
+  PaginationControls
+} from "../PaginationControls.tsx";
 
 
 interface ItemsState {
   items?: IItemModel[];
+  itemCount: number;
+  page: number;
   isDialogOpen: boolean;
 }
 
 export function Items() {
-  const [state, setState] = useState<ItemsState>({isDialogOpen: false})
+  const [state, setState] = useState<ItemsState>({
+    isDialogOpen: false,
+    itemCount: 0,
+    page: 0,
+  });
+
+  const pageSize = 30;
 
   const {user} = useContext(UserContext);
 
@@ -46,15 +57,16 @@ export function Items() {
 
   useEffect(() => {
     async function populateItems() {
-      var client = new ItemClient();
+      const client = new ItemClient();
 
       try {
-        // TODO (Tiefseetauchner): Paging
-        let items = await client.getAllItems();
+        let itemCount = await client.getItemCount();
+        let items = await client.getItems(pageSize, state.page);
 
         setState({
           ...state,
-          items: items
+          items: items,
+          itemCount: itemCount
         })
       } catch (e: any) {
         showErrorToast("An error occured while loading the items. Please try again later.", dispatchToast)
@@ -62,7 +74,7 @@ export function Items() {
     }
 
     populateItems();
-  }, []);
+  }, [state.page]);
 
   return <>
     <CreateItemDialog
@@ -89,5 +101,13 @@ export function Items() {
     {state.items !== undefined &&
         <ItemList
             items={state.items}/>}
+
+    <PaginationControls
+      pageCount={Math.ceil(state.itemCount / pageSize)}
+      page={state.page}
+      onPageChange={(newPage) => setState(prevState => ({
+        ...prevState,
+        page: newPage,
+      }))}/>
   </>;
 }

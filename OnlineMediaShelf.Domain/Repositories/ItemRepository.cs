@@ -16,7 +16,7 @@ public class ItemRepository(DbSet<Item> dbSet) : CrudRepository<Item, int>(dbSet
     dbSet.Include(_ => _.Data);
 
   public Task<List<Item>> GetPaged(int pageNumber, int pageSize) =>
-    GetQueryable()
+    AsQueryable()
       .OrderBy(_ => _.Id)
       .Skip(pageNumber * pageSize)
       .Take(pageSize)
