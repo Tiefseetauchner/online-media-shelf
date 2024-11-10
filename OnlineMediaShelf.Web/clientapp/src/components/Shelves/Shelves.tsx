@@ -30,16 +30,27 @@ import {
 import {
   faPlus
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  PaginationControls
+} from "../PaginationControls.tsx";
 
 interface ShelvesState {
   shelves?: IShelfModel[];
+  shelfCount: number;
+  page: number;
   isDialogOpen: boolean;
 }
 
 export function Shelves() {
   const shelfClient = new ShelfClient();
 
-  const [state, setState] = useState<ShelvesState>({isDialogOpen: false});
+  const [state, setState] = useState<ShelvesState>({
+    isDialogOpen: false,
+    shelfCount: 0,
+    page: 0,
+  });
+
+const pageSize = 50;
 
   const {user} = useContext(UserContext)
 
@@ -48,11 +59,13 @@ export function Shelves() {
   useEffect(() => {
     async function populateShelves() {
       try {
-        let shelves = await shelfClient.getAllShelves(null);
+        let shelfCount = await shelfClient.getShelfCount();
+        let shelves = await shelfClient.getAllShelves(null, state.page, pageSize);
 
         setState({
           ...state,
-          shelves: shelves
+          shelves: shelves,
+          shelfCount: shelfCount
         })
       } catch (e: any) {
         showErrorToast("An error occured while loading the shelves! Try again later or contact the service owner.", dispatchToast)
@@ -60,7 +73,7 @@ export function Shelves() {
     }
 
     populateShelves();
-  }, []);
+  }, [state.page]);
 
   return (<>
     <AddShelfDialog
@@ -85,5 +98,14 @@ export function Shelves() {
 
     <ShelfList
       shelves={state.shelves!}/>
+
+
+    <PaginationControls
+      pageCount={Math.ceil(state.shelfCount / pageSize)}
+      page={state.page}
+      onPageChange={(newPage) => setState(prevState => ({
+        ...prevState,
+        page: newPage,
+      }))}/>
   </>)
 }
