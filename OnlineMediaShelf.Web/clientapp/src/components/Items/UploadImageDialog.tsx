@@ -66,8 +66,7 @@ export function UploadImageDialog(props: UploadImageDialogProps) {
       <DialogSurface
         aria-describedby={undefined}>
         <form
-          onSubmit={onSubmit}
-          action={"/blackhole"}>
+          onSubmit={onSubmit}>
           <DialogBody>
             <DialogTitle>Upload new cover image</DialogTitle>
             <DialogContent
@@ -82,6 +81,7 @@ export function UploadImageDialog(props: UploadImageDialogProps) {
                   id="coverImage"
                   name="coverImage"
                   type={"file"}
+                  className={"form-control"}
                   accept="image/png, image/jpeg"/>
               </Field>
             </DialogContent>
