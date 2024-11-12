@@ -1,35 +1,19 @@
 export class ItemInputValidator {
-  static isValidBarcode(barcode: string) {
-    if (barcode.length == 13)
-      return barcode.split('').reduce(function (p, v, i) {
-        return i % 2 == 0 ? p + parseInt(v) : p + 3 * parseInt(v);
-      }, 0) % 10 == 0;
-    else if (barcode.length == 12)
-      return this.validateGtin(barcode);
+  static isValidBarcode(value: string) {
+    // We only allow correct length barcodes
+    if (!value.match(/^(\d{8}|\d{12,14})$/)) {
+      return false;
+    }
+
+    const paddedValue = value.padStart(14, '0');
+
+    let result = 0;
+    for (let i = 0; i < paddedValue.length - 1; i += 1) {
+      result += parseInt(paddedValue.charAt(i), 10) * ((i % 2 === 0) ? 3 : 1);
+    }
+
+    return ((10 - (result % 10)) % 10) === parseInt(paddedValue.charAt(13), 10);
   }
-
-  static validateGtin(value: string) {
-    const barcode = value.substring(0, value.length - 1);
-    const checksum = parseInt(value.substring(value.length - 1), 10);
-    let calcSum = 0;
-
-    barcode.split('').map((number, index) => {
-      let parsedNumber = parseInt(number, 10);
-      if (value.length % 2 === 0) {
-        index += 1;
-      }
-      if (index % 2 === 0) {
-        calcSum += parsedNumber;
-      } else {
-        calcSum += parsedNumber * 3;
-      }
-    });
-
-    calcSum %= 10;
-
-    return (calcSum === 0) ? 0 : (10 - calcSum) === checksum;
-  }
-
 
   static validateBarcode(barcode: string | undefined): string | undefined {
     if (!(barcode?.length === 12 || barcode?.length === 13))
