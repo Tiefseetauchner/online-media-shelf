@@ -50,7 +50,7 @@ export function Shelves() {
     page: 0,
   });
 
-const pageSize = 50;
+  const pageSize = 50;
 
   const {user} = useContext(UserContext)
 
@@ -68,7 +68,7 @@ const pageSize = 50;
           shelfCount: shelfCount
         })
       } catch (e: any) {
-        showErrorToast("An error occured while loading the shelves! Try again later or contact the service owner.", dispatchToast)
+        showErrorToast("An error occured while loading the shelves", dispatchToast)
       }
     }
 
