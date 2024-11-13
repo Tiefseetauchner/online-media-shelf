@@ -75,10 +75,11 @@ export function LoginPage() {
 
       navigate(routes.root);
     } catch (e: any) {
-      if (e instanceof ApiException)
-        showErrorToast(`An error occurred: ${e.response}.`, dispatchToast);
-      else
-        showErrorToast(`An unexpected error occurred.`, dispatchToast);
+      if (e instanceof ApiException) {
+        showErrorToast(`An error occurred logging in  `, dispatchToast);
+      } else {
+        showErrorToast(`An unexpected error occurred`, dispatchToast);
+      }
     }
 
     setState(prevState => ({

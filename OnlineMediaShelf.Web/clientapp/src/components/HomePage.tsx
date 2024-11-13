@@ -84,8 +84,8 @@ export function HomePage() {
           ));
 
         setMostRecentItems(await Promise.all<IItemModelWithCoverImage>(itemsWithCoverImages));
-      } catch {
-        showErrorToast("Could not load most recent items", dispatchToast)
+      } catch (error: any) {
+        showErrorToast(`Could not load most recent items`, dispatchToast)
       }
     }
 

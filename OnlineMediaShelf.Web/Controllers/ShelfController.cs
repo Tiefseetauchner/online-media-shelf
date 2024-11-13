@@ -67,10 +67,10 @@ public class ShelfController(
   {
     var shelfFromDb = await unitOfWork.ShelfRepository.GetByIdAsync(id);
 
-    if (shelfFromDb != null)
-      return Ok(Mapper.ConvertToWebObject(shelfFromDb));
+    if (shelfFromDb == null)
+      return NotFound();
 
-    return NotFound();
+    return Ok(Mapper.ConvertToWebObject(shelfFromDb));
   }
 
   [HttpPost("create")]

@@ -43,15 +43,17 @@ export function UploadImageDialog(props: UploadImageDialogProps) {
 
       let fileData = inputField.current?.files[0];
 
-      console.log(fileData);
-
       if (!fileData) {
-        showErrorToast("The file upload failed. Please try again.", dispatchToast);
+        showErrorToast("The file upload failed", dispatchToast);
         return;
       }
 
       const client = new ItemClient();
-      await client.updateItemCoverImage(props.itemId, fileData);
+      try {
+        await client.updateItemCoverImage(props.itemId, fileData);
+      } catch {
+        showErrorToast("An error occured while uploading the image", dispatchToast)
+      }
 
       location.reload();
     }
