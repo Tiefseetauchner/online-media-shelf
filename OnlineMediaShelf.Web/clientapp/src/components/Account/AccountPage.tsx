@@ -1,5 +1,6 @@
 import {
   ChangeEvent,
+  useContext,
   useEffect,
   useState
 } from "react";
@@ -10,7 +11,8 @@ import {
   Skeleton,
   SkeletonItem,
   Title1,
-  Title2
+  Title2,
+  useToastController
 } from "@fluentui/react-components";
 import {
   AccountClient,
@@ -20,6 +22,22 @@ import {
 import {
   ShelfList
 } from "../Shelves/ShelfList.tsx";
+import {
+  Col,
+  Row
+} from "react-bootstrap";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
+import {
+  UserContext
+} from "../../App.tsx";
+import {
+  useNavigate
+} from "react-router-dom";
+import {
+  routes
+} from "../../utilities/routes.ts";
 
 interface AccountState {
   isLoaded: boolean;
@@ -65,9 +83,13 @@ function AccountPageSkeleton() {
 }
 
 export function AccountPage() {
-  // const {user} = useContext(UserContext);
-
   const [state, setState] = useState<AccountState>({isLoaded: false});
+
+  const {user} = useContext(UserContext);
+
+  const {dispatchToast} = useToastController();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadUserData() {
@@ -84,14 +106,14 @@ export function AccountPage() {
           };
         });
       } catch (e: any) {
-
+        showErrorToast("Couldn't load user information", dispatchToast)
       }
     }
 
     async function loadUserShelves() {
       const shelfClient = new ShelfClient();
       try {
-        let shelfResult = await shelfClient.getAllShelves(state.userName, null, null);
+        let shelfResult = await shelfClient.getAllShelves(user?.currentUser?.userName, null, null);
 
         setState(prevState => {
           return {
@@ -100,9 +122,12 @@ export function AccountPage() {
           };
         });
       } catch (e: any) {
-
+        showErrorToast("Couldn't load user shelves", dispatchToast)
       }
     }
+
+    if (!user?.currentUser?.isLoggedIn)
+      navigate(routes.login);
 
     loadUserShelves();
 
@@ -118,7 +143,21 @@ export function AccountPage() {
 
   return (<>
     {state.isLoaded ? <>
-        <Title1>Manage my account</Title1>
+
+        <Row
+          className={"mt-2 row-gap-2"}>
+          <Col>
+            <Title1>Manage my account</Title1>
+          </Col>
+          <Col>
+            <Button
+              style={{float: "right"}}
+              onClick={() => {
+                const accountClient = new AccountClient();
+                accountClient.logout().then(() => location.reload());
+              }}>Logout</Button>
+          </Col>
+        </Row>
 
         <Title2>Manage Shelves</Title2>
 

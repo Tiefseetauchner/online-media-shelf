@@ -73,6 +73,14 @@ public class AccountController(
     return BadRequest("Invalid login attempt");
   }
 
+  [HttpGet("logout")]
+  public async Task<IActionResult> Logout()
+  {
+    await signInManager.SignOutAsync();
+
+    return Ok();
+  }
+
   [HttpGet("current_user")]
   public async Task<ActionResult<CurrentUserModel>> GetCurrentUser()
   {

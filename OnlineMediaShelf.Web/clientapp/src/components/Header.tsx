@@ -170,7 +170,7 @@ function Header() {
         {
           user?.currentUser == undefined ?
             <NavBarButton
-              to={routes.shelf}
+              to={routes.login}
               icon={faUser}>
               <SkeletonItem
                 shape="rectangle"
