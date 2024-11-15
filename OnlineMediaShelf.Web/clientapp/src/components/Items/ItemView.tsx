@@ -141,7 +141,7 @@ export function ItemView() {
                 fontSize={24}
                 renderer={"svg"}
                 background={"#0000"}
-                format={"EAN13"}
+                format={item.barcode.length == 12 ? "UPC" : "EAN13"}
                 value={item.barcode}/> :
               <>No barcode available</>}
           </Row>
