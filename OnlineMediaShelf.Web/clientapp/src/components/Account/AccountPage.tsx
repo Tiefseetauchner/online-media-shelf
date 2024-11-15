@@ -163,7 +163,7 @@ export function AccountPage() {
     const newPasswordConfirm = newPasswordConfirmRef.current?.value;
 
     if (newPassword != newPasswordConfirm)
-      return    setState(prevState => ({
+      return  setState(prevState => ({
         ...prevState,
         validationErrors: {
           ...prevState.validationErrors,
