@@ -46,9 +46,7 @@ public class AccountController(
     var result = await userManager.CreateAsync(user, model.Password);
 
     if (!result.Succeeded)
-    {
       return CreateValidationProblem(result);
-    }
 
     return TypedResults.Ok();
   }
@@ -81,7 +79,33 @@ public class AccountController(
     return Ok();
   }
 
-  [HttpGet("current_user")]
+  [HttpPost("change-password")]
+  public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordModel model)
+  {
+    if (!User.Identities.First().IsAuthenticated)
+      return Unauthorized();
+
+    var userNameFromClaim = User.Identities.First().Name;
+
+    if (userNameFromClaim == null)
+      return BadRequest("Unknown user.");
+
+    var user = await userManager.FindByNameAsync(userNameFromClaim);
+
+    if (user == null)
+      return BadRequest("Unknown user.");
+
+    var signInResult = await signInManager.CheckPasswordSignInAsync(user, model.OldPassword, false);
+
+    if (!signInResult.Succeeded)
+      return Unauthorized();
+
+    await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+    return Ok();
+  }
+
+  [HttpGet("current-user")]
   public async Task<ActionResult<CurrentUserModel>> GetCurrentUser()
   {
     var userIsAuthenticated = User.Identities.First().IsAuthenticated;
@@ -102,7 +126,7 @@ public class AccountController(
     return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id, user.SignUpDate, user.Shelves.Select(Mapper.ConvertToWebObject).ToList()));
   }
 
-  [HttpGet("current_user/information")]
+  [HttpGet("current-user/information")]
   public async Task<ActionResult<ApplicationUser>> GetCurrentUserInformation()
   {
     var userIsAuthenticated = User.Identities.First().IsAuthenticated;

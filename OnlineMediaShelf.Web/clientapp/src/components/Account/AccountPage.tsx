@@ -1,7 +1,7 @@
 import {
-  ChangeEvent,
   useContext,
   useEffect,
+  useRef,
   useState
 } from "react";
 import {
@@ -17,17 +17,20 @@ import {
 import {
   AccountClient,
   IShelfModel,
-  ShelfClient
+  ShelfClient,
+  UpdatePasswordModel
 } from "../../OMSWebClient.ts";
 import {
   ShelfList
 } from "../Shelves/ShelfList.tsx";
 import {
   Col,
+  Container,
   Row
 } from "react-bootstrap";
 import {
-  showErrorToast
+  showErrorToast,
+  showSuccessToast
 } from "../../utilities/toastHelper.tsx";
 import {
   UserContext
@@ -39,11 +42,18 @@ import {
   routes
 } from "../../utilities/routes.ts";
 
+interface AccountValidationErrors {
+  email?: string;
+  userName?: string;
+  password?: string;
+}
+
 interface AccountState {
   isLoaded: boolean;
   email?: string;
   userName?: string;
   shelves?: IShelfModel[];
+  validationErrors?: AccountValidationErrors;
 }
 
 function AccountPageSkeleton() {
@@ -91,11 +101,18 @@ export function AccountPage() {
 
   const navigate = useNavigate();
 
+  const oldPasswordRef = useRef<HTMLInputElement>(null);
+  const newPasswordRef = useRef<HTMLInputElement>(null);
+  const newPasswordConfirmRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     async function loadUserData() {
       const accountClient = new AccountClient();
       try {
         let accountResult = await accountClient.getCurrentUserInformation();
+
+        if (!user?.currentUser?.isLoggedIn)
+          navigate(routes.login);
 
         setState(prevState => {
           return {
@@ -105,6 +122,8 @@ export function AccountPage() {
             email: accountResult.email,
           };
         });
+
+        await loadUserShelves();
       } catch (e: any) {
         showErrorToast("Couldn't load user information", dispatchToast)
       }
@@ -126,78 +145,182 @@ export function AccountPage() {
       }
     }
 
+    if (!user?.currentUser)
+      return;
+
     if (!user?.currentUser?.isLoggedIn)
       navigate(routes.login);
 
-    loadUserShelves();
-
     loadUserData();
-  }, []);
 
-  const inputChanges = (e: ChangeEvent<HTMLInputElement>) => {
-    setState({
-      ...state,
-      [e.target.name]: e.target.value
-    });
-  };
+  }, [user]);
 
-  return (<>
-    {state.isLoaded ? <>
+  const updatePassword = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-        <Row
-          className={"mt-2 row-gap-2"}>
-          <Col>
-            <Title1>Manage my account</Title1>
-          </Col>
-          <Col>
-            <Button
-              style={{float: "right"}}
-              onClick={() => {
-                const accountClient = new AccountClient();
-                accountClient.logout().then(() => location.reload());
-              }}>Logout</Button>
-          </Col>
-        </Row>
+    const oldPassword = oldPasswordRef.current?.value;
+    const newPassword = newPasswordRef.current?.value;
+    const newPasswordConfirm = newPasswordConfirmRef.current?.value;
 
-        <Title2>Manage Shelves</Title2>
+    if (newPassword != newPasswordConfirm)
+      return    setState(prevState => ({
+        ...prevState,
+        validationErrors: {
+          ...prevState.validationErrors,
+          password: "Passwords do not match"
+        }
+      }));
 
-        <ShelfList
-          shelves={state.shelves ?? []}/>
+    const accountClient = new AccountClient();
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
+    try {
+      await accountClient.changePassword(new UpdatePasswordModel({
+        oldPassword: oldPassword,
+        newPassword: newPassword
+      }));
 
-            return false;
-          }}>
-          <Title2>Edit Account Data</Title2>
-          <Field
-            label="E-Mail address">
-            <Input
-              onChange={inputChanges}
-              appearance={"underline"}
-              required
-              name={"email"}
-              value={state.email}/>
-          </Field>
-          <Field
-            label="Username">
-            <Input
-              onChange={inputChanges}
-              appearance={"underline"}
-              required
-              name={"userName"}
-              value={state.userName}/>
-          </Field>
-          <Button
-            appearance={"primary"}
-            type={"submit"}>
-            Update Account Data
-          </Button>
-        </form>
-      </> :
-      <AccountPageSkeleton/>
+      showSuccessToast("Password updated successfully", dispatchToast);
+    } catch {
+      showErrorToast("Couldn't update password", dispatchToast);
     }
+  }
 
-  </>);
+  return (
+    <Container>
+      {state.isLoaded ? <>
+          <Row
+            className={"mt-2 row-gap-2"}>
+            <Col>
+              <Title1>Manage my account</Title1>
+            </Col>
+            <Col>
+              <Button
+                style={{float: "right"}}
+                onClick={() => {
+                  const accountClient = new AccountClient();
+                  accountClient.logout().then(() => location.reload());
+                }}>Logout</Button>
+            </Col>
+          </Row>
+          <hr/>
+
+          {state.shelves && state.shelves?.length > 0 && <>
+              <Title2>Manage Shelves</Title2>
+
+              <ShelfList
+                  shelves={state.shelves ?? []}/>
+          </>}
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              // const accountClient = new AccountClient();
+              // accountClient.updateUserInformation({
+              //   userName: state.userName,
+              //   email: state.email
+              // }).then(() => {
+              //   setState(prevState => {
+              //     return {
+              //       ...prevState,
+              //       userName: state.userName,
+              //       email: state.email
+              //     };
+              //   });
+              // }).catch(() => showErrorToast("Couldn't update user information", dispatchToast));
+
+            }}>
+            <Container>
+              <Title2>Edit Account Data</Title2>
+              <Row
+                className={"row-gap-3"}
+                md={2}
+                sm={1}
+                xs={1}>
+                <Col>
+                  <Field
+                    required
+                    label="Username">
+                    <Input
+                      appearance={"underline"}
+                      name={"userName"}
+                      value={state.userName}/>
+                  </Field>
+                </Col>
+                <Col>
+                  <Field
+                    required
+                    label="E-Mail address">
+                    <Input
+                      appearance={"underline"}
+                      name={"email"}
+                      value={state.email}/>
+                  </Field>
+                </Col>
+                <Col>
+                  <Button
+                    appearance={"primary"}
+                    type={"submit"}>
+                    Update Account Data
+                  </Button>
+                </Col>
+              </Row>
+            </Container>
+          </form>
+          <form
+            onSubmit={updatePassword}>
+            <Container>
+              <Row
+                className={"row-gap-3 mt-3"}
+                md={3}
+                sm={1}
+                xs={1}>
+                <Col>
+                  <Field
+                    required
+                    label="Old Password">
+                    <Input
+                      ref={oldPasswordRef}
+                      appearance={"underline"}
+                      name={"password"}
+                      type={"password"}/>
+                  </Field>
+                </Col>
+                <Col>
+                  <Field
+                    required
+                    validationMessage={state.validationErrors?.password}
+                    label="New Password">
+                    <Input
+                      ref={newPasswordRef}
+                      appearance={"underline"}
+                      name={"password"}
+                      type={"password"}/>
+                  </Field>
+                </Col>
+                <Col>
+                  <Field
+                    required
+                    label="Confirm New Password">
+                    <Input
+                      ref={newPasswordConfirmRef}
+                      appearance={"underline"}
+                      name={"password"}
+                      type={"password"}/>
+                  </Field>
+                </Col>
+                <Col>
+                  <Button
+                    appearance={"primary"}
+                    type={"submit"}>
+                    Update Password
+                  </Button>
+                </Col>
+              </Row>
+            </Container>
+          </form>
+        </> :
+        <AccountPageSkeleton/>
+      }
+
+    </Container>);
 }

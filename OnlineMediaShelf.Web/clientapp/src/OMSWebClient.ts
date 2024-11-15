@@ -567,8 +567,50 @@ export class AccountClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
+    changePassword(model: UpdatePasswordModel): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/accountextension/change-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processChangePassword(_response);
+        });
+    }
+
+    protected processChangePassword(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+
     getCurrentUser(): Promise<CurrentUserModel> {
-        let url_ = this.baseUrl + "/accountextension/current_user";
+        let url_ = this.baseUrl + "/accountextension/current-user";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -602,7 +644,7 @@ export class AccountClient {
     }
 
     getCurrentUserInformation(): Promise<ApplicationUser> {
-        let url_ = this.baseUrl + "/accountextension/current_user/information";
+        let url_ = this.baseUrl + "/accountextension/current-user/information";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -2003,6 +2045,46 @@ export interface ILoginModel {
     usernameOrEmail?: string;
     password?: string;
     rememberMe?: boolean;
+}
+
+export class UpdatePasswordModel implements IUpdatePasswordModel {
+    oldPassword?: string;
+    newPassword?: string;
+
+    constructor(data?: IUpdatePasswordModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.oldPassword = _data["oldPassword"];
+            this.newPassword = _data["newPassword"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePasswordModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePasswordModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["oldPassword"] = this.oldPassword;
+        data["newPassword"] = this.newPassword;
+        return data;
+    }
+}
+
+export interface IUpdatePasswordModel {
+    oldPassword?: string;
+    newPassword?: string;
 }
 
 export class CurrentUserModel implements ICurrentUserModel {
