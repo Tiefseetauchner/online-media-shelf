@@ -16,6 +16,7 @@ import {
 } from "@fluentui/react-components";
 import {
   AccountClient,
+  ChangeUserDataModel,
   IShelfModel,
   ShelfClient,
   UpdatePasswordModel
@@ -101,6 +102,8 @@ export function AccountPage() {
 
   const navigate = useNavigate();
 
+  const userNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
   const oldPasswordRef = useRef<HTMLInputElement>(null);
   const newPasswordRef = useRef<HTMLInputElement>(null);
   const newPasswordConfirmRef = useRef<HTMLInputElement>(null);
@@ -155,6 +158,13 @@ export function AccountPage() {
 
   }, [user]);
 
+  useEffect(() => {
+    if (state.isLoaded) {
+      userNameRef.current!.value = state.userName ?? "";
+      emailRef.current!.value = state.email ?? "";
+    }
+  }, [state.isLoaded]);
+
   const updatePassword = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -163,7 +173,7 @@ export function AccountPage() {
     const newPasswordConfirm = newPasswordConfirmRef.current?.value;
 
     if (newPassword != newPasswordConfirm)
-      return  setState(prevState => ({
+      return setState(prevState => ({
         ...prevState,
         validationErrors: {
           ...prevState.validationErrors,
@@ -182,6 +192,26 @@ export function AccountPage() {
       showSuccessToast("Password updated successfully", dispatchToast);
     } catch {
       showErrorToast("Couldn't update password", dispatchToast);
+    }
+  }
+
+  const updateAccountData = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const userName = userNameRef.current?.value;
+    const email = emailRef.current?.value;
+
+    const accountClient = new AccountClient();
+
+    try {
+      await accountClient.changeUserData(new ChangeUserDataModel({
+        userName: userName,
+        email: email
+      }));
+
+      showSuccessToast("User Data updated successfully", dispatchToast);
+    } catch {
+      showErrorToast("Couldn't update user data", dispatchToast);
     }
   }
 
@@ -212,23 +242,7 @@ export function AccountPage() {
           </>}
 
           <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              // const accountClient = new AccountClient();
-              // accountClient.updateUserInformation({
-              //   userName: state.userName,
-              //   email: state.email
-              // }).then(() => {
-              //   setState(prevState => {
-              //     return {
-              //       ...prevState,
-              //       userName: state.userName,
-              //       email: state.email
-              //     };
-              //   });
-              // }).catch(() => showErrorToast("Couldn't update user information", dispatchToast));
-
-            }}>
+            onSubmit={updateAccountData}>
             <Container>
               <Title2>Edit Account Data</Title2>
               <Row
@@ -241,9 +255,9 @@ export function AccountPage() {
                     required
                     label="Username">
                     <Input
+                      ref={userNameRef}
                       appearance={"underline"}
-                      name={"userName"}
-                      value={state.userName}/>
+                      name={"userName"}/>
                   </Field>
                 </Col>
                 <Col>
@@ -251,9 +265,9 @@ export function AccountPage() {
                     required
                     label="E-Mail address">
                     <Input
+                      ref={emailRef}
                       appearance={"underline"}
-                      name={"email"}
-                      value={state.email}/>
+                      name={"email"}/>
                   </Field>
                 </Col>
                 <Col>

@@ -609,6 +609,48 @@ export class AccountClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
+    changeUserData(model: ChangeUserDataModel): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/accountextension/change-user-data";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(model);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processChangeUserData(_response);
+        });
+    }
+
+    protected processChangeUserData(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+
     getCurrentUser(): Promise<CurrentUserModel> {
         let url_ = this.baseUrl + "/accountextension/current-user";
         url_ = url_.replace(/[?&]$/, "");
@@ -2085,6 +2127,46 @@ export class UpdatePasswordModel implements IUpdatePasswordModel {
 export interface IUpdatePasswordModel {
     oldPassword?: string;
     newPassword?: string;
+}
+
+export class ChangeUserDataModel implements IChangeUserDataModel {
+    userName?: string;
+    email?: string;
+
+    constructor(data?: IChangeUserDataModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): ChangeUserDataModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeUserDataModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface IChangeUserDataModel {
+    userName?: string;
+    email?: string;
 }
 
 export class CurrentUserModel implements ICurrentUserModel {

@@ -105,6 +105,30 @@ public class AccountController(
     return Ok();
   }
 
+  [HttpPost("change-user-data")]
+  public async Task<IActionResult> ChangeUserData([FromBody] ChangeUserDataModel model)
+  {
+    if (!User.Identities.First().IsAuthenticated)
+      return Unauthorized();
+
+    var userNameFromClaim = User.Identities.First().Name;
+
+    if (userNameFromClaim == null)
+      return BadRequest("Unknown user.");
+
+    var user = await userManager.FindByNameAsync(userNameFromClaim);
+
+    if (user == null)
+      return BadRequest("Unknown user.");
+
+    user.Email = model.Email;
+    user.UserName = model.UserName;
+
+    var result = await userManager.UpdateAsync(user);
+
+    return Ok(result);
+  }
+
   [HttpGet("current-user")]
   public async Task<ActionResult<CurrentUserModel>> GetCurrentUser()
   {
