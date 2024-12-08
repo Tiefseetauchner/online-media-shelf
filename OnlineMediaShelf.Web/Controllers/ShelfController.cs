@@ -38,6 +38,27 @@ public class ShelfController(
     return Ok(shelves);
   }
 
+  [HttpGet("search")]
+  public async Task<ActionResult<List<ShelfModel>>> SearchShelves([FromQuery] string? userName, [FromQuery] int? limit, [FromQuery] List<int>? filteredItemsId)
+  {
+    IQueryable<Shelf> shelvesFromDbQueryable = unitOfWork.ShelfRepository
+      .AsQueryable()
+      .OrderByDescending(_ => _.ShelfName);
+
+    if (!string.IsNullOrEmpty(userName))
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Where(shelf => shelf.User.UserName == userName);
+
+    if (filteredItemsId != null)
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Where(shelf => !shelf.Items.Any(item => filteredItemsId.Contains(item.Id)));
+
+    if (limit != null)
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Take(limit.Value);
+
+    var shelvesFromDb = await shelvesFromDbQueryable.ToListAsync();
+
+    return Ok(shelvesFromDb.Select(Mapper.ConvertToWebObject));
+  }
+
   [HttpGet("count")]
   public async Task<ActionResult<int>> GetShelfCount() =>
     Ok(await unitOfWork.ShelfRepository.AsQueryable().CountAsync());
@@ -48,10 +69,10 @@ public class ShelfController(
   {
     var shelfFromDb = await unitOfWork.ShelfRepository.GetByIdAsync(id);
 
-    if (shelfFromDb != null)
-      return Ok(Mapper.ConvertToWebObject(shelfFromDb));
+    if (shelfFromDb == null)
+      return NotFound();
 
-    return NotFound();
+    return Ok(Mapper.ConvertToWebObject(shelfFromDb));
   }
 
   [HttpPost("create")]

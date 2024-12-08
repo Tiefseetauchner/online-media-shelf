@@ -22,6 +22,7 @@ import {
   faGithub
 } from "@fortawesome/free-brands-svg-icons";
 import {
+  navigateToItem,
   routes
 } from "../utilities/routes.ts";
 import {
@@ -37,7 +38,8 @@ import {
   Row
 } from "react-bootstrap";
 import {
-  Link
+  Link,
+  useNavigate
 } from "react-router-dom";
 import {
   useEffect,
@@ -51,19 +53,39 @@ import {
   showErrorToast
 } from "../utilities/toastHelper.tsx";
 
+interface IItemModelWithCoverImage {
+  item: IItemModel;
+  coverImageUrl: string;
+}
+
 export function HomePage() {
-  const [mostRecentItems, setMostRecentItems] = useState<IItemModel[]>([]);
+  const [mostRecentItems, setMostRecentItems] = useState<IItemModelWithCoverImage[]>([]);
 
   const {dispatchToast} = useToastController();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function populateItems() {
       try {
-        let itemClient = new ItemClient();
+        const itemClient = new ItemClient();
 
-        setMostRecentItems(await itemClient.getItems(3, 0));
-      } catch {
-        showErrorToast("Could not load most recent items", dispatchToast)
+        const items = await itemClient.getItems(3, 0);
+
+        const itemsWithCoverImages = items.map<Promise<IItemModelWithCoverImage>>((item) =>
+          itemClient.getItemCoverImage(item.id!).then(response => ({
+              item: item,
+              coverImageUrl: URL.createObjectURL(response.data)
+            })
+          ).catch(() => ({
+              item: item,
+              coverImageUrl: "/no_cover.jpg"
+            })
+          ));
+
+        setMostRecentItems(await Promise.all<IItemModelWithCoverImage>(itemsWithCoverImages));
+      } catch (error: any) {
+        showErrorToast(`Could not load most recent items`, dispatchToast)
       }
     }
 
@@ -208,17 +230,22 @@ export function HomePage() {
         sm={"1"}
         md={"3"}
         className="gy-4">
-        {mostRecentItems.map(item => (
-          <Col>
+        {mostRecentItems.map(itemWithCoverImage => {
+          const item = itemWithCoverImage.item;
+
+          return <Col>
             <Card>
               <CardPreview>
                 <img
+                  onClick={() => navigateToItem(item.id, navigate)}
                   style={{
                     height: "200px",
                     objectFit: "cover",
                     objectPosition: "center",
+                    cursor: "pointer",
                   }}
-                  src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png"/>
+                  alt={`Cover image of ${item.title}`}
+                  src={itemWithCoverImage.coverImageUrl}/>
               </CardPreview>
               <div
                 className="p-2">
@@ -231,13 +258,16 @@ export function HomePage() {
                     overflow: "hidden",
                   }}
                   header={
-                    <Title3
-                      style={{
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: 1,
-                      }}>{item.title}</Title3>}/>
+                    <Link
+                      to={`${routes.item}/${item.id}`}>
+                      <Title3
+                        style={{
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitBoxOrient: "vertical",
+                          WebkitLineClamp: 1,
+                        }}>{item.title}</Title3>
+                    </Link>}/>
                 <Text
                   style={{
                     overflow: "hidden",
@@ -248,7 +278,7 @@ export function HomePage() {
               </div>
             </Card>
           </Col>
-        ))}
+        })}
       </Row>
     </Container>
   </>

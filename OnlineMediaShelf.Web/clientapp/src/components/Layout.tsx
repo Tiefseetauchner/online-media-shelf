@@ -16,7 +16,8 @@ import {
 } from "../App.tsx";
 import {
   Caption2,
-  tokens
+  tokens,
+  useToastController
 } from "@fluentui/react-components";
 import {
   Container
@@ -24,14 +25,19 @@ import {
 import {
   routes
 } from "../utilities/routes.ts";
+import {
+  showErrorToast
+} from "../utilities/toastHelper.tsx";
 
 export function Layout() {
   const {setUser} = useContext(UserContext);
 
+  const {dispatchToast} = useToastController();
+
   useEffect(() => {
     new AccountClient().getCurrentUser().then((userResponse) => setUser ? setUser({
       currentUser: userResponse
-    }) : null);
+    }) : null).catch(() => showErrorToast("Could not get current user", dispatchToast));
   }, [])
 
   return (

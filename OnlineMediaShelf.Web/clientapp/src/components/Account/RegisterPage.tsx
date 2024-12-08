@@ -61,11 +61,8 @@ export function RegisterPage() {
 
       navigate(routes.login)
     } catch (e: any) {
-      console.log(e.response)
       if (e instanceof ApiException) {
-        let parsedResponse = JSON.parse(e.response)
-
-        showErrorToast(`${parsedResponse.title}`, dispatchToast);
+        showErrorToast(`An error occurred creating the User.`, dispatchToast);
       } else {
         showErrorToast(`An unexpected error occurred`, dispatchToast);
       }

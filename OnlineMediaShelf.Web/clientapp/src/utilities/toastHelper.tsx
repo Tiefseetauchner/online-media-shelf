@@ -8,7 +8,7 @@ export function showErrorToast(message: string, dispatchToast: (content: React.R
   dispatchToast(
     <Toast>
       <ToastTitle>An Error occured:</ToastTitle>
-      <ToastBody>{message}</ToastBody>
+      <ToastBody>{message}! Try again later or contact the service owner.</ToastBody>
     </Toast>,
     {
       intent: "error",

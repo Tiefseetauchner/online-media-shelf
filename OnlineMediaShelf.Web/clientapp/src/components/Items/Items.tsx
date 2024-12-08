@@ -69,7 +69,7 @@ export function Items() {
           itemCount: itemCount
         })
       } catch (e: any) {
-        showErrorToast("An error occured while loading the items. Please try again later.", dispatchToast)
+        showErrorToast("An error occured while loading the items", dispatchToast)
       }
     }
 

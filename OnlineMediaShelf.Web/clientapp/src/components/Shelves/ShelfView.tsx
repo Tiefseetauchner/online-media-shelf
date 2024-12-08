@@ -119,7 +119,7 @@ export function ShelfView() {
 
                         setUpdateTracker(prev => prev + 1);
                       } catch {
-                        showErrorToast("Could not remove item from shelf.", dispatchToast)
+                        showErrorToast("Could not remove item from shelf", dispatchToast)
                       }
                     }
 
