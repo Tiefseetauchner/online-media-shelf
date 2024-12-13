@@ -11,6 +11,6 @@ public record CreateItemModel(
   string Barcode,
   string Title,
   string? Description,
-  List<string> Authors,
+  List<Author> Authors,
   DateTime? ReleaseDate,
   string Format);

@@ -15,6 +15,7 @@ public interface IUnitOfWork : IDisposable
   IItemRepository ItemRepository { get; }
   IItemDataRepository ItemDataRepository { get; }
   IItemImageRepository ItemImageRepository { get; }
+  IItemAuthorRepository ItemAuthorRepository { get; }
 
   Task CommitAsync();
 }

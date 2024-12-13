@@ -16,7 +16,10 @@ public static class Mapper
     new(user.Id, user.UserName ?? "", user.SignUpDate);
 
   public static ItemModel ConvertToWebObject(Item item) =>
-    new(item.Id, item.Data.Barcode, item.Data.Title, item.Data.Description, item.Data.Authors, item.Data.ReleaseDate, item.Data.Format);
+    new(item.Id, item.Data.Barcode, item.Data.Title, item.Data.Description, item.Data.Authors.Select(ConvertToWebObject).ToList(), item.Data.ReleaseDate, item.Data.Format);
+
+  private static Author ConvertToWebObject(ItemAuthor author) =>
+    new(author.Id, author.Name);
 
   public static Shelf ConvertToDomainObject(CreateShelfModel shelf) =>
     new() { ShelfName = shelf.Name, ShelfDescription = shelf.Description };
@@ -31,7 +34,7 @@ public static class Mapper
       Description = item.Description,
       ReleaseDate = item.ReleaseDate,
       Format = item.Format,
-      Authors = item.Authors
+      Authors = item.Authors.Select(ConvertToDomainObject).ToList()
     };
 
     return new Item
@@ -48,7 +51,7 @@ public static class Mapper
       Barcode = item.Barcode ?? oldDbItem.Data.Barcode,
       Title = item.Title ?? oldDbItem.Data.Title,
       Description = item.Description ?? oldDbItem.Data.Description,
-      Authors = item.Authors ?? oldDbItem.Data.Authors,
+      Authors = item.Authors?.Select(ConvertToDomainObject).ToList() ?? oldDbItem.Data.Authors,
       ReleaseDate = item.ReleaseDate ?? oldDbItem.Data.ReleaseDate,
       Format = item.Format ?? oldDbItem.Data.Format
     };
@@ -81,7 +84,14 @@ public static class Mapper
         Title = itemModel.Title,
         ReleaseDate = itemModel.ReleaseDate,
         Format = itemModel.Format,
-        Authors = itemModel.Authors,
+        Authors = itemModel.Authors.Select(ConvertToDomainObject).ToList(),
       }
+    };
+
+  private static ItemAuthor ConvertToDomainObject(Author author) =>
+    new()
+    {
+      Id = author.Id,
+      Name = author.Name,
     };
 }
