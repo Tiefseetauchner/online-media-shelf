@@ -1,3 +1,7 @@
+import {
+  Author
+} from "../OMSWebClient.ts";
+
 export class ItemInputValidator {
   static isValidBarcode(barcode: string) {
     return barcode.split('').reduce(function (p, v, i) {
@@ -30,8 +34,8 @@ export class ItemInputValidator {
 
   }
 
-  static validateAuthors(authors: string[] | undefined): string | undefined {
-    if (authors?.some(author => author.length > 64))
+  static validateAuthors(authors: Author[] | undefined): string | undefined {
+    if (authors?.some(author => author.name!.length > 64))
       return "No author may be longer than 64 characters.";
   }
 

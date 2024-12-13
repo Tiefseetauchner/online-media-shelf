@@ -91,6 +91,9 @@ public class ItemController(
     {
       var mappedItem = Mapper.ConvertToDomainObject(item);
 
+      var authors = GetOrCreateAuthors(item.Authors);
+      mappedItem.Data.Authors = authors ?? [];
+
       var itemInDb = await unitOfWork.ItemRepository.CreateAsync(mappedItem);
 
       await unitOfWork.CommitAsync();
@@ -118,6 +121,9 @@ public class ItemController(
     {
       var mappedItem = Mapper.ConvertToDomainObject(item, oldDbItem);
 
+      var authors = GetOrCreateAuthors(item.Authors) ?? oldDbItem.Data.Authors;
+      mappedItem.Authors = authors;
+
       oldDbItem.Data = mappedItem;
 
       var itemInDb = itemRepository.Update(oldDbItem);
@@ -131,6 +137,12 @@ public class ItemController(
       return StatusCode(500, "An error occured while saving changes. Try again later.");
     }
   }
+
+  private List<ItemAuthor>? GetOrCreateAuthors(List<Author>? authors) =>
+    authors?
+      .Select(author => unitOfWork.ItemAuthorRepository.GetByName(author.Name)
+                        ?? unitOfWork.ItemAuthorRepository.Create(new ItemAuthor { Name = author.Name }))
+      .ToList();
 
   [HttpPost("update/{id:int}/cover-image")]
   [Authorize]

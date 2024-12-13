@@ -9,4 +9,7 @@ public class ItemAuthorRepository(DbSet<ItemAuthor> dbSet) : CrudRepository<Item
 {
   protected override IQueryable<ItemAuthor> ConfigureIncludes(DbSet<ItemAuthor> dbSet) =>
     dbSet.Include(a => a.OwnedItems);
+
+  public ItemAuthor? GetByName(string name) =>
+    AsQueryable().SingleOrDefault(_ => _.Name == name);
 }

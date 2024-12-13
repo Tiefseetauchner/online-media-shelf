@@ -5,4 +5,5 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 
 public interface IItemAuthorRepository : ICrudRepository<ItemAuthor, Guid>
 {
+  ItemAuthor? GetByName(string name);
 }

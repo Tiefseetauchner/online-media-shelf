@@ -1,19 +1,51 @@
-import {useParams} from "react-router-dom";
-import {useContext, useEffect, useState} from "react";
-import {IItemModel, ItemClient} from "../../OMSWebClient.ts";
+import {
+  useParams
+} from "react-router-dom";
+import {
+  useContext,
+  useEffect,
+  useState
+} from "react";
+import {
+  IItemModel,
+  ItemClient
+} from "../../OMSWebClient.ts";
 
-import {Button, useToastController} from "@fluentui/react-components";
-import {showErrorToast} from "../../utilities/toastHelper.tsx";
-import {Col, Container, Row} from "react-bootstrap";
+import {
+  Button,
+  useToastController
+} from "@fluentui/react-components";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
+import {
+  Col,
+  Container,
+  Row
+} from "react-bootstrap";
 
-import styles from "./ItemView.module.css";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
-import Barcode from "react-barcode";
-import {CreateItemDialog} from "./CreateItemDialog.tsx";
-import {UploadImageDialog} from "./UploadImageDialog.tsx";
-import {UserContext} from "../../App.tsx";
-import {AddItemToShelfDialog} from "./AddItemToShelfDialog.tsx";
+import styles
+  from "./ItemView.module.css";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faEdit
+} from "@fortawesome/free-solid-svg-icons";
+import Barcode
+  from "react-barcode";
+import {
+  CreateItemDialog
+} from "./CreateItemDialog.tsx";
+import {
+  UploadImageDialog
+} from "./UploadImageDialog.tsx";
+import {
+  UserContext
+} from "../../App.tsx";
+import {
+  AddItemToShelfDialog
+} from "./AddItemToShelfDialog.tsx";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -72,11 +104,11 @@ export function ItemView() {
       onOpenChange={(_, data) => setUploadImageDialogOpen(data.open)}
       open={uploadImageDialogOpen}
       itemId={item.id}/>
-    
+
     <AddItemToShelfDialog
-        onOpenChange={(_, data) => setAddItemToShelfDialogOpen(data.open)}
-        open={addItemToShelfDialogOpen}
-        itemId={item.id}    />
+      onOpenChange={(_, data) => setAddItemToShelfDialogOpen(data.open)}
+      open={addItemToShelfDialogOpen}
+      itemId={item.id}/>
 
     <Container>
       <Row>
@@ -135,7 +167,7 @@ export function ItemView() {
           </Row>
 
           {item.authors && item.authors.length > 0 &&
-              <p className="lead fs-6">By {item.authors.join(", ")}</p>}
+              <p className="lead fs-6">By {item.authors.map(_ => _.name).join(", ")}</p>}
 
           <p
             style={{whiteSpace: "pre-wrap"}}>{item.description}</p>
