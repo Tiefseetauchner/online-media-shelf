@@ -119,7 +119,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
 
         props.onAddItem();
       } catch (e: any) {
-        showErrorToast("An error occurred when adding item to shelf.", dispatchToast);
+        showErrorToast("An error occured while the item to the shelf", dispatchToast)
       }
     };
 

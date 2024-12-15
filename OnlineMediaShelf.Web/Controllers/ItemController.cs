@@ -69,7 +69,7 @@ public class ItemController(
   {
     var item = await unitOfWork.ItemRepository.GetByIdAsync(id);
     if (item == null)
-      return NotFound();
+      return NotFound("Item not found");
 
     return Ok(Mapper.ConvertToWebObject(item));
   }
@@ -79,7 +79,7 @@ public class ItemController(
   {
     var fileContents = (await unitOfWork.ItemImageRepository.GetByItemId(itemId)).FirstOrDefault();
 
-    return fileContents == null || fileContents.Data.Length == 0 ? NotFound() : File(fileContents.Data, "image/jpg");
+    return fileContents == null || fileContents.Data.Length == 0 ? NotFound("Cover image not found.") : File(fileContents.Data, "image/jpg");
   }
 
   [HttpPost("create")]
@@ -90,6 +90,9 @@ public class ItemController(
     try
     {
       var mappedItem = Mapper.ConvertToDomainObject(item);
+
+      var authors = GetOrCreateAuthors(item.Authors);
+      mappedItem.Data.Authors = authors ?? [];
 
       var itemInDb = await unitOfWork.ItemRepository.CreateAsync(mappedItem);
 
@@ -118,6 +121,9 @@ public class ItemController(
     {
       var mappedItem = Mapper.ConvertToDomainObject(item, oldDbItem);
 
+      var authors = GetOrCreateAuthors(item.Authors) ?? oldDbItem.Data.Authors;
+      mappedItem.Authors = authors;
+
       oldDbItem.Data = mappedItem;
 
       var itemInDb = itemRepository.Update(oldDbItem);
@@ -131,6 +137,12 @@ public class ItemController(
       return StatusCode(500, "An error occured while saving changes. Try again later.");
     }
   }
+
+  private List<ItemAuthor>? GetOrCreateAuthors(List<Author>? authors) =>
+    authors?
+      .Select(author => unitOfWork.ItemAuthorRepository.GetByName(author.Name)
+                        ?? unitOfWork.ItemAuthorRepository.Create(new ItemAuthor { Name = author.Name }))
+      .ToList();
 
   [HttpPost("update/{id:int}/cover-image")]
   [Authorize]
@@ -152,7 +164,7 @@ public class ItemController(
 
         await image.SaveAsJpegAsync(convertedImageStream);
 
-        // TODO (lena): Currently, we only have one image so we'll the delete the old one.
+        // TODO (lena): Currently, we only have one image so we'll delete the old one.
         var oldImage = (await unitOfWork.ItemImageRepository.GetByItemId(id)).SingleOrDefault();
 
         if (oldImage != null)
@@ -171,7 +183,7 @@ public class ItemController(
     }
     catch (Exception)
     {
-      return StatusCode(500, "An error occured while saving changes. Try again later.");
+      return StatusCode(500, "An error occured while updating an image. Try again later.");
     }
   }
 

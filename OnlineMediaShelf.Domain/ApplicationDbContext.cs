@@ -14,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
   public DbSet<Item> Items { get; set; } = null!;
   public DbSet<ItemData> ItemData { get; set; } = null!;
   public DbSet<ItemImage> ItemImages { get; set; } = null!;
+  public DbSet<ItemAuthor> ItemAuthors { get; set; } = null!;
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
@@ -21,5 +22,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     builder.Entity<Shelf>().HasMany(s => s.Items).WithMany(i => i.ContainingShelves);
     builder.Entity<ItemData>().HasIndex(_ => new { _.Barcode, _.Version }).IsUnique();
+    builder.Entity<ItemData>().HasMany(d => d.Authors).WithMany(a => a.OwnedItems);
   }
 }

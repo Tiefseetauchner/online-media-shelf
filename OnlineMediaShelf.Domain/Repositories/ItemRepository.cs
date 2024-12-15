@@ -13,11 +13,11 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Repositories;
 public class ItemRepository(DbSet<Item> dbSet) : CrudRepository<Item, int>(dbSet), IItemRepository
 {
   protected override IQueryable<Item> ConfigureIncludes(DbSet<Item> dbSet) =>
-    dbSet.Include(_ => _.Data);
+    dbSet.Include(_ => _.Data).ThenInclude(_ => _.Authors);
 
   public Task<List<Item>> GetPaged(int pageNumber, int pageSize) =>
     AsQueryable()
-      .OrderBy(_ => _.Id)
+      .OrderByDescending(_ => _.Id)
       .Skip(pageNumber * pageSize)
       .Take(pageSize)
       .ToListAsync();

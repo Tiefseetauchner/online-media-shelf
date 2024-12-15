@@ -76,7 +76,7 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
 
         navigate(`${routes.shelf}/${result.id}`)
       } catch (e: any) {
-        showErrorToast("An error occurred when creating shelf.", dispatchToast);
+        showErrorToast("An error occured while creating the shelf", dispatchToast)
       }
     };
 

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Tiefseetauchner.OnlineMediaShelf.Domain;
 using Tiefseetauchner.OnlineMediaShelf.Domain.Models;
 using Tiefseetauchner.OnlineMediaShelf.Web.WebObjects;
 
