@@ -4,7 +4,8 @@ import {
   CardFooter,
   CardHeader,
   Text,
-  tokens
+  tokens,
+  useToastController
 } from "@fluentui/react-components";
 import {
   IShelfModel,
@@ -20,6 +21,9 @@ import {
 import {
   Link
 } from "react-router-dom";
+import {
+  showErrorToast
+} from "../../utilities/toastHelper.tsx";
 
 interface ShelfCardProps {
   shelfId: number;
@@ -31,6 +35,8 @@ interface ShelfCardState {
 
 export function ShelfCard(props: ShelfCardProps) {
   const client = new ShelfClient();
+
+  const {dispatchToast} = useToastController();
 
   const [state, setState] = useState<ShelfCardState>({});
 
@@ -44,7 +50,7 @@ export function ShelfCard(props: ShelfCardProps) {
           shelf: shelf
         });
       } catch (e: any) {
-        alert(e);
+        showErrorToast("An error occured while loading the shelves", dispatchToast)
       }
     }
 

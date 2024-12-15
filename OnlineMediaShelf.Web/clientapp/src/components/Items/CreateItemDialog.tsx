@@ -191,7 +191,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           event: undefined!
         });
       } catch (e: any) {
-        showErrorToast("An error occurred when creating item.", dispatchToast);
+        showErrorToast("An error occurred when creating item", dispatchToast);
       }
     };
 
@@ -215,7 +215,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
 
         location.reload();
       } catch (e: any) {
-        showErrorToast("An error occurred when updating item.", dispatchToast);
+        showErrorToast("An error occurred when updating item", dispatchToast);
       }
     };
 

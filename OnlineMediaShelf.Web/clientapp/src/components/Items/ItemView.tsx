@@ -68,7 +68,7 @@ export function ItemView() {
   useEffect(() => {
     async function populateItem() {
       if (itemId === undefined || !isNumeric(itemId)) {
-        showErrorToast(`Item with id '${itemId}' could not be parsed.`, dispatchToast)
+        showErrorToast(`Item with id '${itemId}' could not be parsed`, dispatchToast)
         return;
       }
 
@@ -79,7 +79,7 @@ export function ItemView() {
 
         setItem(result);
       } catch {
-        showErrorToast(`Item with id '${itemId}' could not be loaded.`, dispatchToast)
+        showErrorToast(`Item with id '${itemId}' could not be loaded`, dispatchToast)
       }
 
       try {
