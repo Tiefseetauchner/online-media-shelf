@@ -167,7 +167,7 @@ export function ItemView() {
           </Row>
 
           {item.authors && item.authors.length > 0 &&
-              <p className="lead fs-6">By {item.authors.join(", ")}</p>}
+              <p className="lead fs-6">By {item.authors.map(_ => _.name).join(", ")}</p>}
 
           <p
             style={{whiteSpace: "pre-wrap"}}>{item.description}</p>

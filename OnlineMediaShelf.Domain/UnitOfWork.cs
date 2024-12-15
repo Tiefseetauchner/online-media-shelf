@@ -10,11 +10,12 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain;
 public class UnitOfWork(ApplicationDbContext context)
   : IUnitOfWork
 {
-  public IUserRepository UserRepository { get; private set; } = new UserRepository(context.Users);
-  public IShelfRepository ShelfRepository { get; private set; } = new ShelfRepository(context.Shelves);
-  public IItemRepository ItemRepository { get; private set; } = new ItemRepository(context.Items);
-  public IItemDataRepository ItemDataRepository { get; private set; } = new ItemDataRepository(context.ItemData);
-  public IItemImageRepository ItemImageRepository { get; private set; } = new ItemImageRepository(context.ItemImages);
+  public IUserRepository UserRepository { get; } = new UserRepository(context.Users);
+  public IShelfRepository ShelfRepository { get; } = new ShelfRepository(context.Shelves);
+  public IItemRepository ItemRepository { get; } = new ItemRepository(context.Items);
+  public IItemDataRepository ItemDataRepository { get; } = new ItemDataRepository(context.ItemData);
+  public IItemImageRepository ItemImageRepository { get; } = new ItemImageRepository(context.ItemImages);
+  public IItemAuthorRepository ItemAuthorRepository { get; } = new ItemAuthorRepository(context.ItemAuthors);
 
   public async Task CommitAsync()
   {
