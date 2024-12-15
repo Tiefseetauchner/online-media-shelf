@@ -30,7 +30,7 @@ export function BarcodeReader(props: BarcodeReaderParams) {
         options={{
           delayBetweenScanSuccess: 500,
         }}
-        onResult={(text, result) => result.getBarcodeFormat() === BarcodeFormat.EAN_13 ? props.onRead(text) : setError("This code could not be recognized.")}
+        onResult={(text, result) => [BarcodeFormat.EAN_13, BarcodeFormat.UPC_A].indexOf(result.getBarcodeFormat()) >= 0 ? props.onRead(text) : setError("This code could not be recognized.")}
         onError={(error) => setError(error?.message)}/>
     </Field>
   </>;
