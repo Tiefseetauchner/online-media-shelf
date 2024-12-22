@@ -71,6 +71,24 @@ public class AccountController(
     return BadRequest("Invalid login attempt");
   }
 
+  [HttpGet("renew-token")]
+  public async Task<IActionResult> RenewToken()
+  {
+    var identity = User.Identities.First();
+
+    if (!identity.IsAuthenticated)
+      return Unauthorized();
+
+    var applicationUser = await userManager.GetUserAsync(User);
+
+    if (applicationUser == null)
+      return Unauthorized();
+
+    await signInManager.RefreshSignInAsync(applicationUser);
+
+    return Ok();
+  }
+
   [HttpGet("logout")]
   public async Task<IActionResult> Logout()
   {
@@ -85,12 +103,7 @@ public class AccountController(
     if (!User.Identities.First().IsAuthenticated)
       return Unauthorized();
 
-    var userNameFromClaim = User.Identities.First().Name;
-
-    if (userNameFromClaim == null)
-      return BadRequest("Unknown user.");
-
-    var user = await userManager.FindByNameAsync(userNameFromClaim);
+    var user = await userManager.GetUserAsync(User);
 
     if (user == null)
       return BadRequest("Unknown user.");
@@ -100,7 +113,10 @@ public class AccountController(
     if (!signInResult.Succeeded)
       return Unauthorized();
 
-    await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+    var result = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+    if (!result.Succeeded)
+      return BadRequest(result.Errors.First().Description);
 
     return Ok();
   }

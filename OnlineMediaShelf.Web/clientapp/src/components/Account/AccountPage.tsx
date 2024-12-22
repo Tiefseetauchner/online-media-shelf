@@ -52,6 +52,7 @@ interface AccountValidationErrors {
 interface AccountState {
   isLoaded: boolean;
   email?: string;
+  id?: string;
   userName?: string;
   shelves?: IShelfModel[];
   validationErrors?: AccountValidationErrors;
@@ -108,6 +109,12 @@ export function AccountPage() {
   const newPasswordRef = useRef<HTMLInputElement>(null);
   const newPasswordConfirmRef = useRef<HTMLInputElement>(null);
 
+  const handleInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setState({
+      ...state,
+      [ev.target.name]: ev.target.value
+    });
+
   useEffect(() => {
     async function loadUserData() {
       const accountClient = new AccountClient();
@@ -123,6 +130,7 @@ export function AccountPage() {
             isLoaded: true,
             userName: accountResult.userName,
             email: accountResult.email,
+            id: accountResult.id
           };
         });
 
@@ -191,7 +199,7 @@ export function AccountPage() {
 
       showSuccessToast("Password updated successfully", dispatchToast);
     } catch {
-      showErrorToast("Couldn't update password", dispatchToast);
+      showErrorToast("Invalid Password", dispatchToast);
     }
   }
 
@@ -208,6 +216,10 @@ export function AccountPage() {
         userName: userName,
         email: email
       }));
+
+      await accountClient.renewToken();
+
+      window.location.reload();
 
       showSuccessToast("User Data updated successfully", dispatchToast);
     } catch {
@@ -257,7 +269,9 @@ export function AccountPage() {
                     <Input
                       ref={userNameRef}
                       appearance={"underline"}
-                      name={"userName"}/>
+                      name={"userName"}
+                      value={state.userName}
+                      onChange={handleInput}/>
                   </Field>
                 </Col>
                 <Col>
@@ -267,7 +281,9 @@ export function AccountPage() {
                     <Input
                       ref={emailRef}
                       appearance={"underline"}
-                      name={"email"}/>
+                      name={"email"}
+                      value={state.email}
+                      onChange={handleInput}/>
                   </Field>
                 </Col>
                 <Col>
