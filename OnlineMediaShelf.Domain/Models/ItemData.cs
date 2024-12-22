@@ -22,8 +22,7 @@ public class ItemData : IEntity<Guid>
 
   public string? Description { get; set; }
 
-  [StringLength(64)]
-  public List<string> Authors { get; set; } = [];
+  public List<ItemAuthor> Authors { get; set; } = [];
 
   public DateTime? ReleaseDate { get; set; }
 

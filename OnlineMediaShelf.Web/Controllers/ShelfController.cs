@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tiefseetauchner.OnlineMediaShelf.Domain;
@@ -18,7 +19,8 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 [ApiController]
 [Route("api/shelves")]
 public class ShelfController(
-  IUnitOfWork unitOfWork) : ControllerBase
+  IUnitOfWork unitOfWork,
+  UserManager<ApplicationUser> userManager) : ControllerBase
 {
   [HttpGet]
   public async Task<ActionResult<IEnumerable<ShelfModel>>> GetAllShelves([FromQuery] string? userName, [FromQuery] int? page, [FromQuery] int? pageSize)
@@ -104,6 +106,16 @@ public class ShelfController(
 
     if (shelf == null)
       return NotFound();
+
+    var userNameFromClaim = User.Identities.First().Name;
+
+    if (userNameFromClaim == null)
+      return StatusCode(500, "Error when loading Username from Claim");
+
+    var user = await userManager.FindByNameAsync(userNameFromClaim);
+
+    if (user?.Id != shelf.User.Id)
+      return Unauthorized("User not allowed to add item to shelf");
 
     shelf.Items.Add(await unitOfWork.ItemRepository.AsQueryable().SingleAsync(i => i.Id == item.Id));
 
