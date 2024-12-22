@@ -28,6 +28,7 @@ import {
   faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
 import {
+  useEffect,
   useState
 } from "react";
 
@@ -48,6 +49,13 @@ export function ItemList(props: ItemListProps) {
   const onItemClick = props.onItemClick == undefined ? (itemId: number) => {
     navigateToItem(itemId, navigate);
   } : props.onItemClick;
+
+  useEffect(() => {
+    if (window.window.innerWidth < 500)
+      setShowBarcode(false);
+    else
+      setShowBarcode(true);
+  }, [])
 
   const columns = [
     {
