@@ -167,7 +167,7 @@ export function ItemList(props: ItemListProps) {
                       fontSize={12}
                       renderer={"svg"}
                       background={"#0000"}
-                      format={"EAN13"}
+                      format={item.barcode.length == 12 ? "UPC" : "EAN13"}
                       value={item.barcode}/> :
                     <>No barcode available</>}
                 </TableCellLayout>
