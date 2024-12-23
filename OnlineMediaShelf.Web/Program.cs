@@ -57,6 +57,11 @@ public class Program
     services.Configure<IdentityOptions>(options =>
     {
       options.Password.RequiredUniqueChars = 4;
+      options.Password.RequireDigit = false;
+      options.Password.RequireUppercase = true;
+      options.Password.RequireLowercase = true;
+      options.Password.RequireNonAlphanumeric = true;
+      options.Password.RequiredLength = 8;
 
       options.User.AllowedUserNameCharacters =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
