@@ -12,8 +12,8 @@ using Tiefseetauchner.OnlineMediaShelf.Domain;
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241223091828_AddEditorAndCreator")]
-    partial class AddEditorAndCreator
+    [Migration("20241223092918_AddCreatorAndEditor")]
+    partial class AddCreatorAndEditor
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

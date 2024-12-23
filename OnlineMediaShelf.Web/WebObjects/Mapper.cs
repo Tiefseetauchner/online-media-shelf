@@ -24,8 +24,8 @@ public static class Mapper
       item.Data.Authors.Select(ConvertToWebObject).ToList(),
       item.Data.ReleaseDate,
       item.Data.Format,
-      item.Creator.NormalizedUserName ?? "Unknown User",
-      item.Data.Editor.NormalizedUserName ?? "Unknown User");
+      item.Creator?.UserName ?? "Unknown User",
+      item.Data.Editor?.UserName ?? "Unknown User");
 
   private static Author ConvertToWebObject(ItemAuthor author) =>
     new(author.Id, author.Name);
