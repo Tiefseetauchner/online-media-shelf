@@ -2139,6 +2139,8 @@ export class ItemModel implements IItemModel {
     authors?: Author[];
     releaseDate?: Date | undefined;
     format?: string;
+    creatorName?: string;
+    lastEditorName?: string;
 
     constructor(data?: IItemModel) {
         if (data) {
@@ -2162,6 +2164,8 @@ export class ItemModel implements IItemModel {
             }
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
+            this.creatorName = _data["creatorName"];
+            this.lastEditorName = _data["lastEditorName"];
         }
     }
 
@@ -2185,6 +2189,8 @@ export class ItemModel implements IItemModel {
         }
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
+        data["creatorName"] = this.creatorName;
+        data["lastEditorName"] = this.lastEditorName;
         return data;
     }
 }
@@ -2197,6 +2203,8 @@ export interface IItemModel {
     authors?: Author[];
     releaseDate?: Date | undefined;
     format?: string;
+    creatorName?: string;
+    lastEditorName?: string;
 }
 
 export class Author implements IAuthor {
@@ -2468,6 +2476,7 @@ export class Item implements IItem {
     data?: ItemData;
     images?: ItemImage[];
     containingShelves?: Shelf[];
+    creator?: ApplicationUser;
 
     constructor(data?: IItem) {
         if (data) {
@@ -2492,6 +2501,7 @@ export class Item implements IItem {
                 for (let item of _data["containingShelves"])
                     this.containingShelves!.push(Shelf.fromJS(item));
             }
+            this.creator = _data["creator"] ? ApplicationUser.fromJS(_data["creator"]) : <any>undefined;
         }
     }
 
@@ -2516,6 +2526,7 @@ export class Item implements IItem {
             for (let item of this.containingShelves)
                 data["containingShelves"].push(item.toJSON());
         }
+        data["creator"] = this.creator ? this.creator.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -2525,6 +2536,7 @@ export interface IItem {
     data?: ItemData;
     images?: ItemImage[];
     containingShelves?: Shelf[];
+    creator?: ApplicationUser;
 }
 
 export class ItemData implements IItemData {
@@ -2536,6 +2548,7 @@ export class ItemData implements IItemData {
     authors?: ItemAuthor[];
     releaseDate?: Date | undefined;
     format?: string;
+    editor?: ApplicationUser;
 
     constructor(data?: IItemData) {
         if (data) {
@@ -2560,6 +2573,7 @@ export class ItemData implements IItemData {
             }
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
+            this.editor = _data["editor"] ? ApplicationUser.fromJS(_data["editor"]) : <any>undefined;
         }
     }
 
@@ -2584,6 +2598,7 @@ export class ItemData implements IItemData {
         }
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
+        data["editor"] = this.editor ? this.editor.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -2597,6 +2612,7 @@ export interface IItemData {
     authors?: ItemAuthor[];
     releaseDate?: Date | undefined;
     format?: string;
+    editor?: ApplicationUser;
 }
 
 export class ItemAuthor implements IItemAuthor {
