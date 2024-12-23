@@ -37,7 +37,7 @@ public abstract class CrudRepository<T, TKey>(DbSet<T> dbSet)
     AsQueryable().ToList();
 
   public Task<List<T>> GetAllAsync() =>
-    AsQueryable().ToListAsync();
+    AsQueryable().OrderByDescending(_ => _.Id).ToListAsync();
 
   public IQueryable<T> AsQueryable() =>
     ConfigureIncludes(DbSet).AsQueryable();
