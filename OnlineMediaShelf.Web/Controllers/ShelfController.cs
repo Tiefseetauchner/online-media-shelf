@@ -83,7 +83,7 @@ public class ShelfController(
     try
     {
       var mappedShelf = Mapper.ConvertToDomainObject(shelf);
-      mappedShelf.User = await unitOfWork.UserRepository.GetByIdAsync(shelf.UserId) ?? throw new ArgumentNullException(nameof(shelf.UserId), "User not found");
+      mappedShelf.User = await userManager.GetUserAsync(User) ?? throw new Exception("User not found.");
 
       var shelfInDb = await unitOfWork.ShelfRepository.CreateAsync(mappedShelf);
 
@@ -107,12 +107,7 @@ public class ShelfController(
     if (shelf == null)
       return NotFound();
 
-    var userNameFromClaim = User.Identities.First().Name;
-
-    if (userNameFromClaim == null)
-      return StatusCode(500, "Error when loading Username from Claim");
-
-    var user = await userManager.FindByNameAsync(userNameFromClaim);
+    var user = await userManager.GetUserAsync(User);
 
     if (user?.Id != shelf.User.Id)
       return Unauthorized("User not allowed to add item to shelf");
@@ -133,6 +128,11 @@ public class ShelfController(
 
     if (shelf == null)
       return NotFound();
+
+    var user = await userManager.GetUserAsync(User);
+
+    if (user?.Id != shelf.User.Id)
+      return Unauthorized("User not allowed to remove item to shelf");
 
     var item = shelf.Items.FirstOrDefault(i => i.Id == itemId);
     if (item == null)

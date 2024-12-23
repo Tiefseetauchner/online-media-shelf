@@ -3084,7 +3084,6 @@ export interface IUpdateItemModel {
 }
 
 export class CreateShelfModel implements ICreateShelfModel {
-    userId?: string;
     name?: string;
     description?: string;
 
@@ -3099,7 +3098,6 @@ export class CreateShelfModel implements ICreateShelfModel {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
             this.name = _data["name"];
             this.description = _data["description"];
         }
@@ -3114,7 +3112,6 @@ export class CreateShelfModel implements ICreateShelfModel {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
         data["name"] = this.name;
         data["description"] = this.description;
         return data;
@@ -3122,7 +3119,6 @@ export class CreateShelfModel implements ICreateShelfModel {
 }
 
 export interface ICreateShelfModel {
-    userId?: string;
     name?: string;
     description?: string;
 }

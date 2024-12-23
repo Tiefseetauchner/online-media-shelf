@@ -12,16 +12,12 @@ import {
   useToastController
 } from "@fluentui/react-components";
 import {
-  useContext,
   useState
 } from "react";
 import {
   CreateShelfModel,
   ShelfClient
 } from "../../OMSWebClient.ts";
-import {
-  UserContext
-} from "../../App.tsx";
 import {
   DialogOpenChangeEventHandler
 } from "@fluentui/react-dialog";
@@ -48,7 +44,6 @@ interface AddShelfDialogState {
 
 export function AddShelfDialog(props: AddShelfDialogProps) {
   const [state, setState] = useState<AddShelfDialogState>({})
-  const {user} = useContext(UserContext)
 
   const navigate = useNavigate();
 
@@ -69,7 +64,6 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
 
       try {
         let result = await client.createShelf(new CreateShelfModel({
-          userId: user?.currentUser?.userId,
           name: state.name,
           description: state.description
         }))
