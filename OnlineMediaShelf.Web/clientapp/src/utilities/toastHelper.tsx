@@ -16,3 +16,15 @@ export function showErrorToast(message: string, dispatchToast: (content: React.R
       timeout: 5000
     });
 }
+
+export function showSuccessToast(message: string, dispatchToast: (content: React.ReactNode, options?: (any | undefined)) => void) {
+  dispatchToast(
+    <Toast>
+      <ToastTitle>{message}</ToastTitle>
+    </Toast>,
+    {
+      intent: "success",
+      position: "bottom",
+      timeout: 5000
+    });
+}

@@ -30,14 +30,12 @@ public class AccountController(
   public async Task<Results<Ok, ValidationProblem>> Register([FromBody] RegisterModel model)
   {
     if (!userManager.SupportsUserEmail)
-    {
       throw new NotSupportedException($"{nameof(Register)} requires a user store with email support.");
-    }
 
     if (string.IsNullOrEmpty(model.Email) || !s_emailAddressAttribute.IsValid(model.Email))
       return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(model.Email)));
 
-    var user = new ApplicationUser()
+    var user = new ApplicationUser
     {
       Email = model.Email,
       UserName = model.Username,
@@ -46,9 +44,7 @@ public class AccountController(
     var result = await userManager.CreateAsync(user, model.Password);
 
     if (!result.Succeeded)
-    {
       return CreateValidationProblem(result);
-    }
 
     return TypedResults.Ok();
   }
@@ -73,7 +69,81 @@ public class AccountController(
     return BadRequest("Invalid login attempt");
   }
 
-  [HttpGet("current_user")]
+  [HttpGet("renew-token")]
+  public async Task<IActionResult> RenewToken()
+  {
+    var identity = User.Identities.First();
+
+    if (!identity.IsAuthenticated)
+      return Unauthorized();
+
+    var applicationUser = await userManager.GetUserAsync(User);
+
+    if (applicationUser == null)
+      return Unauthorized();
+
+    await signInManager.RefreshSignInAsync(applicationUser);
+
+    return Ok();
+  }
+
+  [HttpGet("logout")]
+  public async Task<IActionResult> Logout()
+  {
+    await signInManager.SignOutAsync();
+
+    return Ok();
+  }
+
+  [HttpPost("change-password")]
+  public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordModel model)
+  {
+    if (!User.Identities.First().IsAuthenticated)
+      return Unauthorized();
+
+    var user = await userManager.GetUserAsync(User);
+
+    if (user == null)
+      return BadRequest("Unknown user.");
+
+    var signInResult = await signInManager.CheckPasswordSignInAsync(user, model.OldPassword, false);
+
+    if (!signInResult.Succeeded)
+      return Unauthorized();
+
+    var result = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+
+    if (!result.Succeeded)
+      return BadRequest(CreateValidationProblem(result));
+
+    return Ok();
+  }
+
+  [HttpPost("change-user-data")]
+  public async Task<IActionResult> ChangeUserData([FromBody] ChangeUserDataModel model)
+  {
+    if (!User.Identities.First().IsAuthenticated)
+      return Unauthorized();
+
+    var userNameFromClaim = User.Identities.First().Name;
+
+    if (userNameFromClaim == null)
+      return BadRequest("Unknown user.");
+
+    var user = await userManager.FindByNameAsync(userNameFromClaim);
+
+    if (user == null)
+      return BadRequest("Unknown user.");
+
+    user.Email = model.Email;
+    user.UserName = model.UserName;
+
+    var result = await userManager.UpdateAsync(user);
+
+    return Ok(result);
+  }
+
+  [HttpGet("current-user")]
   public async Task<ActionResult<CurrentUserModel>> GetCurrentUser()
   {
     var userIsAuthenticated = User.Identities.First().IsAuthenticated;
@@ -81,20 +151,15 @@ public class AccountController(
     if (!userIsAuthenticated)
       return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue, []));
 
-    var userNameFromClaim = User.Identities.First().Name;
-
-    if (userNameFromClaim == null)
-      return StatusCode(500, "Error when loading Username from Claim");
-
-    var user = await userManager.FindByNameAsync(userNameFromClaim);
+    var user = await userManager.GetUserAsync(User);
 
     if (user == null)
       return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue, []));
 
-    return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id, user.SignUpDate, user.Shelves.Select(Mapper.ConvertToWebObject).ToList()));
+    return Ok(new CurrentUserModel(true, user.UserName, user.Id, user.SignUpDate, user.Shelves.Select(Mapper.ConvertToWebObject).ToList()));
   }
 
-  [HttpGet("current_user/information")]
+  [HttpGet("current-user/information")]
   public async Task<ActionResult<ApplicationUser>> GetCurrentUserInformation()
   {
     var userIsAuthenticated = User.Identities.First().IsAuthenticated;
