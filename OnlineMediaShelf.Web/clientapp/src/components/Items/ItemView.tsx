@@ -167,9 +167,9 @@ export function ItemView() {
           </Row>
 
           {item.authors && item.authors.length > 0 &&
-              <p className="lead fs-6">By {item.authors.map(_ => _.name).join(", ")}</p>}
+              <p className="lead fs-5">By {item.authors.map(_ => _.name).join(", ")}</p>}
           <p
-            class>Created by '{item.creatorName}'. Last edited by '{item.lastEditorName}'</p>
+            className="lead text-muted fs-6">Created by '{item.creatorName}'. Last edited by '{item.lastEditorName}'</p>
           <p
             style={{whiteSpace: "pre-wrap"}}>{item.description}</p>
         </Col>
