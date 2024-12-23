@@ -48,7 +48,7 @@ public class Program
     services.AddDbContext<ApplicationDbContext>(
       dbContextOptions => dbContextOptions
         .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
-      ServiceLifetime.Transient);
+      ServiceLifetime.Scoped);
 
     services.AddScoped<IUnitOfWork, UnitOfWork>();
 

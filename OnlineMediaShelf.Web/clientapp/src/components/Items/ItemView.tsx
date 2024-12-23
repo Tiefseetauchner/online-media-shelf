@@ -1,4 +1,5 @@
 import {
+  useNavigate,
   useParams
 } from "react-router-dom";
 import {
@@ -46,6 +47,9 @@ import {
 import {
   AddItemToShelfDialog
 } from "./AddItemToShelfDialog.tsx";
+import {
+  routes
+} from "../../utilities/routes.ts";
 
 function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
@@ -62,6 +66,8 @@ export function ItemView() {
   const {itemId} = useParams();
 
   const {user} = useContext(UserContext);
+
+  const navigate = useNavigate();
 
   const {dispatchToast} = useToastController();
 
@@ -141,7 +147,7 @@ export function ItemView() {
                 fontSize={24}
                 renderer={"svg"}
                 background={"#0000"}
-                format={"EAN13"}
+                format={item.barcode.length == 12 ? "UPC" : "EAN13"}
                 value={item.barcode}/> :
               <>No barcode available</>}
           </Row>
@@ -167,8 +173,9 @@ export function ItemView() {
           </Row>
 
           {item.authors && item.authors.length > 0 &&
-              <p className="lead fs-6">By {item.authors.map(_ => _.name).join(", ")}</p>}
-
+              <p className="lead fs-5">By {item.authors.map(_ => _.name).join(", ")}</p>}
+          <p
+            className="lead text-muted fs-6">Created by '{item.creatorName}'. Last edited by '{item.lastEditorName}'</p>
           <p
             style={{whiteSpace: "pre-wrap"}}>{item.description}</p>
         </Col>
@@ -188,8 +195,12 @@ export function ItemView() {
           </div>
           <div
             className="my-2">
-            <Button
-              onClick={() => setAddItemToShelfDialogOpen(true)}>Add to Shelf</Button>
+            {user?.currentUser?.isLoggedIn ?
+              <Button
+                onClick={() => setAddItemToShelfDialogOpen(true)}>Add to Shelf</Button> :
+              <Button
+                onClick={() => navigate(routes.login)}>Login</Button>
+            }
           </div>
         </div>
       </Container>

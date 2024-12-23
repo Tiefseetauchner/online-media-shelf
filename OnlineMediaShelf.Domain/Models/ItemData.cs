@@ -28,4 +28,6 @@ public class ItemData : IEntity<Guid>
 
   [StringLength(20)]
   public string Format { get; set; } = null!;
+
+  public ApplicationUser Editor { get; set; } = null!;
 }

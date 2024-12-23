@@ -14,4 +14,6 @@ public record ItemModel(
   string? Description,
   List<Author> Authors,
   DateTime? ReleaseDate,
-  string Format);
+  string Format,
+  string CreatorName,
+  string LastEditorName);
