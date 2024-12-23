@@ -12,8 +12,8 @@ using Tiefseetauchner.OnlineMediaShelf.Domain;
 namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241223013034_AddEditor")]
-    partial class AddEditor
+    [Migration("20241223091828_AddEditorAndCreator")]
+    partial class AddEditorAndCreator
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -262,10 +262,15 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CreatorId")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<Guid>("DataId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
 
                     b.HasIndex("DataId");
 
@@ -462,11 +467,17 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", b =>
                 {
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId");
+
                     b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ItemData", "Data")
                         .WithMany()
                         .HasForeignKey("DataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Creator");
 
                     b.Navigation("Data");
                 });

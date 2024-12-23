@@ -259,10 +259,15 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CreatorId")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<Guid>("DataId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
 
                     b.HasIndex("DataId");
 
@@ -459,11 +464,17 @@ namespace Tiefseetauchner.OnlineMediaShelf.Domain.Migrations
 
             modelBuilder.Entity("Tiefseetauchner.OnlineMediaShelf.Domain.Models.Item", b =>
                 {
+                    b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ApplicationUser", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId");
+
                     b.HasOne("Tiefseetauchner.OnlineMediaShelf.Domain.Models.ItemData", "Data")
                         .WithMany()
                         .HasForeignKey("DataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Creator");
 
                     b.Navigation("Data");
                 });

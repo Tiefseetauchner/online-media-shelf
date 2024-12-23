@@ -19,4 +19,6 @@ public class Item : IEntity<int>
   public List<ItemImage> Images { get; set; } = null!;
 
   public List<Shelf> ContainingShelves { get; set; } = null!;
+
+  public ApplicationUser Creator { get; set; } = null!;
 }

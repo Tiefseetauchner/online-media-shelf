@@ -101,6 +101,7 @@ public class ItemController(
       if (user == null)
         return Unauthorized("User not found");
 
+      mappedItem.Creator = user;
       mappedItem.Data.Editor = user;
 
       var itemInDb = await unitOfWork.ItemRepository.CreateAsync(mappedItem);
