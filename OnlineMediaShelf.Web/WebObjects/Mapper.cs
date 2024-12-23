@@ -16,7 +16,16 @@ public static class Mapper
     new(user.Id, user.UserName ?? "", user.SignUpDate);
 
   public static ItemModel ConvertToWebObject(Item item) =>
-    new(item.Id, item.Data.Barcode, item.Data.Title, item.Data.Description, item.Data.Authors.Select(ConvertToWebObject).ToList(), item.Data.ReleaseDate, item.Data.Format);
+    new(
+      item.Id,
+      item.Data.Barcode,
+      item.Data.Title,
+      item.Data.Description,
+      item.Data.Authors.Select(ConvertToWebObject).ToList(),
+      item.Data.ReleaseDate,
+      item.Data.Format,
+      item.Creator.UserName ?? "Unknown User",
+      item.Data.Editor.UserName ?? "Unknown User");
 
   private static Author ConvertToWebObject(ItemAuthor author) =>
     new(author.Id, author.Name);

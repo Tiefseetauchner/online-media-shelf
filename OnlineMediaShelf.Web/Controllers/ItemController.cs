@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NSwag.Annotations;
@@ -22,7 +23,8 @@ namespace Tiefseetauchner.OnlineMediaShelf.Web.Controllers;
 [ApiController]
 [Route("api/items")]
 public class ItemController(
-  IUnitOfWork unitOfWork) : ControllerBase
+  IUnitOfWork unitOfWork,
+  UserManager<ApplicationUser> userManager) : ControllerBase
 {
   private const int c_imageMaxWidth = 600;
   private const int c_imageMaxHeight = 800;
@@ -94,6 +96,14 @@ public class ItemController(
       var authors = GetOrCreateAuthors(item.Authors);
       mappedItem.Data.Authors = authors ?? [];
 
+      var user = await userManager.GetUserAsync(User);
+
+      if (user == null)
+        return Unauthorized("User not found");
+
+      mappedItem.Creator = user;
+      mappedItem.Data.Editor = user;
+
       var itemInDb = await unitOfWork.ItemRepository.CreateAsync(mappedItem);
 
       await unitOfWork.CommitAsync();
@@ -123,6 +133,13 @@ public class ItemController(
 
       var authors = GetOrCreateAuthors(item.Authors) ?? oldDbItem.Data.Authors;
       mappedItem.Authors = authors;
+
+      var user = await userManager.GetUserAsync(User);
+
+      if (user == null)
+        return Unauthorized("User not found");
+
+      mappedItem.Editor = user;
 
       oldDbItem.Data = mappedItem;
 
