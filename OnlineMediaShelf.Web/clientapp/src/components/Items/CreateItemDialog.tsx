@@ -121,7 +121,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
   const handleAuthorInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
       ...state,
-      [ev.target.name]: ev.target.value.split(",").map(e => e.trim()).map<Author>(_ => new Author({
+      [ev.target.name]: ev.target.value.split(", ").map<Author>(_ => new Author({
         name: _
       }))
     });
@@ -129,6 +129,13 @@ export function CreateItemDialog(props: AddItemDialogProps) {
 
   const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
+
+    setState(prevState => ({
+      ...prevState,
+      authors: prevState.authors?.map<Author>(_ => new Author({
+        name: _.name?.trim()
+      }))
+    }));
 
     const validateForm = (): boolean => {
       let barcodeError = ItemInputValidator.validateBarcode(state.barcode);
