@@ -26,12 +26,22 @@ import {
 import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
+import {
+  UserInputValidator
+} from "../../utilities/userInputValidator.ts";
 
 interface RegisterPageState {
   loading: boolean;
   email: string;
   userName: string;
   password: string;
+  errors: RegisterPageStateErrors;
+}
+
+interface RegisterPageStateErrors {
+  email?: string;
+  userName?: string;
+  password?: string;
 }
 
 export function RegisterPage() {
@@ -43,6 +53,7 @@ export function RegisterPage() {
     email: routeData?.email ?? "",
     userName: "",
     password: routeData?.password ?? "",
+    errors: {},
   });
 
   const {dispatchToast} = useToastController();
@@ -50,6 +61,33 @@ export function RegisterPage() {
   const navigate = useNavigate();
 
   async function loginUser() {
+    const validateForm = (): boolean => {
+      let emailError = UserInputValidator.validateEmail(state.email);
+      let userNameError = UserInputValidator.validateUserName(state.userName);
+      let passwordError = UserInputValidator.validatePassword(state.password);
+
+      setState(prevState => ({
+        ...prevState,
+        errors: {
+          email: emailError,
+          userName: userNameError,
+          password: passwordError,
+        }
+      }))
+
+      return emailError == undefined &&
+        userNameError == undefined &&
+        passwordError == undefined;
+    }
+
+    if (!validateForm()) {
+      setState(prevState => ({
+        ...prevState,
+        loading: false,
+      }));
+      return;
+    }
+
     var client = new AccountClient();
 
     try {
@@ -68,10 +106,10 @@ export function RegisterPage() {
       }
     }
 
-    setState({
-      ...state,
+    setState(prevState => ({
+      ...prevState,
       loading: false,
-    });
+    }));
   }
 
   const inputChanges = (e: ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +144,9 @@ export function RegisterPage() {
         }}>
         <Title1>Register a new account:</Title1>
         <Field
-          label="E-Mail address">
+          label="E-Mail address"
+          validationMessage={state.errors.email}
+          validationState={state.errors.email ? "error" : "none"}>
           <Input
             onChange={inputChanges}
             appearance={"underline"}
@@ -116,7 +156,9 @@ export function RegisterPage() {
             value={state.email}/>
         </Field>
         <Field
-          label="Username">
+          label="Username"
+          validationMessage={state.errors.userName}
+          validationState={state.errors.userName ? "error" : "none"}>
           <Input
             onChange={inputChanges}
             appearance={"underline"}
@@ -125,7 +167,9 @@ export function RegisterPage() {
             value={state.userName}/>
         </Field>
         <Field
-          label="Password">
+          label="Password"
+          validationMessage={state.errors.password}
+          validationState={state.errors.password ? "error" : "none"}>
           <Input
             onChange={inputChanges}
             appearance={"underline"}
