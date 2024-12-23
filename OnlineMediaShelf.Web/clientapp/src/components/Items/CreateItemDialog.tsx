@@ -17,6 +17,7 @@ import {
   useState
 } from "react";
 import {
+  Author,
   CreateItemModel,
   IItemModel,
   ItemClient,
@@ -58,7 +59,7 @@ interface AddItemDialogState {
   title?: string;
   description?: string;
   barcode?: string;
-  authors?: string[];
+  authors?: Author[];
   releaseYear?: string;
   releaseMonth?: string;
   releaseDay?: string;
@@ -120,7 +121,9 @@ export function CreateItemDialog(props: AddItemDialogProps) {
   const handleAuthorInput = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setState({
       ...state,
-      [ev.target.name]: ev.target.value.split(",").map(e => e.trim())
+      [ev.target.name]: ev.target.value.split(",").map(e => e.trim()).map<Author>(_ => new Author({
+        name: _
+      }))
     });
   }
 
@@ -268,12 +271,12 @@ export function CreateItemDialog(props: AddItemDialogProps) {
                 name={"format"}/>
             </Field>
             <Field
-              label="Author"
+              label="Authors"
               validationMessage={errorState.authorsMessage}>
               <Input
                 appearance={"underline"}
                 onChange={handleAuthorInput}
-                value={state.authors?.join(", ")}
+                value={state.authors?.map(_ => _.name).join(", ")}
                 name={"authors"}/>
             </Field>
             <Field

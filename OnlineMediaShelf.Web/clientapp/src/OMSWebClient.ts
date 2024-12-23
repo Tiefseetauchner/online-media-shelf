@@ -2136,7 +2136,7 @@ export class ItemModel implements IItemModel {
     barcode?: string;
     title?: string;
     description?: string | undefined;
-    authors?: string[];
+    authors?: Author[];
     releaseDate?: Date | undefined;
     format?: string;
 
@@ -2158,7 +2158,7 @@ export class ItemModel implements IItemModel {
             if (Array.isArray(_data["authors"])) {
                 this.authors = [] as any;
                 for (let item of _data["authors"])
-                    this.authors!.push(item);
+                    this.authors!.push(Author.fromJS(item));
             }
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
@@ -2181,7 +2181,7 @@ export class ItemModel implements IItemModel {
         if (Array.isArray(this.authors)) {
             data["authors"] = [];
             for (let item of this.authors)
-                data["authors"].push(item);
+                data["authors"].push(item.toJSON());
         }
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
@@ -2194,9 +2194,49 @@ export interface IItemModel {
     barcode?: string;
     title?: string;
     description?: string | undefined;
-    authors?: string[];
+    authors?: Author[];
     releaseDate?: Date | undefined;
     format?: string;
+}
+
+export class Author implements IAuthor {
+    id?: string;
+    name?: string;
+
+    constructor(data?: IAuthor) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): Author {
+        data = typeof data === 'object' ? data : {};
+        let result = new Author();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IAuthor {
+    id?: string;
+    name?: string;
 }
 
 export class IdentityUserOfString implements IIdentityUserOfString {
@@ -2493,7 +2533,7 @@ export class ItemData implements IItemData {
     barcode?: string;
     title!: string;
     description?: string | undefined;
-    authors?: string[];
+    authors?: ItemAuthor[];
     releaseDate?: Date | undefined;
     format?: string;
 
@@ -2516,7 +2556,7 @@ export class ItemData implements IItemData {
             if (Array.isArray(_data["authors"])) {
                 this.authors = [] as any;
                 for (let item of _data["authors"])
-                    this.authors!.push(item);
+                    this.authors!.push(ItemAuthor.fromJS(item));
             }
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
@@ -2540,7 +2580,7 @@ export class ItemData implements IItemData {
         if (Array.isArray(this.authors)) {
             data["authors"] = [];
             for (let item of this.authors)
-                data["authors"].push(item);
+                data["authors"].push(item.toJSON());
         }
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
@@ -2554,9 +2594,61 @@ export interface IItemData {
     barcode?: string;
     title: string;
     description?: string | undefined;
-    authors?: string[];
+    authors?: ItemAuthor[];
     releaseDate?: Date | undefined;
     format?: string;
+}
+
+export class ItemAuthor implements IItemAuthor {
+    id?: string;
+    name?: string;
+    ownedItems?: ItemData[];
+
+    constructor(data?: IItemAuthor) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            if (Array.isArray(_data["ownedItems"])) {
+                this.ownedItems = [] as any;
+                for (let item of _data["ownedItems"])
+                    this.ownedItems!.push(ItemData.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ItemAuthor {
+        data = typeof data === 'object' ? data : {};
+        let result = new ItemAuthor();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        if (Array.isArray(this.ownedItems)) {
+            data["ownedItems"] = [];
+            for (let item of this.ownedItems)
+                data["ownedItems"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IItemAuthor {
+    id?: string;
+    name?: string;
+    ownedItems?: ItemData[];
 }
 
 export class ItemImage implements IItemImage {
@@ -2607,7 +2699,7 @@ export class CreateItemModel implements ICreateItemModel {
     barcode?: string;
     title?: string;
     description?: string | undefined;
-    authors?: string[];
+    authors?: Author[];
     releaseDate?: Date | undefined;
     format?: string;
 
@@ -2628,7 +2720,7 @@ export class CreateItemModel implements ICreateItemModel {
             if (Array.isArray(_data["authors"])) {
                 this.authors = [] as any;
                 for (let item of _data["authors"])
-                    this.authors!.push(item);
+                    this.authors!.push(Author.fromJS(item));
             }
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
@@ -2650,7 +2742,7 @@ export class CreateItemModel implements ICreateItemModel {
         if (Array.isArray(this.authors)) {
             data["authors"] = [];
             for (let item of this.authors)
-                data["authors"].push(item);
+                data["authors"].push(item.toJSON());
         }
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
@@ -2662,7 +2754,7 @@ export interface ICreateItemModel {
     barcode?: string;
     title?: string;
     description?: string | undefined;
-    authors?: string[];
+    authors?: Author[];
     releaseDate?: Date | undefined;
     format?: string;
 }
@@ -2672,7 +2764,7 @@ export class UpdateItemModel implements IUpdateItemModel {
     barcode?: string | undefined;
     title?: string | undefined;
     description?: string | undefined;
-    authors?: string[] | undefined;
+    authors?: Author[] | undefined;
     releaseDate?: Date | undefined;
     format?: string | undefined;
 
@@ -2694,7 +2786,7 @@ export class UpdateItemModel implements IUpdateItemModel {
             if (Array.isArray(_data["authors"])) {
                 this.authors = [] as any;
                 for (let item of _data["authors"])
-                    this.authors!.push(item);
+                    this.authors!.push(Author.fromJS(item));
             }
             this.releaseDate = _data["releaseDate"] ? new Date(_data["releaseDate"].toString()) : <any>undefined;
             this.format = _data["format"];
@@ -2717,7 +2809,7 @@ export class UpdateItemModel implements IUpdateItemModel {
         if (Array.isArray(this.authors)) {
             data["authors"] = [];
             for (let item of this.authors)
-                data["authors"].push(item);
+                data["authors"].push(item.toJSON());
         }
         data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
         data["format"] = this.format;
@@ -2730,7 +2822,7 @@ export interface IUpdateItemModel {
     barcode?: string | undefined;
     title?: string | undefined;
     description?: string | undefined;
-    authors?: string[] | undefined;
+    authors?: Author[] | undefined;
     releaseDate?: Date | undefined;
     format?: string | undefined;
 }

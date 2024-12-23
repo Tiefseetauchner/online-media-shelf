@@ -88,7 +88,7 @@ export function ShelfView() {
             excludedItems={state.shelf.items?.map(i => i.id ?? -1) ?? []}/>
 
           <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
-            {user?.currentUser?.isLoggedIn ?
+            {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
               <Button
                 style={{float: "right"}}
                 icon={

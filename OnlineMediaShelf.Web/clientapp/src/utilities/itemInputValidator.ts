@@ -1,13 +1,27 @@
+import {
+  Author
+} from "../OMSWebClient.ts";
+
 export class ItemInputValidator {
-  static isValidBarcode(barcode: string) {
-    return barcode.split('').reduce(function (p, v, i) {
-      return i % 2 == 0 ? p + parseInt(v) : p + 3 * parseInt(v);
-    }, 0) % 10 == 0;
+  static isValidBarcode(value: string) {
+    // We only allow correct length barcodes
+    if (!value.match(/^(\d{8}|\d{12,14})$/)) {
+      return false;
+    }
+
+    const paddedValue = value.padStart(14, '0');
+
+    let result = 0;
+    for (let i = 0; i < paddedValue.length - 1; i += 1) {
+      result += parseInt(paddedValue.charAt(i), 10) * ((i % 2 === 0) ? 3 : 1);
+    }
+
+    return ((10 - (result % 10)) % 10) === parseInt(paddedValue.charAt(13), 10);
   }
 
   static validateBarcode(barcode: string | undefined): string | undefined {
-    if (barcode?.length !== 13)
-      return "The barcode must be 13 digits long.";
+    if (!(barcode?.length === 12 || barcode?.length === 13))
+      return "The barcode must be valid EAN-13 or UPC-A.";
 
     if (!this.isValidBarcode(barcode!))
       return "The barcode must have a valid check digit.";
@@ -30,8 +44,8 @@ export class ItemInputValidator {
 
   }
 
-  static validateAuthors(authors: string[] | undefined): string | undefined {
-    if (authors?.some(author => author.length > 64))
+  static validateAuthors(authors: Author[] | undefined): string | undefined {
+    if (authors?.some(author => author.name!.length > 64))
       return "No author may be longer than 64 characters.";
   }
 
