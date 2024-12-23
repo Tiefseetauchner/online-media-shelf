@@ -30,14 +30,12 @@ public class AccountController(
   public async Task<Results<Ok, ValidationProblem>> Register([FromBody] RegisterModel model)
   {
     if (!userManager.SupportsUserEmail)
-    {
       throw new NotSupportedException($"{nameof(Register)} requires a user store with email support.");
-    }
 
     if (string.IsNullOrEmpty(model.Email) || !s_emailAddressAttribute.IsValid(model.Email))
       return CreateValidationProblem(IdentityResult.Failed(userManager.ErrorDescriber.InvalidEmail(model.Email)));
 
-    var user = new ApplicationUser()
+    var user = new ApplicationUser
     {
       Email = model.Email,
       UserName = model.Username,
@@ -116,7 +114,7 @@ public class AccountController(
     var result = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
 
     if (!result.Succeeded)
-      return BadRequest(result.Errors.First().Description);
+      return BadRequest(CreateValidationProblem(result));
 
     return Ok();
   }
@@ -153,17 +151,12 @@ public class AccountController(
     if (!userIsAuthenticated)
       return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue, []));
 
-    var userNameFromClaim = User.Identities.First().Name;
-
-    if (userNameFromClaim == null)
-      return StatusCode(500, "Error when loading Username from Claim");
-
-    var user = await userManager.FindByNameAsync(userNameFromClaim);
+    var user = await userManager.GetUserAsync(User);
 
     if (user == null)
       return Ok(new CurrentUserModel(false, null, "", DateTime.MinValue, []));
 
-    return Ok(new CurrentUserModel(true, userNameFromClaim, user.Id, user.SignUpDate, user.Shelves.Select(Mapper.ConvertToWebObject).ToList()));
+    return Ok(new CurrentUserModel(true, user.UserName, user.Id, user.SignUpDate, user.Shelves.Select(Mapper.ConvertToWebObject).ToList()));
   }
 
   [HttpGet("current-user/information")]
