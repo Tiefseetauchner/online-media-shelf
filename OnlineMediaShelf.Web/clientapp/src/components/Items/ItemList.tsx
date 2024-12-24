@@ -2,7 +2,8 @@ import {
   useNavigate
 } from "react-router-dom";
 import {
-  navigateToItem
+  navigateToItem,
+  routes
 } from "../../utilities/routes.ts";
 import {
   Button,
@@ -43,6 +44,7 @@ interface ItemListProps {
   onItemSelect?: (itemId: number) => void;
   onItemDeselect?: (itemId: number) => void;
   selectedItems?: number[];
+  onItemsRightClick?: (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemIds: number[]) => void;
 }
 
 interface ItemState {
@@ -50,6 +52,7 @@ interface ItemState {
 
   [key: number]: {
     holdStarter: number | null;
+    isHeld: boolean;
   };
 }
 
@@ -68,7 +71,18 @@ export function ItemList(props: ItemListProps) {
   const onItemSelect = props.showSelect && props.onItemSelect ? props.onItemSelect : onItemClick;
   const onItemDeselect = props.showSelect && props.onItemDeselect ? props.onItemDeselect : onItemClick;
 
-  const itemMouseDown = (itemId: number): void => {
+  const itemMouseDown = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
+    if (e.button != 0) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      return;
+    }
+
+    if (props.selectedItems && props.selectedItems?.length > 0) {
+      return;
+    }
+
     let holdStarter = setTimeout(function () {
       if (!props.selectedItems?.includes(itemId))
         onItemSelect(itemId);
@@ -77,17 +91,45 @@ export function ItemList(props: ItemListProps) {
 
       setItemState(prevState => ({
         ...prevState,
-        [itemId]: {holdStarter: null}
+        [itemId]: {
+          holdStarter: null,
+          isHeld: true
+        }
       }));
     }, holdDelay);
 
     setItemState(prevState => ({
       ...prevState,
-      [itemId]: {holdStarter: holdStarter}
+      [itemId]: {
+        holdStarter: holdStarter,
+        isHeld: true
+      }
     }));
   }
 
-  const itemMouseUp = (itemId: number): void => {
+  const itemMouseUp = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!itemState[itemId]?.isHeld && props.selectedItems && props.selectedItems?.length > 0) {
+      if (!props.selectedItems?.includes(itemId))
+        onItemSelect(itemId);
+      else
+        onItemDeselect(itemId);
+
+      return;
+    }
+
+    if (e.button != 0) {
+      if (e.button == 2 && props.onItemsRightClick)
+        props.onItemsRightClick(e, props.selectedItems && props.selectedItems.includes(itemId) ? props.selectedItems : [itemId]);
+
+      if (e.button == 1)
+        window.open(`${routes.item}/${itemId}`, "_blank");
+
+      return;
+    }
+
     setItemState(prevState => {
       if (prevState[itemId].holdStarter) {
         clearTimeout(prevState[itemId].holdStarter);
@@ -96,7 +138,10 @@ export function ItemList(props: ItemListProps) {
 
       return {
         ...prevState,
-        [itemId]: {holdStarter: null}
+        [itemId]: {
+          holdStarter: null,
+          isHeld: false
+        }
       }
     });
   }
@@ -187,6 +232,9 @@ export function ItemList(props: ItemListProps) {
 
   return (
     <Table
+      onContextMenu={(e) => {
+        e.preventDefault();
+      }}
       aria-label={"Items Table"}>
       <TableHeader>
         <TableRow>
@@ -223,8 +271,8 @@ export function ItemList(props: ItemListProps) {
                 </TableCell>
             }
             <TableCell
-              onMouseDown={() => itemMouseDown(item.id!)}
-              onMouseUp={() => itemMouseUp(item.id!)}
+              onMouseDown={(e) => itemMouseDown(e, item.id!)}
+              onMouseUp={(e) => itemMouseUp(e, item.id!)}
               style={{
                 cursor: "pointer",
                 lineBreak: "anywhere"
@@ -234,8 +282,8 @@ export function ItemList(props: ItemListProps) {
               </TableCellLayout>
             </TableCell>
             <TableCell
-              onMouseDown={() => itemMouseDown(item.id!)}
-              onMouseUp={() => itemMouseUp(item.id!)}
+              onMouseDown={(e) => itemMouseDown(e, item.id!)}
+              onMouseUp={(e) => itemMouseUp(e, item.id!)}
               style={{cursor: "pointer"}}>
               <TableCellLayout
                 style={{
@@ -248,8 +296,8 @@ export function ItemList(props: ItemListProps) {
             </TableCell>
             {showBarcode ?
               <TableCell
-                onMouseDown={() => itemMouseDown(item.id!)}
-                onMouseUp={() => itemMouseUp(item.id!)}>
+                onMouseDown={(e) => itemMouseDown(e, item.id!)}
+                onMouseUp={(e) => itemMouseUp(e, item.id!)}>
                 <TableCellLayout>
                   {item.barcode ?
                     <Barcode

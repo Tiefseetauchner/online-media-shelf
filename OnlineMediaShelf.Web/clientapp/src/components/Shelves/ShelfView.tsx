@@ -4,6 +4,7 @@ import {
 import {
   useContext,
   useEffect,
+  useRef,
   useState
 } from "react";
 import {
@@ -12,6 +13,10 @@ import {
 } from "../../OMSWebClient.ts";
 import {
   Button,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
   Skeleton,
   SkeletonItem,
   Title1,
@@ -40,10 +45,18 @@ interface ShelfState {
   shelf?: IShelfModel;
   isDialogOpen: boolean;
   selectedItemIds: number[];
+  contextMenuOpen?: {
+    open: boolean;
+    x: number;
+    y: number;
+    menuItemIds: number[];
+  };
 }
 
 export function ShelfView() {
   const {shelfId} = useParams();
+
+  const contextMenuTargetElementRef = useRef<HTMLDivElement>(null);
 
   const [state, setState] = useState<ShelfState>({
     isDialogOpen: false,
@@ -90,6 +103,45 @@ export function ShelfView() {
               isDialogOpen: data.open
             })}
             excludedItems={state.shelf.items?.map(i => i.id ?? -1) ?? []}/>
+
+          <div
+            ref={contextMenuTargetElementRef}
+            style={{
+              position: "absolute",
+              top: state.contextMenuOpen?.y ?? 0,
+              left: state.contextMenuOpen?.x ?? 0,
+            }}/>
+
+          <Menu
+            positioning={{
+              target: contextMenuTargetElementRef.current!,
+              position: "below",
+              align: "start"
+            }}
+            open={state.contextMenuOpen?.open ?? false}
+            onOpenChange={(_, data) => {
+              setState(prevState => ({
+                ...prevState,
+                contextMenuOpen: {
+                  open: data.open,
+                  x: prevState.contextMenuOpen!.x,
+                  y: prevState.contextMenuOpen!.y,
+                  menuItemIds: prevState.contextMenuOpen!.menuItemIds
+                }
+              }));
+              console.log(state.contextMenuOpen);
+            }}>
+            <MenuPopover
+              onContextMenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}>
+              <MenuList>
+                <MenuItem>Move To Shelf</MenuItem>
+                <MenuItem>Copy to Shelf</MenuItem>
+              </MenuList>
+            </MenuPopover>
+          </Menu>
 
           <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
             {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
@@ -141,6 +193,24 @@ export function ShelfView() {
                     setState(prevState => ({
                       ...prevState,
                       selectedItemIds: prevState.selectedItemIds.filter(i => i !== itemId)
+                    }));
+                  }}
+                  onItemsRightClick={(e, itemIds) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (itemIds.length == 0) {
+                      return;
+                    }
+
+                    setState(prevState => ({
+                      ...prevState,
+                      contextMenuOpen: {
+                        open: true,
+                        x: e.clientX,
+                        y: e.clientY,
+                        menuItemIds: itemIds
+                      },
                     }));
                   }}
               />}
