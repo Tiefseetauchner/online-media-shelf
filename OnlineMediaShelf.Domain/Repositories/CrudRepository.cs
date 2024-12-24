@@ -31,7 +31,7 @@ public abstract class CrudRepository<T, TKey>(DbSet<T> dbSet)
     AsQueryable().Single(e => e.Id.Equals(id));
 
   public async Task<T?> GetByIdAsync(TKey id) =>
-    await AsQueryable().SingleAsync(e => e.Id.Equals(id));
+    await AsQueryable().SingleOrDefaultAsync(e => e.Id.Equals(id));
 
   public List<T> GetAll() =>
     AsQueryable().ToList();
