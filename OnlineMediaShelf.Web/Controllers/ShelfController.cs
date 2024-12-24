@@ -63,7 +63,6 @@ public class ShelfController(
   public async Task<ActionResult<int>> GetShelfCount() =>
     Ok(await unitOfWork.ShelfRepository.AsQueryable().CountAsync());
 
-
   [HttpGet("{id:int}")]
   public async Task<ActionResult<ShelfModel>> GetShelf(int id)
   {
@@ -73,6 +72,25 @@ public class ShelfController(
       return NotFound();
 
     return Ok(Mapper.ConvertToWebObject(shelfFromDb));
+  }
+
+  [HttpDelete("{id:int}")]
+  public async Task<ActionResult<ShelfModel>> DeleteShelf(int id)
+  {
+    var shelfFromDb = await unitOfWork.ShelfRepository.GetByIdAsync(id);
+
+    if (shelfFromDb == null)
+      return NotFound();
+
+    var user = await userManager.GetUserAsync(User);
+    if (shelfFromDb.User.Id != user?.Id)
+      return Forbid();
+
+    unitOfWork.ShelfRepository.Delete(shelfFromDb);
+
+    await unitOfWork.CommitAsync();
+
+    return Ok();
   }
 
   [HttpPost("create")]
