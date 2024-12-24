@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   IShelfModel,
+  ItemAddModel,
   ShelfClient
 } from "../../OMSWebClient.ts";
 import {
@@ -39,7 +40,8 @@ import {
   ItemList
 } from "../Items/ItemList.tsx";
 import {
-  showErrorToast
+  showErrorToast,
+  showSuccessToast
 } from "../../utilities/toastHelper.tsx";
 
 interface ShelfState {
@@ -172,7 +174,20 @@ export function ShelfView() {
                                           <MenuList>
                                             {state.currentUsersShelves && state.currentUsersShelves.length > 0 ?
                                               state.currentUsersShelves.filter(_ => _.id !== state.shelf?.id).map(_ =>
-                                                <MenuItem>{_.name}</MenuItem>) :
+                                                <MenuItem
+                                                  onClick={() => {
+                                                    async function moveToShelf() {
+                                                      const client = new ShelfClient();
+                                                      await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.addItem(_.id!, new ItemAddModel({id: itemId}))));
+                                                      await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.removeItem(state.shelf!.id!, itemId)));
+
+                                                      setUpdateTracker(prev => prev + 1);
+
+                                                      showSuccessToast(`${state.contextMenuOpen && state.contextMenuOpen.menuItemIds.length > 1 ? `${state.contextMenuOpen.menuItemIds.length} Items` : "Item"} moved to shelf`, dispatchToast);
+                                                    }
+
+                                                    moveToShelf();
+                                                  }}>{_.name}</MenuItem>) :
                                               <MenuItem
                                                 disabled>No Shelves found</MenuItem>}
                                           </MenuList>
@@ -187,8 +202,18 @@ export function ShelfView() {
                                     <MenuPopover>
                                         <MenuList>
                                           {state.currentUsersShelves && state.currentUsersShelves.length > 0 ?
-                                            state.currentUsersShelves.map(_ =>
-                                              <MenuItem>{_.name}</MenuItem>) :
+                                            state.currentUsersShelves.filter(_ => _.id !== state.shelf?.id).map(_ =>
+                                              <MenuItem
+                                                onClick={() => {
+                                                  async function copyToShelf() {
+                                                    const client = new ShelfClient();
+                                                    await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.addItem(_.id!, new ItemAddModel({id: itemId}))));
+
+                                                    showSuccessToast(`${state.contextMenuOpen && state.contextMenuOpen.menuItemIds.length > 1 ? `${state.contextMenuOpen.menuItemIds.length} Items` : "Item"} copied to shelf`, dispatchToast);
+                                                  }
+
+                                                  copyToShelf();
+                                                }}>{_.name}</MenuItem>) :
                                             <MenuItem
                                               disabled>No Shelves found</MenuItem>}
                                         </MenuList>

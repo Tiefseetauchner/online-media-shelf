@@ -111,21 +111,21 @@ export function ItemList(props: ItemListProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!itemState[itemId]?.isHeld && props.selectedItems && props.selectedItems?.length > 0) {
-      if (!props.selectedItems?.includes(itemId))
-        onItemSelect(itemId);
-      else
-        onItemDeselect(itemId);
-
-      return;
-    }
-
     if (e.button != 0) {
       if (e.button == 2 && props.onItemsRightClick)
         props.onItemsRightClick(e, props.selectedItems && props.selectedItems.includes(itemId) ? props.selectedItems : [itemId]);
 
       if (e.button == 1)
         window.open(`${routes.item}/${itemId}`, "_blank");
+
+      return;
+    }
+
+    if (!itemState[itemId]?.isHeld && props.selectedItems && props.selectedItems?.length > 0) {
+      if (!props.selectedItems?.includes(itemId))
+        onItemSelect(itemId);
+      else
+        onItemDeselect(itemId);
 
       return;
     }
