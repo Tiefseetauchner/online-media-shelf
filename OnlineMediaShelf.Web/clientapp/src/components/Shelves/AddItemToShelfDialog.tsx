@@ -95,8 +95,6 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
           error: "The Item is already contained in the shelf."
         }));
 
-        console.log(props.excludedItems, state.itemId);
-
         return false;
       }
 

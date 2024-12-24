@@ -39,12 +39,16 @@ import {
 interface ShelfState {
   shelf?: IShelfModel;
   isDialogOpen: boolean;
+  selectedItemIds: number[];
 }
 
 export function ShelfView() {
   const {shelfId} = useParams();
 
-  const [state, setState] = useState<ShelfState>({isDialogOpen: false});
+  const [state, setState] = useState<ShelfState>({
+    isDialogOpen: false,
+    selectedItemIds: []
+  });
   const [updateTracker, setUpdateTracker] = useState(0);
 
   const {user} = useContext(UserContext);
@@ -124,7 +128,22 @@ export function ShelfView() {
                     }
 
                     removeItemFromShelf();
-                  }}/>}
+                  }}
+                  showSelect
+                  selectedItems={state.selectedItemIds}
+                  onItemSelect={(itemId) => {
+                    setState(prevState => ({
+                      ...prevState,
+                      selectedItemIds: prevState.selectedItemIds.concat(itemId)
+                    }));
+                  }}
+                  onItemDeselect={(itemId) => {
+                    setState(prevState => ({
+                      ...prevState,
+                      selectedItemIds: prevState.selectedItemIds.filter(i => i !== itemId)
+                    }));
+                  }}
+              />}
         </>
     }
   </>)
