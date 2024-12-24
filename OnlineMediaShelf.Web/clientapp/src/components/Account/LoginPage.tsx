@@ -73,7 +73,7 @@ export function LoginPage() {
         }
       })
 
-      navigate(routes.root);
+      window.location.href = routes.root;
     } catch (e: any) {
       if (e instanceof ApiException) {
         showErrorToast(`An error occurred logging in  `, dispatchToast);
