@@ -17,6 +17,7 @@ import {
   MenuItem,
   MenuList,
   MenuPopover,
+  MenuTrigger,
   Skeleton,
   SkeletonItem,
   Title1,
@@ -51,6 +52,7 @@ interface ShelfState {
     y: number;
     menuItemIds: number[];
   };
+  currentUsersShelves?: IShelfModel[];
 }
 
 export function ShelfView() {
@@ -83,6 +85,26 @@ export function ShelfView() {
     populateShelf();
   }, [state.isDialogOpen, updateTracker]);
 
+  useEffect(() => {
+    async function populateCurrentUsersShelves() {
+      const client = new ShelfClient();
+
+      try {
+        let shelves = await client.getAllShelves(user?.currentUser?.userName, 0, 0);
+
+        setState(prevState => ({
+          ...prevState,
+          currentUsersShelves: shelves
+        }));
+      } catch (e: any) {
+        showErrorToast("Couldn't load current users shelves", dispatchToast);
+      }
+    }
+
+    if (user?.currentUser?.isLoggedIn && !state.currentUsersShelves)
+      populateCurrentUsersShelves();
+  }, [state.contextMenuOpen]);
+
   return (<>
     {
       state.shelf == undefined ?
@@ -112,36 +134,70 @@ export function ShelfView() {
               left: state.contextMenuOpen?.x ?? 0,
             }}/>
 
-          <Menu
-            positioning={{
-              target: contextMenuTargetElementRef.current!,
-              position: "below",
-              align: "start"
-            }}
-            open={state.contextMenuOpen?.open ?? false}
-            onOpenChange={(_, data) => {
-              setState(prevState => ({
-                ...prevState,
-                contextMenuOpen: {
-                  open: data.open,
-                  x: prevState.contextMenuOpen!.x,
-                  y: prevState.contextMenuOpen!.y,
-                  menuItemIds: prevState.contextMenuOpen!.menuItemIds
-                }
-              }));
-              console.log(state.contextMenuOpen);
-            }}>
-            <MenuPopover
-              onContextMenu={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}>
-              <MenuList>
-                <MenuItem>Move To Shelf</MenuItem>
-                <MenuItem>Copy to Shelf</MenuItem>
-              </MenuList>
-            </MenuPopover>
-          </Menu>
+          {user?.currentUser?.isLoggedIn &&
+              <Menu
+                  positioning={{
+                    target: contextMenuTargetElementRef.current!,
+                    position: "below",
+                    align: "start"
+                  }}
+                  open={state.contextMenuOpen?.open ?? false}
+                  onOpenChange={(_, data) => {
+                    setState(prevState => ({
+                      ...prevState,
+                      contextMenuOpen: {
+                        open: data.open,
+                        x: prevState.contextMenuOpen!.x,
+                        y: prevState.contextMenuOpen!.y,
+                        menuItemIds: prevState.contextMenuOpen!.menuItemIds
+                      }
+                    }));
+                  }}>
+                  <MenuPopover
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}>
+                      <MenuList>
+                        {user?.currentUser?.isLoggedIn &&
+                            <>
+                              {user.currentUser.userId == state.shelf.user?.userId &&
+                                  <Menu>
+                                      <MenuTrigger
+                                          disableButtonEnhancement>
+                                          <MenuItem>Move to Shelf</MenuItem>
+                                      </MenuTrigger>
+
+                                      <MenuPopover>
+                                          <MenuList>
+                                            {state.currentUsersShelves && state.currentUsersShelves.length > 0 ?
+                                              state.currentUsersShelves.filter(_ => _.id !== state.shelf?.id).map(_ =>
+                                                <MenuItem>{_.name}</MenuItem>) :
+                                              <MenuItem
+                                                disabled>No Shelves found</MenuItem>}
+                                          </MenuList>
+                                      </MenuPopover>
+                                  </Menu>}
+                                <Menu>
+                                    <MenuTrigger
+                                        disableButtonEnhancement>
+                                        <MenuItem>Copy to Shelf</MenuItem>
+                                    </MenuTrigger>
+
+                                    <MenuPopover>
+                                        <MenuList>
+                                          {state.currentUsersShelves && state.currentUsersShelves.length > 0 ?
+                                            state.currentUsersShelves.map(_ =>
+                                              <MenuItem>{_.name}</MenuItem>) :
+                                            <MenuItem
+                                              disabled>No Shelves found</MenuItem>}
+                                        </MenuList>
+                                    </MenuPopover>
+                                </Menu>
+                            </>}
+                      </MenuList>
+                  </MenuPopover>
+              </Menu>}
 
           <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
             {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
