@@ -35,32 +35,63 @@ import {
 import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
+import {
+  faTrash
+} from "@fortawesome/free-solid-svg-icons/faTrash";
 
 interface ShelfState {
   shelf?: IShelfModel;
   isDialogOpen: boolean;
+  couldNotLoadShelfAlready: boolean;
 }
 
 export function ShelfView() {
   const {shelfId} = useParams();
 
-  const [state, setState] = useState<ShelfState>({isDialogOpen: false});
+  const [state, setState] = useState<ShelfState>({
+    isDialogOpen: false,
+    couldNotLoadShelfAlready: false
+  });
   const [updateTracker, setUpdateTracker] = useState(0);
 
   const {user} = useContext(UserContext);
 
   const {dispatchToast} = useToastController();
 
+  const deleteShelf = async () => {
+    const client = new ShelfClient();
+
+    try {
+      await client.deleteShelf(parseInt(shelfId!))
+
+      history.back();
+    } catch (e: any) {
+      showErrorToast("Unable to delete shelf: " + JSON.parse(e.response).title, dispatchToast);
+    }
+  }
+
   useEffect(() => {
     async function populateShelf() {
       const client = new ShelfClient();
 
-      let result = await client.getShelf(parseInt(shelfId!));
+      try {
+        let result = await client.getShelf(parseInt(shelfId!));
 
-      setState({
-        ...state,
-        shelf: result
-      });
+        setState(prevState => ({
+          ...prevState,
+          shelf: result
+        }));
+      } catch (e: any) {
+        if (state.couldNotLoadShelfAlready)
+          return;
+
+        showErrorToast("Unable to load shelf: " + JSON.parse(e.response).title, dispatchToast);
+
+        setState(prevState => ({
+          ...prevState,
+          couldNotLoadShelfAlready: true
+        }));
+      }
     }
 
     populateShelf();
@@ -89,15 +120,23 @@ export function ShelfView() {
 
           <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
             {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
-              <Button
-                style={{float: "right"}}
-                icon={
-                  <FontAwesomeIcon
-                    icon={faPlus}/>}
-                onClick={() => setState({
-                  ...state,
-                  isDialogOpen: true
-                })}>Add Item to Shelf</Button> :
+              <div
+                style={{float: "right"}}>
+                <Button
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faPlus}/>}
+                  onClick={() => setState({
+                    ...state,
+                    isDialogOpen: true
+                  })}>Add Item to Shelf</Button>
+                <Button
+                  icon={
+                    <FontAwesomeIcon
+                      color={"red"}
+                      icon={faTrash}/>}
+                  onClick={deleteShelf}/>
+              </div> :
               <></>}</Title1>
           <p>{state.shelf.description}</p>
 

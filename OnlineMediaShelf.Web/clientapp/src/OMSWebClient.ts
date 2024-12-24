@@ -1321,6 +1321,43 @@ export class ShelfClient {
         return Promise.resolve<ShelfModel>(null as any);
     }
 
+    deleteShelf(id: number): Promise<ShelfModel> {
+        let url_ = this.baseUrl + "/api/shelves/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteShelf(_response);
+        });
+    }
+
+    protected processDeleteShelf(response: Response): Promise<ShelfModel> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ShelfModel.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ShelfModel>(null as any);
+    }
+
     createShelf(shelf: CreateShelfModel): Promise<ShelfModel> {
         let url_ = this.baseUrl + "/api/shelves/create";
         url_ = url_.replace(/[?&]$/, "");
