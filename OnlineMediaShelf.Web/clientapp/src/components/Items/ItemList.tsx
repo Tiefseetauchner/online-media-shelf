@@ -101,10 +101,7 @@ export function ItemList(props: ItemListProps) {
   };
 
   const handleButtonUp = (itemId: number): void => {
-    console.log("!itemState[itemId]?.isHeld && props.selectedItems && props.selectedItems?.length > 0", !itemState[itemId]?.isHeld, "&&", props.selectedItems, "&&", props.selectedItems?.length! > 0)
-
     if (!itemState[itemId]?.isHeld && props.selectedItems && props.selectedItems?.length > 0) {
-
       if (!props.selectedItems?.includes(itemId))
         onItemSelect(itemId);
       else
@@ -274,7 +271,7 @@ export function ItemList(props: ItemListProps) {
         {props.items?.map(item =>
           <TableRow
             className={props.selectedItems?.includes(item.id!) ? "bg-body-secondary" : ""}
-            key={item.title}
+            key={item.id}
             onMouseEnter={() => setItemState(prevState => ({
               ...prevState,
               hoveredItemId: item.id
