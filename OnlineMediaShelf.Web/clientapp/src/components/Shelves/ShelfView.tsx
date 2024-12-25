@@ -1,8 +1,6 @@
 import {
   useParams
 } from "react-router-dom";
-import * as React_2
-  from "react";
 import {
   useContext,
   useEffect,
@@ -20,7 +18,6 @@ import {
   MenuItem,
   MenuList,
   MenuPopover,
-  MenuTrigger,
   Skeleton,
   SkeletonItem,
   Title1,
@@ -53,6 +50,9 @@ import {
   Col,
   Row
 } from "react-bootstrap";
+import {
+  ItemToShelfMenu
+} from "../ItemToShelfMenu.tsx";
 
 interface ShelfState {
   shelf?: IShelfModel;
@@ -370,35 +370,4 @@ export function ShelfView() {
     }
 
   </>)
-}
-
-interface ItemToShelfMenuProps {
-  currentUsersShelves: IShelfModel[];
-  shelfId: number;
-  shelfAction: (shelfId: number) => Promise<void>;
-  children: React_2.ReactElement | null;
-}
-
-function ItemToShelfMenu(props: ItemToShelfMenuProps) {
-  return (
-    <Menu>
-      <MenuTrigger
-        disableButtonEnhancement>
-        {props.children}
-      </MenuTrigger>
-
-      <MenuPopover>
-        <MenuList>
-          {props.currentUsersShelves && props.currentUsersShelves.filter(_ => _.id !== props.shelfId).length > 0 ?
-            props.currentUsersShelves.filter(_ => _.id !== props.shelfId).map(_ =>
-              <MenuItem
-                onClick={() => {
-                  props.shelfAction(_.id!);
-                }}>{_.name}</MenuItem>) :
-            <MenuItem
-              disabled>No Shelves found</MenuItem>}
-        </MenuList>
-      </MenuPopover>
-    </Menu>
-  );
 }
