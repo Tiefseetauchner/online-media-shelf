@@ -389,7 +389,7 @@ function ItemToShelfMenu(props: ItemToShelfMenuProps) {
 
       <MenuPopover>
         <MenuList>
-          {props.currentUsersShelves && props.currentUsersShelves.length > 0 ?
+          {props.currentUsersShelves && props.currentUsersShelves.filter(_ => _.id !== props.shelfId).length > 0 ?
             props.currentUsersShelves.filter(_ => _.id !== props.shelfId).map(_ =>
               <MenuItem
                 onClick={() => {
