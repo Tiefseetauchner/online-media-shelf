@@ -18,8 +18,12 @@ import {
   MenuItem,
   MenuList,
   MenuPopover,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
   Skeleton,
   SkeletonItem,
+  Text,
   Title1,
   Title3,
   useToastController
@@ -292,6 +296,7 @@ export function ShelfView() {
               <div
                 style={{float: "right"}}>
                 <Button
+                  style={{borderRadius: "var(--borderRadiusMedium) 0 0 var(--borderRadiusMedium)"}}
                   icon={
                     <FontAwesomeIcon
                       icon={faPlus}/>}
@@ -299,12 +304,27 @@ export function ShelfView() {
                     ...state,
                     isDialogOpen: true
                   })}>Add Item to Shelf</Button>
-                <Button
-                  icon={
-                    <FontAwesomeIcon
-                      color={"red"}
-                      icon={faTrash}/>}
-                  onClick={deleteShelf}/>
+                <Popover>
+                  <PopoverTrigger>
+                    <Button
+                      style={{borderRadius: "0 var(--borderRadiusMedium) var(--borderRadiusMedium) 0"}}
+                      icon={
+                        <FontAwesomeIcon
+                          color={"red"}
+                          icon={faTrash}/>}/>
+                  </PopoverTrigger>
+
+                  <PopoverSurface>
+                    <Row>
+                      <Text>You are about to delete this shelf permanently! Are you sure?</Text>
+                    </Row>
+                    <Row>
+                      <Button
+                        className={"bg-danger text-white"}
+                        onClick={deleteShelf}>Confirm</Button>
+                    </Row>
+                  </PopoverSurface>
+                </Popover>
               </div> :
               <></>}</Title1>
           <p>{state.shelf.description}</p>
