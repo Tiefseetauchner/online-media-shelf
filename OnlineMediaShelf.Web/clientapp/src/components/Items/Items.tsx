@@ -19,14 +19,12 @@ import {
   MenuPopover,
   Title1,
   Title3,
+  Toolbar,
+  ToolbarButton,
+  ToolbarDivider,
+  ToolbarRadioButton,
   useToastController
 } from "@fluentui/react-components";
-import {
-  FontAwesomeIcon
-} from "@fortawesome/react-fontawesome";
-import {
-  faPlus
-} from "@fortawesome/free-solid-svg-icons";
 import {
   UserContext
 } from "../../App.tsx";
@@ -56,6 +54,21 @@ import {
   Col,
   Row
 } from "react-bootstrap";
+import {
+  ItemGrid
+} from "./ItemGrid.tsx";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faPlus
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  faListUl
+} from "@fortawesome/free-solid-svg-icons/faListUl";
+import {
+  faBorderAll
+} from "@fortawesome/free-solid-svg-icons/faBorderAll";
 
 
 interface ItemsState {
@@ -71,6 +84,7 @@ interface ItemsState {
     menuItemIds: number[];
   };
   currentUsersShelves?: IShelfModel[];
+  displayMode: "list" | "grid";
 }
 
 export function Items() {
@@ -79,6 +93,7 @@ export function Items() {
     itemCount: 0,
     page: 0,
     selectedItemIds: [],
+    displayMode: "list"
   });
 
   const pageSize = 30;
@@ -130,6 +145,19 @@ export function Items() {
     if (user?.currentUser?.isLoggedIn && !state.currentUsersShelves)
       populateCurrentUsersShelves();
   }, [state.contextMenuOpen, state.selectedItemIds]);
+
+  const toolbarChangeValues = (_: any, {
+    name,
+    checkedItems
+  }: {
+    name: string,
+    checkedItems: string[]
+  }) => {
+    setState(prevState => ({
+      ...prevState,
+      [name]: checkedItems[0]
+    }));
+  };
 
   return <>
     <CreateItemDialog
@@ -221,52 +249,107 @@ export function Items() {
         </Row>}
 
 
-    <Title1>Items
+    <Title1>Items</Title1>
+
+    <Toolbar
+      defaultCheckedValues={{
+        displayMode: ["list"]
+      }}
+      onCheckedValueChange={toolbarChangeValues}>
       {user?.currentUser?.isLoggedIn ?
-        <Button
-          style={{float: "right"}}
+        <ToolbarButton
+          appearance={"primary"}
           icon={
             <FontAwesomeIcon
               icon={faPlus}/>}
           onClick={() => setState({
             ...state,
             isDialogOpen: true
-          })}>Create Item</Button> :
+          })}>Create Item</ToolbarButton> :
         <></>}
-    </Title1>
+      <ToolbarDivider/>
+      <ToolbarRadioButton
+        name={"displayMode"}
+        value={"list"}
+        appearance={"subtle"}
+        icon={
+          <FontAwesomeIcon
+            icon={faListUl}/>}/>
+      <ToolbarRadioButton
+        appearance={"subtle"}
+        name={"displayMode"}
+        value={"grid"}
+        icon={
+          <FontAwesomeIcon
+            icon={faBorderAll}/>}/>
+    </Toolbar>
 
-    {state.items !== undefined &&
-        <ItemList
-            items={state.items}
-            showSelect
-            selectedItems={state.selectedItemIds}
-            onItemSelect={(itemId) => setState(prevState => ({
-              ...prevState,
-              selectedItemIds: prevState.selectedItemIds?.concat(itemId)
-            }))}
-            onItemDeselect={(itemId) => setState(prevState => ({
-              ...prevState,
-              selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
-            }))}
-            onItemsRightClick={(e, itemIds) => {
-              e.preventDefault();
-              e.stopPropagation();
-
-              if (itemIds.length == 0) {
-                return;
-              }
-
-              setState(prevState => ({
+    {state.items !== undefined && <>
+      {state.displayMode === "list" &&
+          <ItemList
+              items={state.items}
+              showSelect
+              selectedItems={state.selectedItemIds}
+              onItemSelect={(itemId) => setState(prevState => ({
                 ...prevState,
-                contextMenuOpen: {
-                  open: true,
-                  x: e.clientX,
-                  y: e.clientY,
-                  menuItemIds: itemIds
-                },
-              }));
-            }}
-            onItemClick={(itemId) => navigateToItem(itemId, navigate)}/>}
+                selectedItemIds: prevState.selectedItemIds?.concat(itemId)
+              }))}
+              onItemDeselect={(itemId) => setState(prevState => ({
+                ...prevState,
+                selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
+              }))}
+              onItemsRightClick={(e, itemIds) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (itemIds.length == 0) {
+                  return;
+                }
+
+                setState(prevState => ({
+                  ...prevState,
+                  contextMenuOpen: {
+                    open: true,
+                    x: e.clientX,
+                    y: e.clientY,
+                    menuItemIds: itemIds
+                  },
+                }));
+              }}
+              onItemClick={(itemId) => navigateToItem(itemId, navigate)}/>}
+      {state.displayMode === "grid" &&
+          <ItemGrid
+              items={state.items}
+              showSelect
+              selectedItems={state.selectedItemIds}
+              onItemSelect={(itemId) => setState(prevState => ({
+                ...prevState,
+                selectedItemIds: prevState.selectedItemIds?.concat(itemId)
+              }))}
+              onItemDeselect={(itemId) => setState(prevState => ({
+                ...prevState,
+                selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
+              }))}
+              onItemsRightClick={(e, itemIds) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (itemIds.length == 0) {
+                  return;
+                }
+
+                setState(prevState => ({
+                  ...prevState,
+                  contextMenuOpen: {
+                    open: true,
+                    x: e.clientX,
+                    y: e.clientY,
+                    menuItemIds: itemIds
+                  },
+                }));
+              }}
+              onItemClick={(itemId) => navigateToItem(itemId, navigate)}/>}
+    </>}
 
     <PaginationControls
       pageCount={Math.ceil(state.itemCount / pageSize)}

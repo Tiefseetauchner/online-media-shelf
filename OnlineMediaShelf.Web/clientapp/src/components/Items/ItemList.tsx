@@ -48,6 +48,10 @@ interface ItemListProps {
 
 interface ItemState {
   hoveredItemId?: number;
+  touchStart: {
+    x?: number;
+    y?: number;
+  };
 
   [key: number]: {
     holdStarter: number | null;
@@ -59,7 +63,9 @@ export function ItemList(props: ItemListProps) {
   const holdDelay = 400;
   const showDelete = props.showDelete ?? false;
   const [showBarcode, setShowBarcode] = useState(true);
-  const [itemState, setItemState] = useState<ItemState>({});
+  const [itemState, setItemState] = useState<ItemState>({
+    touchStart: {}
+  });
 
   const navigate = useNavigate();
 
@@ -70,16 +76,18 @@ export function ItemList(props: ItemListProps) {
   const onItemSelect = props.showSelect && props.onItemSelect ? props.onItemSelect : onItemClick;
   const onItemDeselect = props.showSelect && props.onItemDeselect ? props.onItemDeselect : onItemClick;
 
-  const handleButtonDown = (itemId: number): void => {
+  const handleButtonDown = (itemId: number, shouldSelect: () => boolean): void => {
     if (props.selectedItems && props.selectedItems?.length > 0) {
       return;
     }
 
     let holdStarter = setTimeout(function () {
-      if (!props.selectedItems?.includes(itemId))
-        onItemSelect(itemId);
-      else
-        onItemDeselect(itemId);
+      if (shouldSelect()) {
+        if (!props.selectedItems?.includes(itemId))
+          onItemSelect(itemId);
+        else
+          onItemDeselect(itemId);
+      }
 
       setItemState(prevState => ({
         ...prevState,
@@ -131,7 +139,7 @@ export function ItemList(props: ItemListProps) {
       return;
     }
 
-    handleButtonDown(itemId);
+    handleButtonDown(itemId, () => true);
   }
 
   const itemMouseUp = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
@@ -151,16 +159,38 @@ export function ItemList(props: ItemListProps) {
     handleButtonUp(itemId);
   }
 
+  const didTouchMoveSignificantly = (e: React.TouchEvent<HTMLTableCellElement>) => {
+    const oldX = itemState.touchStart.x ?? 0;
+    const oldY = itemState.touchStart.y ?? 0;
+    const newX = e.changedTouches[0].clientX;
+    const newY = e.changedTouches[0].clientY;
+
+    console.log(oldX, newX, oldY, newY);
+
+    return Math.abs(newX - oldX) > 20 || Math.abs(newY - oldY) > 50;
+  };
+
   const itemTouchDown = (e: React.TouchEvent<HTMLTableCellElement>, itemId: number): void => {
     e.preventDefault();
     e.stopPropagation();
 
-    handleButtonDown(itemId);
+    setItemState(prevState => ({
+      ...prevState,
+      touchStart: {
+        x: e.changedTouches[0].clientX,
+        y: e.changedTouches[0].clientY,
+      }
+    }));
+
+    handleButtonDown(itemId, () => !didTouchMoveSignificantly(e));
   };
 
   const itemTouchUp = (e: React.TouchEvent<HTMLTableCellElement>, itemId: number): void => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (didTouchMoveSignificantly(e))
+      return;
 
     handleButtonUp(itemId);
   };
@@ -170,7 +200,7 @@ export function ItemList(props: ItemListProps) {
       setShowBarcode(false);
     else
       setShowBarcode(true);
-  }, [])
+  }, []);
 
   const columns = [
     props.showSelect ? {
@@ -353,6 +383,4 @@ export function ItemList(props: ItemListProps) {
       </TableBody>
     </Table>
   );
-
-
 }
