@@ -1,6 +1,8 @@
 import {
   useParams
 } from "react-router-dom";
+import * as React_2
+  from "react";
 import {
   useContext,
   useEffect,
@@ -22,6 +24,7 @@ import {
   Skeleton,
   SkeletonItem,
   Title1,
+  Title3,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -46,6 +49,10 @@ import {
 import {
   faTrash
 } from "@fortawesome/free-solid-svg-icons/faTrash";
+import {
+  Col,
+  Row
+} from "react-bootstrap";
 
 interface ShelfState {
   shelf?: IShelfModel;
@@ -134,7 +141,7 @@ export function ShelfView() {
 
     if (user?.currentUser?.isLoggedIn && !state.currentUsersShelves)
       populateCurrentUsersShelves();
-  }, [state.contextMenuOpen]);
+  }, [state.contextMenuOpen, state.selectedItemIds]);
 
   return (<>
     {
@@ -160,7 +167,7 @@ export function ShelfView() {
           <div
             ref={contextMenuTargetElementRef}
             style={{
-              position: "absolute",
+              position: "fixed",
               top: state.contextMenuOpen?.y ?? 0,
               left: state.contextMenuOpen?.x ?? 0,
             }}/>
@@ -190,68 +197,95 @@ export function ShelfView() {
                         e.stopPropagation();
                       }}>
                       <MenuList>
-                        {user?.currentUser?.isLoggedIn &&
-                            <>
-                              {user.currentUser.userId == state.shelf.user?.userId &&
-                                  <Menu>
-                                      <MenuTrigger
-                                          disableButtonEnhancement>
-                                          <MenuItem>Move to Shelf</MenuItem>
-                                      </MenuTrigger>
+                        {user.currentUser.userId == state.shelf.user?.userId &&
+                            <ItemToShelfMenu
+                                currentUsersShelves={state.currentUsersShelves ?? []}
+                                shelfId={state.shelf!.id!}
+                                shelfAction={async function (shelfId: number) {
+                                  const client = new ShelfClient();
+                                  await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.addItem(shelfId, new ItemAddModel({id: itemId}))));
+                                  await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.removeItem(state.shelf!.id!, itemId)));
 
-                                      <MenuPopover>
-                                          <MenuList>
-                                            {state.currentUsersShelves && state.currentUsersShelves.length > 0 ?
-                                              state.currentUsersShelves.filter(_ => _.id !== state.shelf?.id).map(_ =>
-                                                <MenuItem
-                                                  onClick={() => {
-                                                    async function moveToShelf() {
-                                                      const client = new ShelfClient();
-                                                      await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.addItem(_.id!, new ItemAddModel({id: itemId}))));
-                                                      await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.removeItem(state.shelf!.id!, itemId)));
+                                  setUpdateTracker(prev => prev + 1);
 
-                                                      setUpdateTracker(prev => prev + 1);
+                                  showSuccessToast(`${state.contextMenuOpen!.menuItemIds.length > 1 ? `${state.contextMenuOpen!.menuItemIds.length} Items` : "Item"} moved to shelf`, dispatchToast);
 
-                                                      showSuccessToast(`${state.contextMenuOpen && state.contextMenuOpen.menuItemIds.length > 1 ? `${state.contextMenuOpen.menuItemIds.length} Items` : "Item"} moved to shelf`, dispatchToast);
-                                                    }
+                                  setState(prevState => ({
+                                    ...prevState,
+                                    selectedItemIds: []
+                                  }));
+                                }}>
+                                <MenuItem>Move to Shelf</MenuItem>
+                            </ItemToShelfMenu>}
+                          <ItemToShelfMenu
+                              currentUsersShelves={state.currentUsersShelves ?? []}
+                              shelfId={state.shelf!.id!}
+                              shelfAction={async function (shelfId: number) {
+                                const client = new ShelfClient();
+                                await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.addItem(shelfId, new ItemAddModel({id: itemId}))));
 
-                                                    moveToShelf();
-                                                  }}>{_.name}</MenuItem>) :
-                                              <MenuItem
-                                                disabled>No Shelves found</MenuItem>}
-                                          </MenuList>
-                                      </MenuPopover>
-                                  </Menu>}
-                                <Menu>
-                                    <MenuTrigger
-                                        disableButtonEnhancement>
-                                        <MenuItem>Copy to Shelf</MenuItem>
-                                    </MenuTrigger>
+                                showSuccessToast(`${state.contextMenuOpen && state.contextMenuOpen.menuItemIds.length > 1 ? `${state.contextMenuOpen.menuItemIds.length} Items` : "Item"} copied to shelf`, dispatchToast);
 
-                                    <MenuPopover>
-                                        <MenuList>
-                                          {state.currentUsersShelves && state.currentUsersShelves.length > 0 ?
-                                            state.currentUsersShelves.filter(_ => _.id !== state.shelf?.id).map(_ =>
-                                              <MenuItem
-                                                onClick={() => {
-                                                  async function copyToShelf() {
-                                                    const client = new ShelfClient();
-                                                    await Promise.all<void>(state.contextMenuOpen!.menuItemIds.map(itemId => client.addItem(_.id!, new ItemAddModel({id: itemId}))));
-
-                                                    showSuccessToast(`${state.contextMenuOpen && state.contextMenuOpen.menuItemIds.length > 1 ? `${state.contextMenuOpen.menuItemIds.length} Items` : "Item"} copied to shelf`, dispatchToast);
-                                                  }
-
-                                                  copyToShelf();
-                                                }}>{_.name}</MenuItem>) :
-                                            <MenuItem
-                                              disabled>No Shelves found</MenuItem>}
-                                        </MenuList>
-                                    </MenuPopover>
-                                </Menu>
-                            </>}
+                                setState(prevState => ({
+                                  ...prevState,
+                                  selectedItemIds: []
+                                }));
+                              }}>
+                              <MenuItem>Copy to Shelf</MenuItem>
+                          </ItemToShelfMenu>
                       </MenuList>
                   </MenuPopover>
               </Menu>}
+
+          {user?.currentUser && user.currentUser.isLoggedIn && state.selectedItemIds.length > 0 &&
+              <Row
+                  className="position-fixed bottom-0 end-0 m-0 p-3 w-100 bg-body z-3 shadow"
+                  md={"2"}
+                  xs={"1"}>
+                  <Col
+                      className={"m-0 d-flex justify-content-center align-items-center"}>
+                      <Title3>{state.selectedItemIds.length} items selected</Title3>
+                  </Col>
+                  <Col
+                      className={"my-2"}>
+                    {user.currentUser.userId == state.shelf.user?.userId &&
+                        <ItemToShelfMenu
+                            currentUsersShelves={state.currentUsersShelves ?? []}
+                            shelfId={state.shelf!.id!}
+                            shelfAction={async function (shelfId: number) {
+                              const client = new ShelfClient();
+                              await Promise.all<void>(state.selectedItemIds.map(itemId => client.addItem(shelfId, new ItemAddModel({id: itemId}))));
+                              await Promise.all<void>(state.selectedItemIds.map(itemId => client.removeItem(state.shelf!.id!, itemId)));
+
+                              setUpdateTracker(prev => prev + 1);
+
+                              showSuccessToast(`${state.selectedItemIds.length > 1 ? `${state.selectedItemIds.length} Items` : "Item"} moved to shelf`, dispatchToast);
+
+                              setState(prevState => ({
+                                ...prevState,
+                                selectedItemIds: []
+                              }));
+                            }}>
+                            <Button>Move to Shelf</Button>
+                        </ItemToShelfMenu>}
+                      <ItemToShelfMenu
+                          currentUsersShelves={state.currentUsersShelves ?? []}
+                          shelfId={state.shelf!.id!}
+                          shelfAction={async function (shelfId: number) {
+                            const client = new ShelfClient();
+                            await Promise.all<void>(state.selectedItemIds.map(itemId => client.addItem(shelfId, new ItemAddModel({id: itemId}))));
+
+                            showSuccessToast(`${state.selectedItemIds.length > 1 ? `${state.selectedItemIds.length} Items` : "Item"} copied to shelf`, dispatchToast);
+
+                            setState(prevState => ({
+                              ...prevState,
+                              selectedItemIds: []
+                            }));
+                          }}>
+                          <Button>Copy to Shelf</Button>
+                      </ItemToShelfMenu>
+                  </Col>
+              </Row>}
 
           <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
             {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
@@ -334,5 +368,37 @@ export function ShelfView() {
               />}
         </>
     }
+
   </>)
+}
+
+interface ItemToShelfMenuProps {
+  currentUsersShelves: IShelfModel[];
+  shelfId: number;
+  shelfAction: (shelfId: number) => Promise<void>;
+  children: React_2.ReactElement | null;
+}
+
+function ItemToShelfMenu(props: ItemToShelfMenuProps) {
+  return (
+    <Menu>
+      <MenuTrigger
+        disableButtonEnhancement>
+        {props.children}
+      </MenuTrigger>
+
+      <MenuPopover>
+        <MenuList>
+          {props.currentUsersShelves && props.currentUsersShelves.filter(_ => _.id !== props.shelfId).length > 0 ?
+            props.currentUsersShelves.filter(_ => _.id !== props.shelfId).map(_ =>
+              <MenuItem
+                onClick={() => {
+                  props.shelfAction(_.id!);
+                }}>{_.name}</MenuItem>) :
+            <MenuItem
+              disabled>No Shelves found</MenuItem>}
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
 }

@@ -71,14 +71,7 @@ export function ItemList(props: ItemListProps) {
   const onItemSelect = props.showSelect && props.onItemSelect ? props.onItemSelect : onItemClick;
   const onItemDeselect = props.showSelect && props.onItemDeselect ? props.onItemDeselect : onItemClick;
 
-  const itemMouseDown = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
-    if (e.button != 0) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      return;
-    }
-
+  const handleButtonDown = (itemId: number): void => {
     if (props.selectedItems && props.selectedItems?.length > 0) {
       return;
     }
@@ -105,6 +98,41 @@ export function ItemList(props: ItemListProps) {
         isHeld: true
       }
     }));
+  };
+
+  const handleButtonUp = (itemId: number): void => {
+    if (!itemState[itemId]?.isHeld && props.selectedItems && props.selectedItems?.length > 0) {
+      if (!props.selectedItems?.includes(itemId))
+        onItemSelect(itemId);
+      else
+        onItemDeselect(itemId);
+
+      return;
+    }
+
+    if (itemState[itemId].holdStarter) {
+      clearTimeout(itemState[itemId].holdStarter);
+      onItemClick(itemId);
+    }
+
+    setItemState(prevState => ({
+      ...prevState,
+      [itemId]: {
+        holdStarter: null,
+        isHeld: false
+      }
+    }));
+  };
+
+  const itemMouseDown = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
+    if (e.button != 0) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      return;
+    }
+
+    handleButtonDown(itemId);
   }
 
   const itemMouseUp = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
@@ -121,30 +149,22 @@ export function ItemList(props: ItemListProps) {
       return;
     }
 
-    if (!itemState[itemId]?.isHeld && props.selectedItems && props.selectedItems?.length > 0) {
-      if (!props.selectedItems?.includes(itemId))
-        onItemSelect(itemId);
-      else
-        onItemDeselect(itemId);
-
-      return;
-    }
-
-    setItemState(prevState => {
-      if (prevState[itemId].holdStarter) {
-        clearTimeout(prevState[itemId].holdStarter);
-        onItemClick(itemId);
-      }
-
-      return {
-        ...prevState,
-        [itemId]: {
-          holdStarter: null,
-          isHeld: false
-        }
-      }
-    });
+    handleButtonUp(itemId);
   }
+
+  const itemTouchDown = (e: React.TouchEvent<HTMLTableCellElement>, itemId: number): void => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    handleButtonDown(itemId);
+  };
+
+  const itemTouchUp = (e: React.TouchEvent<HTMLTableCellElement>, itemId: number): void => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    handleButtonUp(itemId);
+  };
 
   useEffect(() => {
     if (window.window.innerWidth < 500)
@@ -251,7 +271,7 @@ export function ItemList(props: ItemListProps) {
         {props.items?.map(item =>
           <TableRow
             className={props.selectedItems?.includes(item.id!) ? "bg-body-secondary" : ""}
-            key={item.title}
+            key={item.id}
             onMouseEnter={() => setItemState(prevState => ({
               ...prevState,
               hoveredItemId: item.id
@@ -273,6 +293,8 @@ export function ItemList(props: ItemListProps) {
             <TableCell
               onMouseDown={(e) => itemMouseDown(e, item.id!)}
               onMouseUp={(e) => itemMouseUp(e, item.id!)}
+              onTouchStart={(e) => itemTouchDown(e, item.id!)}
+              onTouchEnd={(e) => itemTouchUp(e, item.id!)}
               style={{
                 cursor: "pointer",
                 lineBreak: "anywhere"
@@ -284,6 +306,8 @@ export function ItemList(props: ItemListProps) {
             <TableCell
               onMouseDown={(e) => itemMouseDown(e, item.id!)}
               onMouseUp={(e) => itemMouseUp(e, item.id!)}
+              onTouchStart={(e) => itemTouchDown(e, item.id!)}
+              onTouchEnd={(e) => itemTouchUp(e, item.id!)}
               style={{cursor: "pointer"}}>
               <TableCellLayout
                 style={{
@@ -297,7 +321,9 @@ export function ItemList(props: ItemListProps) {
             {showBarcode ?
               <TableCell
                 onMouseDown={(e) => itemMouseDown(e, item.id!)}
-                onMouseUp={(e) => itemMouseUp(e, item.id!)}>
+                onMouseUp={(e) => itemMouseUp(e, item.id!)}
+                onTouchStart={(e) => itemTouchDown(e, item.id!)}
+                onTouchEnd={(e) => itemTouchUp(e, item.id!)}>
                 <TableCellLayout>
                   {item.barcode ?
                     <Barcode
