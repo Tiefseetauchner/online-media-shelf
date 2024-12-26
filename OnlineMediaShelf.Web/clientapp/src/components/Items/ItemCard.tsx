@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   CardFooter,
   CardHeader,
@@ -9,19 +8,17 @@ import {
 import {
   IItemModel
 } from "../../OMSWebClient.ts";
-import {
-  routes
-} from "../../utilities/routes.ts";
-import {
-  Link
-} from "react-router-dom";
+import Barcode
+  from "react-barcode";
 
 interface ItemCardProps {
   item: IItemModel;
-  onMouseDown: (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number) => void;
-  onMouseUp: (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number) => void;
-  onTouchStart: (e: React.TouchEvent<HTMLTableCellElement>, itemId: number) => void;
-  onTouchEnd: (e: React.TouchEvent<HTMLTableCellElement>, itemId: number) => void;
+  selected: boolean;
+  shownFields: string[];
+  onMouseDown: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: number) => void;
+  onMouseUp: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: number) => void;
+  onTouchStart: (e: React.TouchEvent<HTMLDivElement>, itemId: number) => void;
+  onTouchEnd: (e: React.TouchEvent<HTMLDivElement>, itemId: number) => void;
 }
 
 export function ItemCard(props: ItemCardProps) {
@@ -31,18 +28,25 @@ export function ItemCard(props: ItemCardProps) {
         minWidth: "300px",
         maxWidth: "500px",
         flexGrow: 1,
+        background: props.selected ? tokens.colorBrandBackground2 : undefined,
         marginLeft: tokens.spacingHorizontalS,
         marginRight: tokens.spacingHorizontalS,
         marginTop: tokens.spacingVerticalS,
         marginBottom: tokens.spacingVerticalS,
-      }}>
+      }}
+      onMouseDown={(e) => props.onMouseDown(e, props.item.id!)}
+      onMouseUp={(e) => props.onMouseUp(e, props.item.id!)}
+      onTouchStart={(e) => props.onTouchStart(e, props.item.id!)}
+      onTouchEnd={(e) => props.onTouchEnd(e, props.item.id!)}>
       <CardHeader
         header={
-          <Text
-            weight="semibold">{props.item.title}</Text>}
-        description={props.item.authors && props.item.authors.length > 0 && props.item.authors[0].name !== "" ? `By ${props.item.authors?.map(_ => _.name).join(", ")}` : ""}/>
+          props.shownFields.includes("title") ?
+            <Text
+              weight="semibold">{props.item.title}</Text> :
+            <div/>}
+        description={props.shownFields.includes("authors") && props.item.authors && props.item.authors.length > 0 && props.item.authors[0].name !== "" ? `By ${props.item.authors?.map(_ => _.name).join(", ")}` : ""}/>
 
-      {props.item.description && props.item.description !== "" &&
+      {props.shownFields.includes("description") && props.item.description && props.item.description !== "" &&
           <>
               <hr/>
               <p>
@@ -51,13 +55,23 @@ export function ItemCard(props: ItemCardProps) {
           </>
       }
 
+      {props.shownFields.includes("format") &&
+          <Text
+              className={"text-body-secondary"}
+              style={{fontSize: "0.7rem"}}>Format: {props.item.format}</Text>}
 
-      <CardFooter>
-        <Link
-          to={`${routes.item}/${props.item.id}`}>
-          <Button>View Item</Button>
-        </Link>
-      </CardFooter>
+      {props.shownFields.includes("barcode") && (props.item.barcode ?
+        <CardFooter>
+          <Barcode
+            height={15}
+            width={1.3}
+            fontSize={12}
+            renderer={"svg"}
+            background={"#0000"}
+            format={props.item.barcode.length == 12 ? "UPC" : "EAN13"}
+            value={props.item.barcode}/>
+        </CardFooter> :
+        <>No barcode available</>)}
     </Card>
   </>);
 }

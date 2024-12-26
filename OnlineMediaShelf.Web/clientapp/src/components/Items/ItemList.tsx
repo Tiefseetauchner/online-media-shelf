@@ -44,6 +44,7 @@ interface ItemListProps {
   onItemDeselect?: (itemId: number) => void;
   selectedItems?: number[];
   onItemsRightClick?: (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemIds: number[]) => void;
+  shownFields: string[];
 }
 
 interface ItemState {
@@ -202,8 +203,10 @@ export function ItemList(props: ItemListProps) {
       setShowBarcode(true);
   }, []);
 
-  const columns = [
-    props.showSelect ? {
+  const columns = [];
+
+  if (props.showSelect)
+    columns.push({
       columnKey: "selector",
       renderHeaderCell: () =>
         <Checkbox
@@ -220,64 +223,81 @@ export function ItemList(props: ItemListProps) {
             }
           }}/>,
       width: "48px"
-    } : undefined,
-    {
+    });
+
+  if (props.shownFields.includes("title"))
+    columns.push({
       columnKey: "title",
       renderHeaderCell: () =>
-        <p
+        <div
           style={{
             overflow: "hidden",
             textOverflow: "ellipsis",
-          }}>Title</p>,
-      width: "35%"
-    },
-    {
+          }}>Title</div>,
+    });
+
+  if (props.shownFields.includes("description"))
+    columns.push({
       columnKey: "description",
       renderHeaderCell: () =>
-        <p
+        <div
           style={{
             overflow: "hidden",
             textOverflow: "ellipsis",
-          }}>Description</p>,
-      width: "65%"
-    },
-    showBarcode ? {
-        columnKey: "barcode",
-        renderHeaderCell: () =>
-          <p
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}>
-            Barcode
+          }}>Description</div>,
+    });
+
+  if (props.shownFields.includes("authors"))
+    columns.push({
+      columnKey: "authors",
+      renderHeaderCell: () =>
+        <div
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}>Authors</div>,
+    });
+
+  if (props.shownFields.includes("barcode"))
+    columns.push(
+      showBarcode ? {
+          columnKey: "barcode",
+          renderHeaderCell: () =>
+            <div
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}>
+              Barcode
+              <Button
+                icon={
+                  <FontAwesomeIcon
+                    icon={faChevronRight}/>
+                }
+                onClick={() => setShowBarcode(false)}
+                appearance={"subtle"}/>
+            </div>,
+          width: "165px"
+        } :
+        {
+          columnKey: "barcode",
+          renderHeaderCell: () =>
             <Button
               icon={
                 <FontAwesomeIcon
-                  icon={faChevronRight}/>
+                  icon={faChevronLeft}/>
               }
-              onClick={() => setShowBarcode(false)}
-              appearance={"subtle"}/>
-          </p>,
-        width: "165px"
-      } :
-      {
-        columnKey: "barcode",
-        renderHeaderCell: () =>
-          <Button
-            icon={
-              <FontAwesomeIcon
-                icon={faChevronLeft}/>
-            }
-            onClick={() => setShowBarcode(true)}
-            appearance={"subtle"}/>,
-        width: "32px"
-      },
-    showDelete ? {
+              onClick={() => setShowBarcode(true)}
+              appearance={"subtle"}/>,
+          width: "32px"
+        });
+
+  if (showDelete)
+    columns.push({
       columnKey: "deleteButton",
       renderHeaderCell: () => <></>,
       width: "32px"
-    } : undefined,
-  ];
+    });
 
   return (
     <Table
@@ -319,35 +339,53 @@ export function ItemList(props: ItemListProps) {
                   }
                 </TableCell>
             }
-            <TableCell
-              onMouseDown={(e) => itemMouseDown(e, item.id!)}
-              onMouseUp={(e) => itemMouseUp(e, item.id!)}
-              onTouchStart={(e) => itemTouchDown(e, item.id!)}
-              onTouchEnd={(e) => itemTouchUp(e, item.id!)}
-              style={{
-                cursor: "pointer",
-                lineBreak: "anywhere"
-              }}>
-              <TableCellLayout>
-                {item.title}
-              </TableCellLayout>
-            </TableCell>
-            <TableCell
-              onMouseDown={(e) => itemMouseDown(e, item.id!)}
-              onMouseUp={(e) => itemMouseUp(e, item.id!)}
-              onTouchStart={(e) => itemTouchDown(e, item.id!)}
-              onTouchEnd={(e) => itemTouchUp(e, item.id!)}
-              style={{cursor: "pointer"}}>
-              <TableCellLayout
-                style={{
-                  overflowX: "hidden",
-                  textOverflow: "ellipsis",
-                  textWrap: "nowrap",
-                }}>
-                {item.description}
-              </TableCellLayout>
-            </TableCell>
-            {showBarcode ?
+            {props.shownFields.includes("title") &&
+                <TableCell
+                    onMouseDown={(e) => itemMouseDown(e, item.id!)}
+                    onMouseUp={(e) => itemMouseUp(e, item.id!)}
+                    onTouchStart={(e) => itemTouchDown(e, item.id!)}
+                    onTouchEnd={(e) => itemTouchUp(e, item.id!)}
+                    style={{
+                      cursor: "pointer",
+                      lineBreak: "anywhere"
+                    }}>
+                    <TableCellLayout>
+                      {item.title}
+                    </TableCellLayout>
+                </TableCell>}
+            {props.shownFields.includes("description") &&
+                <TableCell
+                    onMouseDown={(e) => itemMouseDown(e, item.id!)}
+                    onMouseUp={(e) => itemMouseUp(e, item.id!)}
+                    onTouchStart={(e) => itemTouchDown(e, item.id!)}
+                    onTouchEnd={(e) => itemTouchUp(e, item.id!)}
+                    style={{cursor: "pointer"}}>
+                    <TableCellLayout
+                        style={{
+                          overflowX: "hidden",
+                          textOverflow: "ellipsis",
+                          textWrap: "nowrap",
+                        }}>
+                      {item.description}
+                    </TableCellLayout>
+                </TableCell>}
+            {props.shownFields.includes("authors") &&
+                <TableCell
+                    onMouseDown={(e) => itemMouseDown(e, item.id!)}
+                    onMouseUp={(e) => itemMouseUp(e, item.id!)}
+                    onTouchStart={(e) => itemTouchDown(e, item.id!)}
+                    onTouchEnd={(e) => itemTouchUp(e, item.id!)}
+                    style={{cursor: "pointer"}}>
+                    <TableCellLayout
+                        style={{
+                          overflowX: "hidden",
+                          textOverflow: "ellipsis",
+                          textWrap: "nowrap",
+                        }}>
+                      {item.authors?.map(_ => _.name).join(", ")}
+                    </TableCellLayout>
+                </TableCell>}
+            {props.shownFields.includes("barcode") && (showBarcode ?
               <TableCell
                 onMouseDown={(e) => itemMouseDown(e, item.id!)}
                 onMouseUp={(e) => itemMouseUp(e, item.id!)}
@@ -366,7 +404,7 @@ export function ItemList(props: ItemListProps) {
                     <>No barcode available</>}
                 </TableCellLayout>
               </TableCell> :
-              <TableCell/>}
+              <TableCell/>)}
             {(showDelete && props.onDelete != undefined) &&
                 <TableCell>
                     <TableCellLayout>

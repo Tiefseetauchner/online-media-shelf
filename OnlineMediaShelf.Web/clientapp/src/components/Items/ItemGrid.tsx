@@ -24,7 +24,8 @@ interface ItemGridProps {
   onItemSelect?: (itemId: number) => void;
   onItemDeselect?: (itemId: number) => void;
   selectedItems?: number[];
-  onItemsRightClick?: (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemIds: number[]) => void;
+  onItemsRightClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemIds: number[]) => void;
+  shownFields: string[];
 }
 
 interface ItemState {
@@ -110,7 +111,7 @@ export function ItemGrid(props: ItemGridProps) {
     }));
   };
 
-  const itemMouseDown = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
+  const itemMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: number): void => {
     if (e.button != 0) {
       e.preventDefault();
       e.stopPropagation();
@@ -121,7 +122,7 @@ export function ItemGrid(props: ItemGridProps) {
     handleButtonDown(itemId, () => true);
   }
 
-  const itemMouseUp = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, itemId: number): void => {
+  const itemMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, itemId: number): void => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -138,7 +139,7 @@ export function ItemGrid(props: ItemGridProps) {
     handleButtonUp(itemId);
   }
 
-  const didTouchMoveSignificantly = (e: React.TouchEvent<HTMLTableCellElement>) => {
+  const didTouchMoveSignificantly = (e: React.TouchEvent<HTMLDivElement>) => {
     const oldX = itemState.touchStart.x ?? 0;
     const oldY = itemState.touchStart.y ?? 0;
     const newX = e.changedTouches[0].clientX;
@@ -149,7 +150,7 @@ export function ItemGrid(props: ItemGridProps) {
     return Math.abs(newX - oldX) > 20 || Math.abs(newY - oldY) > 50;
   };
 
-  const itemTouchDown = (e: React.TouchEvent<HTMLTableCellElement>, itemId: number): void => {
+  const itemTouchDown = (e: React.TouchEvent<HTMLDivElement>, itemId: number): void => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -164,7 +165,7 @@ export function ItemGrid(props: ItemGridProps) {
     handleButtonDown(itemId, () => !didTouchMoveSignificantly(e));
   };
 
-  const itemTouchUp = (e: React.TouchEvent<HTMLTableCellElement>, itemId: number): void => {
+  const itemTouchUp = (e: React.TouchEvent<HTMLDivElement>, itemId: number): void => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -182,10 +183,12 @@ export function ItemGrid(props: ItemGridProps) {
       }}>
       {props.items.map(item =>
         <ItemCard
+          shownFields={props.shownFields}
           onMouseDown={itemMouseDown}
           onMouseUp={itemMouseUp}
           onTouchStart={itemTouchDown}
           onTouchEnd={itemTouchUp}
+          selected={props.selectedItems!.includes(item.id!)}
           key={item.id}
           item={item}/>)}
     </div>

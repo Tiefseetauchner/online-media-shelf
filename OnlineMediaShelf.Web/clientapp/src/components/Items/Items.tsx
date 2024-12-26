@@ -17,12 +17,16 @@ import {
   MenuItem,
   MenuList,
   MenuPopover,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
   Title1,
   Title3,
   Toolbar,
   ToolbarButton,
   ToolbarDivider,
   ToolbarRadioButton,
+  ToolbarToggleButton,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -69,6 +73,9 @@ import {
 import {
   faBorderAll
 } from "@fortawesome/free-solid-svg-icons/faBorderAll";
+import {
+  faEye
+} from "@fortawesome/free-solid-svg-icons/faEye";
 
 
 interface ItemsState {
@@ -84,7 +91,7 @@ interface ItemsState {
     menuItemIds: number[];
   };
   currentUsersShelves?: IShelfModel[];
-  displayMode: "list" | "grid";
+  displaySettings: Record<string, string[]>;
 }
 
 export function Items() {
@@ -93,7 +100,9 @@ export function Items() {
     itemCount: 0,
     page: 0,
     selectedItemIds: [],
-    displayMode: "list"
+    displaySettings: {
+      displayMode: [localStorage.getItem('displayMode') as "list" | "grid" ?? "list"],
+    },
   });
 
   const pageSize = 30;
@@ -146,6 +155,20 @@ export function Items() {
       populateCurrentUsersShelves();
   }, [state.contextMenuOpen, state.selectedItemIds]);
 
+  useEffect(() => {
+    localStorage.setItem('displayMode', state.displaySettings.displayMode[0]);
+
+    setState(prevState => ({
+      ...prevState,
+      displaySettings: {
+        ...prevState.displaySettings,
+        shownFields: prevState.displaySettings.displayMode[0] === "list" ?
+          ["title", "description", "barcode"] :
+          ["title", "description", "authors"]
+      }
+    }));
+  }, [state.displaySettings.displayMode]);
+
   const toolbarChangeValues = (_: any, {
     name,
     checkedItems
@@ -155,7 +178,10 @@ export function Items() {
   }) => {
     setState(prevState => ({
       ...prevState,
-      [name]: checkedItems[0]
+      displaySettings: {
+        ...prevState.displaySettings,
+        [name]: checkedItems
+      }
     }));
   };
 
@@ -248,27 +274,26 @@ export function Items() {
             </Col>
         </Row>}
 
-
     <Title1>Items</Title1>
 
     <Toolbar
-      defaultCheckedValues={{
-        displayMode: ["list"]
-      }}
+      checkedValues={state.displaySettings}
       onCheckedValueChange={toolbarChangeValues}>
-      {user?.currentUser?.isLoggedIn ?
-        <ToolbarButton
-          appearance={"primary"}
-          icon={
-            <FontAwesomeIcon
-              icon={faPlus}/>}
-          onClick={() => setState({
-            ...state,
-            isDialogOpen: true
-          })}>Create Item</ToolbarButton> :
+      {user?.currentUser?.isLoggedIn ? <>
+          <ToolbarButton
+            appearance={"primary"}
+            icon={
+              <FontAwesomeIcon
+                icon={faPlus}/>}
+            onClick={() => setState({
+              ...state,
+              isDialogOpen: true
+            })}>Create Item</ToolbarButton>
+          <ToolbarDivider/>
+        </> :
         <></>}
-      <ToolbarDivider/>
       <ToolbarRadioButton
+        style={{borderRadius: "var(--borderRadiusMedium) 0 0 var(--borderRadiusMedium)"}}
         name={"displayMode"}
         value={"list"}
         appearance={"subtle"}
@@ -276,17 +301,72 @@ export function Items() {
           <FontAwesomeIcon
             icon={faListUl}/>}/>
       <ToolbarRadioButton
+        style={{borderRadius: "0"}}
         appearance={"subtle"}
         name={"displayMode"}
         value={"grid"}
         icon={
           <FontAwesomeIcon
             icon={faBorderAll}/>}/>
+
+      <Popover
+        positioning={{
+          position: "below"
+        }}>
+        <PopoverTrigger>
+          <ToolbarButton
+            style={{borderRadius: "0 var(--borderRadiusMedium) var(--borderRadiusMedium) 0"}}
+            icon={
+              <FontAwesomeIcon
+                icon={faEye}/>}>
+          </ToolbarButton>
+        </PopoverTrigger>
+        <PopoverSurface>
+          <Col>
+            <Row>
+              <ToolbarToggleButton
+                name={"shownFields"}
+                value={"title"}>
+                Title
+              </ToolbarToggleButton>
+            </Row>
+            <Row>
+              <ToolbarToggleButton
+                name={"shownFields"}
+                value={"authors"}>
+                Authors
+              </ToolbarToggleButton>
+            </Row>
+            <Row>
+              <ToolbarToggleButton
+                name={"shownFields"}
+                value={"description"}>
+                Description
+              </ToolbarToggleButton>
+            </Row>
+            <Row>
+              <ToolbarToggleButton
+                name={"shownFields"}
+                value={"barcode"}>
+                Barcode
+              </ToolbarToggleButton>
+            </Row>
+            <Row>
+              <ToolbarToggleButton
+                name={"shownFields"}
+                value={"format"}>
+                Format
+              </ToolbarToggleButton>
+            </Row>
+          </Col>
+        </PopoverSurface>
+      </Popover>
     </Toolbar>
 
     {state.items !== undefined && <>
-      {state.displayMode === "list" &&
+      {state.displaySettings.displayMode[0] === "list" &&
           <ItemList
+              shownFields={state.displaySettings.shownFields ?? ["title", "description", "barcode"]}
               items={state.items}
               showSelect
               selectedItems={state.selectedItemIds}
@@ -317,8 +397,9 @@ export function Items() {
                 }));
               }}
               onItemClick={(itemId) => navigateToItem(itemId, navigate)}/>}
-      {state.displayMode === "grid" &&
+      {state.displaySettings.displayMode[0] === "grid" &&
           <ItemGrid
+              shownFields={state.displaySettings.shownFields ?? ["title", "description", "authors"]}
               items={state.items}
               showSelect
               selectedItems={state.selectedItemIds}
