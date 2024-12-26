@@ -10,6 +10,7 @@ import {
 import {
   IShelfModel,
   ItemAddModel,
+  ItemClient,
   ShelfClient
 } from "../../OMSWebClient.ts";
 import {
@@ -26,6 +27,8 @@ import {
   Text,
   Title1,
   Title3,
+  ToolbarButton,
+  ToolbarDivider,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -41,9 +44,6 @@ import {
   AddItemToShelfDialog
 } from "./AddItemToShelfDialog.tsx";
 import {
-  ItemList
-} from "../Items/ItemList.tsx";
-import {
   showErrorToast,
   showSuccessToast
 } from "../../utilities/toastHelper.tsx";
@@ -57,6 +57,12 @@ import {
 import {
   ItemToShelfMenu
 } from "../ItemToShelfMenu.tsx";
+import {
+  ItemsDisplay
+} from "../Items/ItemsDisplay.tsx";
+import {
+  ItemsDisplayToolbar
+} from "../ItemsDisplayToolbar.tsx";
 
 interface ShelfState {
   shelf?: IShelfModel;
@@ -70,6 +76,7 @@ interface ShelfState {
   };
   currentUsersShelves?: IShelfModel[];
   couldNotLoadShelfAlready: boolean;
+  displaySettings: Record<string, string[]>;
 }
 
 export function ShelfView() {
@@ -80,7 +87,10 @@ export function ShelfView() {
   const [state, setState] = useState<ShelfState>({
     isDialogOpen: false,
     selectedItemIds: [],
-    couldNotLoadShelfAlready: false
+    couldNotLoadShelfAlready: false,
+    displaySettings: {
+      displayMode: [localStorage.getItem('displayMode') as "list" | "grid" ?? "list"],
+    },
   });
   const [updateTracker, setUpdateTracker] = useState(0);
 
@@ -102,10 +112,13 @@ export function ShelfView() {
 
   useEffect(() => {
     async function populateShelf() {
-      const client = new ShelfClient();
+      const shelfClient = new ShelfClient();
+      const itemClient = new ItemClient();
 
       try {
-        let result = await client.getShelf(parseInt(shelfId!));
+        let result = await shelfClient.getShelf(parseInt(shelfId!));
+
+        result.items = await Promise.all(result.items?.map(_ => itemClient.getItem(_.id!)) ?? []);
 
         setState(prevState => ({
           ...prevState,
@@ -146,6 +159,36 @@ export function ShelfView() {
     if (user?.currentUser?.isLoggedIn && !state.currentUsersShelves)
       populateCurrentUsersShelves();
   }, [state.contextMenuOpen, state.selectedItemIds]);
+
+  useEffect(() => {
+    localStorage.setItem('displayMode', state.displaySettings.displayMode[0]);
+
+    setState(prevState => ({
+      ...prevState,
+      displaySettings: {
+        ...prevState.displaySettings,
+        shownFields: prevState.displaySettings.displayMode[0] === "list" ?
+          ["title", "description", "barcode"] :
+          ["title", "description", "authors"]
+      }
+    }));
+  }, [state.displaySettings.displayMode]);
+
+  const toolbarChangeValues = (_: any, {
+    name,
+    checkedItems
+  }: {
+    name: string,
+    checkedItems: string[]
+  }) => {
+    setState(prevState => ({
+      ...prevState,
+      displaySettings: {
+        ...prevState.displaySettings,
+        [name]: checkedItems
+      }
+    }));
+  };
 
   return (<>
     {
@@ -291,46 +334,52 @@ export function ShelfView() {
                   </Col>
               </Row>}
 
-          <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
-            {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
-              <div
-                style={{float: "right"}}>
-                <Button
-                  style={{borderRadius: "var(--borderRadiusMedium) 0 0 var(--borderRadiusMedium)"}}
-                  icon={
-                    <FontAwesomeIcon
-                      icon={faPlus}/>}
-                  onClick={() => setState({
-                    ...state,
-                    isDialogOpen: true
-                  })}>Add Item to Shelf</Button>
-                <Popover>
-                  <PopoverTrigger>
-                    <Button
-                      style={{borderRadius: "0 var(--borderRadiusMedium) var(--borderRadiusMedium) 0"}}
-                      icon={
-                        <FontAwesomeIcon
-                          color={"red"}
-                          icon={faTrash}/>}/>
-                  </PopoverTrigger>
-
-                  <PopoverSurface>
-                    <Row>
-                      <Text>You are about to delete this shelf permanently! Are you sure?</Text>
-                    </Row>
-                    <Row>
-                      <Button
-                        className={"bg-danger text-white"}
-                        onClick={deleteShelf}>Confirm</Button>
-                    </Row>
-                  </PopoverSurface>
-                </Popover>
-              </div> :
-              <></>}</Title1>
+          <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf</Title1>
           <p>{state.shelf.description}</p>
 
-          {state.shelf.items !== undefined &&
-              <ItemList
+
+          {state.shelf.items !== undefined && <>
+              <ItemsDisplayToolbar
+                  checkedValues={state.displaySettings}
+                  onCheckedValueChange={toolbarChangeValues}>
+                {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ? <>
+                    <ToolbarButton
+                      style={{borderRadius: "var(--borderRadiusMedium) 0 0 var(--borderRadiusMedium)"}}
+                      icon={
+                        <FontAwesomeIcon
+                          icon={faPlus}/>}
+                      onClick={() => setState({
+                        ...state,
+                        isDialogOpen: true
+                      })}>Add Item to Shelf</ToolbarButton>
+                    <Popover>
+                      <PopoverTrigger>
+                        <ToolbarButton
+                          style={{borderRadius: "0 var(--borderRadiusMedium) var(--borderRadiusMedium) 0"}}
+                          icon={
+                            <FontAwesomeIcon
+                              color={"red"}
+                              icon={faTrash}/>}/>
+                      </PopoverTrigger>
+
+                      <PopoverSurface>
+                        <Row>
+                          <Text>You are about to delete this shelf permanently! Are you sure?</Text>
+                        </Row>
+                        <Row>
+                          <Button
+                            className={"bg-danger text-white"}
+                            onClick={deleteShelf}>Confirm</Button>
+                        </Row>
+                      </PopoverSurface>
+                    </Popover>
+                    <ToolbarDivider/>
+                  </> :
+                  <></>}
+              </ItemsDisplayToolbar>
+              <ItemsDisplay
+                  displayMode={state.displaySettings.displayMode[0]}
+                  shownFields={state.displaySettings.shownFields ?? ["title", "description", "barcode"]}
                   items={state.shelf.items}
                   showDelete
                   onDelete={(itemId) => {
@@ -354,7 +403,7 @@ export function ShelfView() {
                     removeItemFromShelf();
                   }}
                   showSelect
-                  selectedItems={state.selectedItemIds}
+                  selectedItemIds={state.selectedItemIds}
                   onItemSelect={(itemId) => {
                     setState(prevState => ({
                       ...prevState,
@@ -384,8 +433,9 @@ export function ShelfView() {
                         menuItemIds: itemIds
                       },
                     }));
-                  }}
-              />}
+                  }}/>
+          </>
+          }
         </>
     }
 

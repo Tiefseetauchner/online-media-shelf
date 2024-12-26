@@ -166,8 +166,6 @@ export function ItemList(props: ItemListProps) {
     const newX = e.changedTouches[0].clientX;
     const newY = e.changedTouches[0].clientY;
 
-    console.log(oldX, newX, oldY, newY);
-
     return Math.abs(newX - oldX) > 20 || Math.abs(newY - oldY) > 50;
   };
 

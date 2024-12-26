@@ -17,16 +17,10 @@ import {
   MenuItem,
   MenuList,
   MenuPopover,
-  Popover,
-  PopoverSurface,
-  PopoverTrigger,
   Title1,
   Title3,
-  Toolbar,
   ToolbarButton,
   ToolbarDivider,
-  ToolbarRadioButton,
-  ToolbarToggleButton,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -39,9 +33,6 @@ import {
   showErrorToast,
   showSuccessToast
 } from "../../utilities/toastHelper.tsx";
-import {
-  ItemList
-} from "./ItemList.tsx";
 import {
   PaginationControls
 } from "../PaginationControls.tsx";
@@ -59,23 +50,17 @@ import {
   Row
 } from "react-bootstrap";
 import {
-  ItemGrid
-} from "./ItemGrid.tsx";
-import {
   FontAwesomeIcon
 } from "@fortawesome/react-fontawesome";
 import {
   faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  faListUl
-} from "@fortawesome/free-solid-svg-icons/faListUl";
+  ItemsDisplay
+} from "./ItemsDisplay.tsx";
 import {
-  faBorderAll
-} from "@fortawesome/free-solid-svg-icons/faBorderAll";
-import {
-  faEye
-} from "@fortawesome/free-solid-svg-icons/faEye";
+  ItemsDisplayToolbar
+} from "../ItemsDisplayToolbar.tsx";
 
 
 interface ItemsState {
@@ -276,7 +261,7 @@ export function Items() {
 
     <Title1>Items</Title1>
 
-    <Toolbar
+    <ItemsDisplayToolbar
       checkedValues={state.displaySettings}
       onCheckedValueChange={toolbarChangeValues}>
       {user?.currentUser?.isLoggedIn ? <>
@@ -292,145 +277,40 @@ export function Items() {
           <ToolbarDivider/>
         </> :
         <></>}
-      <ToolbarRadioButton
-        style={{borderRadius: "var(--borderRadiusMedium) 0 0 var(--borderRadiusMedium)"}}
-        name={"displayMode"}
-        value={"list"}
-        appearance={"subtle"}
-        icon={
-          <FontAwesomeIcon
-            icon={faListUl}/>}/>
-      <ToolbarRadioButton
-        style={{borderRadius: "0"}}
-        appearance={"subtle"}
-        name={"displayMode"}
-        value={"grid"}
-        icon={
-          <FontAwesomeIcon
-            icon={faBorderAll}/>}/>
+    </ItemsDisplayToolbar>
 
-      <Popover
-        positioning={{
-          position: "below"
-        }}>
-        <PopoverTrigger>
-          <ToolbarButton
-            style={{borderRadius: "0 var(--borderRadiusMedium) var(--borderRadiusMedium) 0"}}
-            icon={
-              <FontAwesomeIcon
-                icon={faEye}/>}>
-          </ToolbarButton>
-        </PopoverTrigger>
-        <PopoverSurface>
-          <Col>
-            <Row>
-              <ToolbarToggleButton
-                name={"shownFields"}
-                value={"title"}>
-                Title
-              </ToolbarToggleButton>
-            </Row>
-            <Row>
-              <ToolbarToggleButton
-                name={"shownFields"}
-                value={"authors"}>
-                Authors
-              </ToolbarToggleButton>
-            </Row>
-            <Row>
-              <ToolbarToggleButton
-                name={"shownFields"}
-                value={"description"}>
-                Description
-              </ToolbarToggleButton>
-            </Row>
-            <Row>
-              <ToolbarToggleButton
-                name={"shownFields"}
-                value={"barcode"}>
-                Barcode
-              </ToolbarToggleButton>
-            </Row>
-            <Row>
-              <ToolbarToggleButton
-                name={"shownFields"}
-                value={"format"}>
-                Format
-              </ToolbarToggleButton>
-            </Row>
-          </Col>
-        </PopoverSurface>
-      </Popover>
-    </Toolbar>
-
-    {state.items !== undefined && <>
-      {state.displaySettings.displayMode[0] === "list" &&
-          <ItemList
-              shownFields={state.displaySettings.shownFields ?? ["title", "description", "barcode"]}
-              items={state.items}
-              showSelect
-              selectedItems={state.selectedItemIds}
-              onItemSelect={(itemId) => setState(prevState => ({
-                ...prevState,
-                selectedItemIds: prevState.selectedItemIds?.concat(itemId)
-              }))}
-              onItemDeselect={(itemId) => setState(prevState => ({
-                ...prevState,
-                selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
-              }))}
-              onItemsRightClick={(e, itemIds) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (itemIds.length == 0) {
-                  return;
-                }
-
-                setState(prevState => ({
-                  ...prevState,
-                  contextMenuOpen: {
-                    open: true,
-                    x: e.clientX,
-                    y: e.clientY,
-                    menuItemIds: itemIds
-                  },
-                }));
-              }}
-              onItemClick={(itemId) => navigateToItem(itemId, navigate)}/>}
-      {state.displaySettings.displayMode[0] === "grid" &&
-          <ItemGrid
-              shownFields={state.displaySettings.shownFields ?? ["title", "description", "authors"]}
-              items={state.items}
-              showSelect
-              selectedItems={state.selectedItemIds}
-              onItemSelect={(itemId) => setState(prevState => ({
-                ...prevState,
-                selectedItemIds: prevState.selectedItemIds?.concat(itemId)
-              }))}
-              onItemDeselect={(itemId) => setState(prevState => ({
-                ...prevState,
-                selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
-              }))}
-              onItemsRightClick={(e, itemIds) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (itemIds.length == 0) {
-                  return;
-                }
-
-                setState(prevState => ({
-                  ...prevState,
-                  contextMenuOpen: {
-                    open: true,
-                    x: e.clientX,
-                    y: e.clientY,
-                    menuItemIds: itemIds
-                  },
-                }));
-              }}
-              onItemClick={(itemId) => navigateToItem(itemId, navigate)}/>}
-    </>}
+    {state.items !== undefined && (
+      <ItemsDisplay
+        displayMode={state.displaySettings.displayMode[0]}
+        shownFields={state.displaySettings.shownFields ?? ["title", "description", "barcode"]}
+        items={state.items}
+        showSelect
+        selectedItemIds={state.selectedItemIds ?? []}
+        onItemSelect={(itemId) => setState(prevState => ({
+          ...prevState,
+          selectedItemIds: prevState.selectedItemIds?.concat(itemId)
+        }))}
+        onItemDeselect={(itemId) => setState(prevState => ({
+          ...prevState,
+          selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
+        }))}
+        onItemsRightClick={(e, itemIds) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (itemIds.length == 0) return;
+          setState(prevState => ({
+            ...prevState,
+            contextMenuOpen: {
+              open: true,
+              x: e.clientX,
+              y: e.clientY,
+              menuItemIds: itemIds
+            },
+          }));
+        }}
+        onItemClick={(itemId) => navigateToItem(itemId, navigate)}
+      />
+    )}
 
     <PaginationControls
       pageCount={Math.ceil(state.itemCount / pageSize)}

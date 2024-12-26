@@ -58,7 +58,7 @@ public class ItemController(
     var items = await unitOfWork.ItemRepository.AsQueryable()
       .Where(i => title == null || i.Data.Title.Contains(title))
       .Where(i => barcode == null || i.Data.Barcode.Contains(barcode))
-      .Where(i => !excludedItems.Contains(i.Id))
+      .Where(i => !excludedItems.AsQueryable().Contains(i.Id))
       .Take(limit)
       .Include(_ => _.Data)
       .OrderBy(_ => _.Data.Title)
