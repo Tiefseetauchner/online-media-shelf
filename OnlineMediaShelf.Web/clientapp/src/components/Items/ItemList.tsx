@@ -38,7 +38,6 @@ interface ItemListProps {
   items: IItemModel[];
   showDelete?: boolean;
   onDelete?: (itemId: number) => void;
-  showBarcode?: boolean;
   onItemClick?: (itemId: number) => void;
   showSelect?: boolean;
   onItemSelect?: (itemId: number) => void;
