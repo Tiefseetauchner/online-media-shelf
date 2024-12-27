@@ -38,6 +38,7 @@ import {
   FontAwesomeIcon
 } from "@fortawesome/react-fontawesome";
 import {
+  faEdit,
   faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -63,10 +64,14 @@ import {
 import {
   ItemsDisplayToolbar
 } from "../ItemsDisplay/ItemsDisplayToolbar.tsx";
+import {
+  AddShelfDialog
+} from "./AddShelfDialog.tsx";
 
 interface ShelfState {
+  isEditShelfDialogOpen: boolean;
   shelf?: IShelfModel;
-  isDialogOpen: boolean;
+  isAddItemToShelfDialogOpen: boolean;
   selectedItemIds: number[];
   contextMenuOpen?: {
     open: boolean;
@@ -85,7 +90,8 @@ export function ShelfView() {
   const contextMenuTargetElementRef = useRef<HTMLDivElement>(null);
 
   const [state, setState] = useState<ShelfState>({
-    isDialogOpen: false,
+    isAddItemToShelfDialogOpen: false,
+    isEditShelfDialogOpen: false,
     selectedItemIds: [],
     couldNotLoadShelfAlready: false,
     displaySettings: {
@@ -138,7 +144,7 @@ export function ShelfView() {
     }
 
     populateShelf();
-  }, [state.isDialogOpen, updateTracker]);
+  }, [state.isAddItemToShelfDialogOpen, updateTracker]);
 
   useEffect(() => {
     async function populateCurrentUsersShelves() {
@@ -203,13 +209,22 @@ export function ShelfView() {
         <>
           <AddItemToShelfDialog
             shelfId={state.shelf.id!}
-            open={state.isDialogOpen}
-            onAddItem={() => setUpdateTracker(prev => prev + 1)}
+            open={state.isAddItemToShelfDialogOpen}
             onOpenChange={(_, data) => setState({
               ...state,
-              isDialogOpen: data.open
+              isAddItemToShelfDialogOpen: data.open
             })}
+            onAddItem={() => setUpdateTracker(prev => prev + 1)}
             excludedItems={state.shelf.items?.map(i => i.id ?? -1) ?? []}/>
+
+          <AddShelfDialog
+            open={state.isEditShelfDialogOpen}
+            onOpenChange={(_, data) => setState({
+              ...state,
+              isEditShelfDialogOpen: data.open
+            })}
+            edit
+            shelf={state.shelf}/>
 
           <div
             ref={contextMenuTargetElementRef}
@@ -345,14 +360,27 @@ export function ShelfView() {
                 {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ? <>
                     <ToolbarButton
                       style={{borderRadius: "var(--borderRadiusMedium) 0 0 var(--borderRadiusMedium)"}}
+                      appearance={"primary"}
                       icon={
                         <FontAwesomeIcon
                           icon={faPlus}/>}
                       onClick={() => setState({
                         ...state,
-                        isDialogOpen: true
+                        isAddItemToShelfDialogOpen: true
                       })}>Add Item to Shelf</ToolbarButton>
-                    <Popover>
+                    <ToolbarButton
+                      style={{borderRadius: "0"}}
+                      icon={
+                        <FontAwesomeIcon
+                          icon={faEdit}/>}
+                      onClick={() => setState(prevState => ({
+                        ...prevState,
+                        isEditShelfDialogOpen: true,
+                      }))}/>
+                    <Popover
+                      positioning={{
+                        position: "below"
+                      }}>
                       <PopoverTrigger>
                         <ToolbarButton
                           style={{borderRadius: "0 var(--borderRadiusMedium) var(--borderRadiusMedium) 0"}}

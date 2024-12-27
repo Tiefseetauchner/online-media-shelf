@@ -16,6 +16,8 @@ import {
 } from "react";
 import {
   CreateShelfModel,
+  EditShelfModel,
+  IShelfModel,
   ShelfClient
 } from "../../OMSWebClient.ts";
 import {
@@ -34,16 +36,20 @@ import {
 interface AddShelfDialogProps {
   onOpenChange: DialogOpenChangeEventHandler;
   open: boolean;
+  edit?: boolean;
+  shelf?: IShelfModel;
 }
 
 interface AddShelfDialogState {
   name?: string;
   description?: string;
-
 }
 
 export function AddShelfDialog(props: AddShelfDialogProps) {
-  const [state, setState] = useState<AddShelfDialogState>({})
+  const [state, setState] = useState<AddShelfDialogState>({
+    name: props.edit ? props.shelf?.name : "",
+    description: props.edit ? props.shelf?.description : ""
+  });
 
   const navigate = useNavigate();
 
@@ -74,6 +80,26 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
       }
     };
 
+    const runEdit = async () => {
+      const client = new ShelfClient();
+
+      try {
+        await client.editShelf(props.shelf?.id!, new EditShelfModel({
+          name: state.name,
+          description: state.description
+        }))
+
+        window.location.reload();
+      } catch (e: any) {
+        showErrorToast("An error occured while creating the shelf", dispatchToast)
+      }
+    };
+
+    if (props.edit) {
+      runEdit()
+      return;
+    }
+
     runCreate()
   };
 
@@ -85,7 +111,7 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
       <form
         onSubmit={handleSubmit}>
         <DialogBody>
-          <DialogTitle>Add Shelf</DialogTitle>
+          <DialogTitle>{props.edit ? "Edit Shelf" : "Add Shelf"}</DialogTitle>
           <DialogContent
             style={{
               display: "flex",
@@ -98,6 +124,7 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
                 appearance={"underline"}
                 onChange={handleInput}
                 name={"name"}
+                value={state.name}
                 required/>
             </Field>
             <Field
@@ -106,6 +133,7 @@ export function AddShelfDialog(props: AddShelfDialogProps) {
                 appearance={"underline"}
                 onChange={handleInput}
                 name={"description"}
+                value={state.description}
                 required/>
             </Field>
           </DialogContent>

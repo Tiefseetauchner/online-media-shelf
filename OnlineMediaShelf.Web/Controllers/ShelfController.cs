@@ -184,7 +184,7 @@ public class ShelfController(
 
       await unitOfWork.CommitAsync();
 
-      return CreatedAtAction(nameof(GetShelf), new { id = shelfInDb.Id }, Mapper.ConvertToWebObject(shelfInDb));
+      return Ok();
     }
     catch (Exception)
     {
