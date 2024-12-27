@@ -107,6 +107,14 @@ export function ItemsDisplayToolbar(props: ItemsDisplayToolbarProps) {
                 Format
               </ToolbarToggleButton>
             </Row>
+            {props.checkedValues.displayMode && props.checkedValues.displayMode[0] == "grid" &&
+                <Row>
+                    <ToolbarToggleButton
+                        name={"shownFields"}
+                        value={"cover"}>
+                        Cover
+                    </ToolbarToggleButton>
+                </Row>}
           </Col>
         </PopoverSurface>
       </Popover>

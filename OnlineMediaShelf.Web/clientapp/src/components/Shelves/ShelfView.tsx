@@ -59,10 +59,10 @@ import {
 } from "../ItemToShelfMenu.tsx";
 import {
   ItemsDisplay
-} from "../Items/ItemsDisplay.tsx";
+} from "../ItemsDisplay/ItemsDisplay.tsx";
 import {
   ItemsDisplayToolbar
-} from "../ItemsDisplayToolbar.tsx";
+} from "../ItemsDisplay/ItemsDisplayToolbar.tsx";
 
 interface ShelfState {
   shelf?: IShelfModel;

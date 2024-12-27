@@ -57,10 +57,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   ItemsDisplay
-} from "./ItemsDisplay.tsx";
+} from "../ItemsDisplay/ItemsDisplay.tsx";
 import {
   ItemsDisplayToolbar
-} from "../ItemsDisplayToolbar.tsx";
+} from "../ItemsDisplay/ItemsDisplayToolbar.tsx";
 
 
 interface ItemsState {
