@@ -77,6 +77,7 @@ interface ItemsState {
   };
   currentUsersShelves?: IShelfModel[];
   displaySettings: Record<string, string[]>;
+  search?: string;
 }
 
 export function Items() {
@@ -104,21 +105,22 @@ export function Items() {
       const client = new ItemClient();
 
       try {
-        let itemCount = await client.getItemCount();
-        let items = await client.getItems(pageSize, state.page);
+        let itemCount = await client.getItemCount(state.search);
+        let items = state.search ? await client.searchItemPaged(state.search, undefined, undefined, pageSize, state.page) : await client.getItems(pageSize, state.page);
 
-        setState({
-          ...state,
+        setState(prevState => ({
+          ...prevState,
           items: items,
-          itemCount: itemCount
-        })
+          itemCount: itemCount,
+          page: 0,
+        }));
       } catch (e: any) {
         showErrorToast("An error occured while loading the items", dispatchToast)
       }
     }
 
     populateItems();
-  }, [state.page]);
+  }, [state.page, state.search]);
 
   useEffect(() => {
     async function populateCurrentUsersShelves() {
@@ -262,6 +264,10 @@ export function Items() {
     <Title1>Items</Title1>
 
     <ItemsDisplayToolbar
+      onSearchChange={(_, data) => setState(prevState => ({
+        ...prevState,
+        search: data.value
+      }))}
       checkedValues={state.displaySettings}
       onCheckedValueChange={toolbarChangeValues}>
       {user?.currentUser?.isLoggedIn ? <>
