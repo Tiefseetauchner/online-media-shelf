@@ -39,8 +39,8 @@ public class ItemController(
   }
 
   [HttpGet("count")]
-  public async Task<ActionResult<int>> GetItemCount() =>
-    Ok(await unitOfWork.ItemRepository.AsQueryable().CountAsync());
+  public async Task<ActionResult<int>> GetItemCount([FromQuery] string? title) =>
+    Ok(await unitOfWork.ItemRepository.AsQueryable().Where(i => title == null || i.Data.Title.Contains(title)).CountAsync());
 
   [HttpGet("search")]
   public async Task<ActionResult<List<ItemModel>>> SearchItem([FromQuery] string? title,
@@ -54,12 +54,35 @@ public class ItemController(
     if (limit == 0)
       limit = 10;
 
-    // TODO (Tiefseetauchner): Fuzzy Search?
     var items = await unitOfWork.ItemRepository.AsQueryable()
       .Where(i => title == null || i.Data.Title.Contains(title))
       .Where(i => barcode == null || i.Data.Barcode.Contains(barcode))
-      .Where(i => !excludedItems.Contains(i.Id))
+      .Where(i => !excludedItems.AsQueryable().Contains(i.Id))
       .Take(limit)
+      .Include(_ => _.Data)
+      .OrderBy(_ => _.Data.Title)
+      .ToListAsync();
+
+    return Ok(items.Select(Mapper.ConvertToWebObject));
+  }
+
+  [HttpGet("search-paged")]
+  public async Task<ActionResult<List<ItemModel>>> SearchItemPaged([FromQuery] string? title,
+    [FromQuery]
+    string? barcode,
+    [FromQuery]
+    List<int> excludedItems,
+    [FromQuery]
+    int pageSize,
+    [FromQuery]
+    int page)
+  {
+    var items = await unitOfWork.ItemRepository.AsQueryable()
+      .Where(i => title == null || i.Data.Title.Contains(title))
+      .Where(i => barcode == null || i.Data.Barcode.Contains(barcode))
+      .Where(i => !excludedItems.AsQueryable().Contains(i.Id))
+      .Skip(page * pageSize)
+      .Take(pageSize)
       .Include(_ => _.Data)
       .OrderBy(_ => _.Data.Title)
       .ToListAsync();

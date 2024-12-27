@@ -1,8 +1,6 @@
 import {
   useParams
 } from "react-router-dom";
-import * as React_2
-  from "react";
 import {
   useContext,
   useEffect,
@@ -12,6 +10,7 @@ import {
 import {
   IShelfModel,
   ItemAddModel,
+  ItemClient,
   ShelfClient
 } from "../../OMSWebClient.ts";
 import {
@@ -20,11 +19,16 @@ import {
   MenuItem,
   MenuList,
   MenuPopover,
-  MenuTrigger,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
   Skeleton,
   SkeletonItem,
+  Text,
   Title1,
   Title3,
+  ToolbarButton,
+  ToolbarDivider,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -34,14 +38,12 @@ import {
   FontAwesomeIcon
 } from "@fortawesome/react-fontawesome";
 import {
+  faEdit,
   faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import {
   AddItemToShelfDialog
 } from "./AddItemToShelfDialog.tsx";
-import {
-  ItemList
-} from "../Items/ItemList.tsx";
 import {
   showErrorToast,
   showSuccessToast
@@ -53,10 +55,23 @@ import {
   Col,
   Row
 } from "react-bootstrap";
+import {
+  ItemToShelfMenu
+} from "../ItemToShelfMenu.tsx";
+import {
+  ItemsDisplay
+} from "../ItemsDisplay/ItemsDisplay.tsx";
+import {
+  ItemsDisplayToolbar
+} from "../ItemsDisplay/ItemsDisplayToolbar.tsx";
+import {
+  AddShelfDialog
+} from "./AddShelfDialog.tsx";
 
 interface ShelfState {
+  isEditShelfDialogOpen: boolean;
   shelf?: IShelfModel;
-  isDialogOpen: boolean;
+  isAddItemToShelfDialogOpen: boolean;
   selectedItemIds: number[];
   contextMenuOpen?: {
     open: boolean;
@@ -66,6 +81,7 @@ interface ShelfState {
   };
   currentUsersShelves?: IShelfModel[];
   couldNotLoadShelfAlready: boolean;
+  displaySettings: Record<string, string[]>;
 }
 
 export function ShelfView() {
@@ -74,9 +90,13 @@ export function ShelfView() {
   const contextMenuTargetElementRef = useRef<HTMLDivElement>(null);
 
   const [state, setState] = useState<ShelfState>({
-    isDialogOpen: false,
+    isAddItemToShelfDialogOpen: false,
+    isEditShelfDialogOpen: false,
     selectedItemIds: [],
-    couldNotLoadShelfAlready: false
+    couldNotLoadShelfAlready: false,
+    displaySettings: {
+      displayMode: [localStorage.getItem('displayMode') as "list" | "grid" ?? "list"],
+    },
   });
   const [updateTracker, setUpdateTracker] = useState(0);
 
@@ -98,10 +118,13 @@ export function ShelfView() {
 
   useEffect(() => {
     async function populateShelf() {
-      const client = new ShelfClient();
+      const shelfClient = new ShelfClient();
+      const itemClient = new ItemClient();
 
       try {
-        let result = await client.getShelf(parseInt(shelfId!));
+        let result = await shelfClient.getShelf(parseInt(shelfId!));
+
+        result.items = await Promise.all(result.items?.map(_ => itemClient.getItem(_.id!)) ?? []);
 
         setState(prevState => ({
           ...prevState,
@@ -121,7 +144,7 @@ export function ShelfView() {
     }
 
     populateShelf();
-  }, [state.isDialogOpen, updateTracker]);
+  }, [state.isAddItemToShelfDialogOpen, updateTracker]);
 
   useEffect(() => {
     async function populateCurrentUsersShelves() {
@@ -143,6 +166,36 @@ export function ShelfView() {
       populateCurrentUsersShelves();
   }, [state.contextMenuOpen, state.selectedItemIds]);
 
+  useEffect(() => {
+    localStorage.setItem('displayMode', state.displaySettings.displayMode[0]);
+
+    setState(prevState => ({
+      ...prevState,
+      displaySettings: {
+        ...prevState.displaySettings,
+        shownFields: prevState.displaySettings.displayMode[0] === "list" ?
+          ["title", "description", "barcode"] :
+          ["title", "description", "authors"]
+      }
+    }));
+  }, [state.displaySettings.displayMode]);
+
+  const toolbarChangeValues = (_: any, {
+    name,
+    checkedItems
+  }: {
+    name: string,
+    checkedItems: string[]
+  }) => {
+    setState(prevState => ({
+      ...prevState,
+      displaySettings: {
+        ...prevState.displaySettings,
+        [name]: checkedItems
+      }
+    }));
+  };
+
   return (<>
     {
       state.shelf == undefined ?
@@ -156,13 +209,22 @@ export function ShelfView() {
         <>
           <AddItemToShelfDialog
             shelfId={state.shelf.id!}
-            open={state.isDialogOpen}
-            onAddItem={() => setUpdateTracker(prev => prev + 1)}
+            open={state.isAddItemToShelfDialogOpen}
             onOpenChange={(_, data) => setState({
               ...state,
-              isDialogOpen: data.open
+              isAddItemToShelfDialogOpen: data.open
             })}
+            onAddItem={() => setUpdateTracker(prev => prev + 1)}
             excludedItems={state.shelf.items?.map(i => i.id ?? -1) ?? []}/>
+
+          <AddShelfDialog
+            open={state.isEditShelfDialogOpen}
+            onOpenChange={(_, data) => setState({
+              ...state,
+              isEditShelfDialogOpen: data.open
+            })}
+            edit
+            shelf={state.shelf}/>
 
           <div
             ref={contextMenuTargetElementRef}
@@ -287,30 +349,65 @@ export function ShelfView() {
                   </Col>
               </Row>}
 
-          <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf
-            {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ?
-              <div
-                style={{float: "right"}}>
-                <Button
-                  icon={
-                    <FontAwesomeIcon
-                      icon={faPlus}/>}
-                  onClick={() => setState({
-                    ...state,
-                    isDialogOpen: true
-                  })}>Add Item to Shelf</Button>
-                <Button
-                  icon={
-                    <FontAwesomeIcon
-                      color={"red"}
-                      icon={faTrash}/>}
-                  onClick={deleteShelf}/>
-              </div> :
-              <></>}</Title1>
+          <Title1>{state.shelf.user?.userName}{state.shelf.user?.userName?.endsWith("s") ? "'" : "'s"} "{state.shelf.name}" Shelf</Title1>
           <p>{state.shelf.description}</p>
 
-          {state.shelf.items !== undefined &&
-              <ItemList
+
+          {state.shelf.items !== undefined && <>
+              <ItemsDisplayToolbar
+                  checkedValues={state.displaySettings}
+                  onCheckedValueChange={toolbarChangeValues}>
+                {user?.currentUser?.isLoggedIn && user.currentUser.userId == state.shelf.user?.userId ? <>
+                    <ToolbarButton
+                      style={{borderRadius: "var(--borderRadiusMedium) 0 0 var(--borderRadiusMedium)"}}
+                      appearance={"primary"}
+                      icon={
+                        <FontAwesomeIcon
+                          icon={faPlus}/>}
+                      onClick={() => setState({
+                        ...state,
+                        isAddItemToShelfDialogOpen: true
+                      })}>Add Item to Shelf</ToolbarButton>
+                    <ToolbarButton
+                      style={{borderRadius: "0"}}
+                      icon={
+                        <FontAwesomeIcon
+                          icon={faEdit}/>}
+                      onClick={() => setState(prevState => ({
+                        ...prevState,
+                        isEditShelfDialogOpen: true,
+                      }))}/>
+                    <Popover
+                      positioning={{
+                        position: "below"
+                      }}>
+                      <PopoverTrigger>
+                        <ToolbarButton
+                          style={{borderRadius: "0 var(--borderRadiusMedium) var(--borderRadiusMedium) 0"}}
+                          icon={
+                            <FontAwesomeIcon
+                              color={"red"}
+                              icon={faTrash}/>}/>
+                      </PopoverTrigger>
+
+                      <PopoverSurface>
+                        <Row>
+                          <Text>You are about to delete this shelf permanently! Are you sure?</Text>
+                        </Row>
+                        <Row>
+                          <Button
+                            className={"bg-danger text-white"}
+                            onClick={deleteShelf}>Confirm</Button>
+                        </Row>
+                      </PopoverSurface>
+                    </Popover>
+                    <ToolbarDivider/>
+                  </> :
+                  <></>}
+              </ItemsDisplayToolbar>
+              <ItemsDisplay
+                  displayMode={state.displaySettings.displayMode[0]}
+                  shownFields={state.displaySettings.shownFields ?? ["title", "description", "barcode"]}
                   items={state.shelf.items}
                   showDelete
                   onDelete={(itemId) => {
@@ -334,7 +431,7 @@ export function ShelfView() {
                     removeItemFromShelf();
                   }}
                   showSelect
-                  selectedItems={state.selectedItemIds}
+                  selectedItemIds={state.selectedItemIds}
                   onItemSelect={(itemId) => {
                     setState(prevState => ({
                       ...prevState,
@@ -364,41 +461,11 @@ export function ShelfView() {
                         menuItemIds: itemIds
                       },
                     }));
-                  }}
-              />}
+                  }}/>
+          </>
+          }
         </>
     }
 
   </>)
-}
-
-interface ItemToShelfMenuProps {
-  currentUsersShelves: IShelfModel[];
-  shelfId: number;
-  shelfAction: (shelfId: number) => Promise<void>;
-  children: React_2.ReactElement | null;
-}
-
-function ItemToShelfMenu(props: ItemToShelfMenuProps) {
-  return (
-    <Menu>
-      <MenuTrigger
-        disableButtonEnhancement>
-        {props.children}
-      </MenuTrigger>
-
-      <MenuPopover>
-        <MenuList>
-          {props.currentUsersShelves && props.currentUsersShelves.filter(_ => _.id !== props.shelfId).length > 0 ?
-            props.currentUsersShelves.filter(_ => _.id !== props.shelfId).map(_ =>
-              <MenuItem
-                onClick={() => {
-                  props.shelfAction(_.id!);
-                }}>{_.name}</MenuItem>) :
-            <MenuItem
-              disabled>No Shelves found</MenuItem>}
-        </MenuList>
-      </MenuPopover>
-    </Menu>
-  );
 }
