@@ -821,8 +821,10 @@ export class ItemClient {
         return Promise.resolve<ItemModel[]>(null as any);
     }
 
-    getItemCount(): Promise<number> {
-        let url_ = this.baseUrl + "/api/items/count";
+    getItemCount(title: string | null | undefined): Promise<number> {
+        let url_ = this.baseUrl + "/api/items/count?";
+        if (title !== undefined && title !== null)
+            url_ += "title=" + encodeURIComponent("" + title) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -885,6 +887,63 @@ export class ItemClient {
     }
 
     protected processSearchItem(response: Response): Promise<ItemModel[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ItemModel.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ItemModel[]>(null as any);
+    }
+
+    searchItemPaged(title: string | null | undefined, barcode: string | null | undefined, excludedItems: number[] | undefined, pageSize: number | undefined, page: number | undefined): Promise<ItemModel[]> {
+        let url_ = this.baseUrl + "/api/items/search-paged?";
+        if (title !== undefined && title !== null)
+            url_ += "title=" + encodeURIComponent("" + title) + "&";
+        if (barcode !== undefined && barcode !== null)
+            url_ += "barcode=" + encodeURIComponent("" + barcode) + "&";
+        if (excludedItems === null)
+            throw new Error("The parameter 'excludedItems' cannot be null.");
+        else if (excludedItems !== undefined)
+            excludedItems && excludedItems.forEach(item => { url_ += "excludedItems=" + encodeURIComponent("" + item) + "&"; });
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSearchItemPaged(_response);
+        });
+    }
+
+    protected processSearchItemPaged(response: Response): Promise<ItemModel[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {

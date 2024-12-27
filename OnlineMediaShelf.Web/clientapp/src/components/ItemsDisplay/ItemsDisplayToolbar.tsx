@@ -1,9 +1,13 @@
 import {
+  Input,
+  InputOnChangeData,
   Popover,
   PopoverSurface,
   PopoverTrigger,
+  SearchBoxChangeEvent,
   Toolbar,
   ToolbarButton,
+  ToolbarDivider,
   ToolbarRadioButton,
   ToolbarToggleButton
 } from "@fluentui/react-components";
@@ -26,8 +30,12 @@ import {
 import {
   PropsWithChildren
 } from "react";
+import {
+  debounce
+} from "lodash";
 
 interface ItemsDisplayToolbarProps extends PropsWithChildren {
+  onSearchChange?: ((event: SearchBoxChangeEvent, data: InputOnChangeData) => void);
   checkedValues: Record<string, string[]>;
   onCheckedValueChange: (_: any, data: {
     name: string,
@@ -118,5 +126,12 @@ export function ItemsDisplayToolbar(props: ItemsDisplayToolbarProps) {
           </Col>
         </PopoverSurface>
       </Popover>
+
+
+      {props.onSearchChange && <>
+          <ToolbarDivider/>
+          <Input
+              onChange={debounce(props.onSearchChange!, 100)}/>
+      </>}
     </Toolbar>)
 }
