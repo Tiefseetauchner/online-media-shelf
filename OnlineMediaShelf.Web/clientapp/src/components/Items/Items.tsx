@@ -19,14 +19,10 @@ import {
   MenuPopover,
   Title1,
   Title3,
+  ToolbarButton,
+  ToolbarDivider,
   useToastController
 } from "@fluentui/react-components";
-import {
-  FontAwesomeIcon
-} from "@fortawesome/react-fontawesome";
-import {
-  faPlus
-} from "@fortawesome/free-solid-svg-icons";
 import {
   UserContext
 } from "../../App.tsx";
@@ -37,9 +33,6 @@ import {
   showErrorToast,
   showSuccessToast
 } from "../../utilities/toastHelper.tsx";
-import {
-  ItemList
-} from "./ItemList.tsx";
 import {
   PaginationControls
 } from "../PaginationControls.tsx";
@@ -56,6 +49,18 @@ import {
   Col,
   Row
 } from "react-bootstrap";
+import {
+  FontAwesomeIcon
+} from "@fortawesome/react-fontawesome";
+import {
+  faPlus
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  ItemsDisplay
+} from "../ItemsDisplay/ItemsDisplay.tsx";
+import {
+  ItemsDisplayToolbar
+} from "../ItemsDisplay/ItemsDisplayToolbar.tsx";
 
 
 interface ItemsState {
@@ -71,6 +76,7 @@ interface ItemsState {
     menuItemIds: number[];
   };
   currentUsersShelves?: IShelfModel[];
+  displaySettings: Record<string, string[]>;
 }
 
 export function Items() {
@@ -79,6 +85,9 @@ export function Items() {
     itemCount: 0,
     page: 0,
     selectedItemIds: [],
+    displaySettings: {
+      displayMode: [localStorage.getItem('displayMode') as "list" | "grid" ?? "list"],
+    },
   });
 
   const pageSize = 30;
@@ -130,6 +139,36 @@ export function Items() {
     if (user?.currentUser?.isLoggedIn && !state.currentUsersShelves)
       populateCurrentUsersShelves();
   }, [state.contextMenuOpen, state.selectedItemIds]);
+
+  useEffect(() => {
+    localStorage.setItem('displayMode', state.displaySettings.displayMode[0]);
+
+    setState(prevState => ({
+      ...prevState,
+      displaySettings: {
+        ...prevState.displaySettings,
+        shownFields: prevState.displaySettings.displayMode[0] === "list" ?
+          ["title", "description", "barcode"] :
+          ["title", "description", "authors"]
+      }
+    }));
+  }, [state.displaySettings.displayMode]);
+
+  const toolbarChangeValues = (_: any, {
+    name,
+    checkedItems
+  }: {
+    name: string,
+    checkedItems: string[]
+  }) => {
+    setState(prevState => ({
+      ...prevState,
+      displaySettings: {
+        ...prevState.displaySettings,
+        [name]: checkedItems
+      }
+    }));
+  };
 
   return <>
     <CreateItemDialog
@@ -220,53 +259,58 @@ export function Items() {
             </Col>
         </Row>}
 
+    <Title1>Items</Title1>
 
-    <Title1>Items
-      {user?.currentUser?.isLoggedIn ?
-        <Button
-          style={{float: "right"}}
-          icon={
-            <FontAwesomeIcon
-              icon={faPlus}/>}
-          onClick={() => setState({
-            ...state,
-            isDialogOpen: true
-          })}>Create Item</Button> :
+    <ItemsDisplayToolbar
+      checkedValues={state.displaySettings}
+      onCheckedValueChange={toolbarChangeValues}>
+      {user?.currentUser?.isLoggedIn ? <>
+          <ToolbarButton
+            appearance={"primary"}
+            icon={
+              <FontAwesomeIcon
+                icon={faPlus}/>}
+            onClick={() => setState({
+              ...state,
+              isDialogOpen: true
+            })}>Create Item</ToolbarButton>
+          <ToolbarDivider/>
+        </> :
         <></>}
-    </Title1>
+    </ItemsDisplayToolbar>
 
-    {state.items !== undefined &&
-        <ItemList
-            items={state.items}
-            showSelect
-            selectedItems={state.selectedItemIds}
-            onItemSelect={(itemId) => setState(prevState => ({
-              ...prevState,
-              selectedItemIds: prevState.selectedItemIds?.concat(itemId)
-            }))}
-            onItemDeselect={(itemId) => setState(prevState => ({
-              ...prevState,
-              selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
-            }))}
-            onItemsRightClick={(e, itemIds) => {
-              e.preventDefault();
-              e.stopPropagation();
-
-              if (itemIds.length == 0) {
-                return;
-              }
-
-              setState(prevState => ({
-                ...prevState,
-                contextMenuOpen: {
-                  open: true,
-                  x: e.clientX,
-                  y: e.clientY,
-                  menuItemIds: itemIds
-                },
-              }));
-            }}
-            onItemClick={(itemId) => navigateToItem(itemId, navigate)}/>}
+    {state.items !== undefined && (
+      <ItemsDisplay
+        displayMode={state.displaySettings.displayMode[0]}
+        shownFields={state.displaySettings.shownFields ?? ["title", "description", "barcode"]}
+        items={state.items}
+        showSelect
+        selectedItemIds={state.selectedItemIds ?? []}
+        onItemSelect={(itemId) => setState(prevState => ({
+          ...prevState,
+          selectedItemIds: prevState.selectedItemIds?.concat(itemId)
+        }))}
+        onItemDeselect={(itemId) => setState(prevState => ({
+          ...prevState,
+          selectedItemIds: prevState.selectedItemIds?.filter(_ => _ !== itemId)
+        }))}
+        onItemsRightClick={(e, itemIds) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (itemIds.length == 0) return;
+          setState(prevState => ({
+            ...prevState,
+            contextMenuOpen: {
+              open: true,
+              x: e.clientX,
+              y: e.clientY,
+              menuItemIds: itemIds
+            },
+          }));
+        }}
+        onItemClick={(itemId) => navigateToItem(itemId, navigate)}
+      />
+    )}
 
     <PaginationControls
       pageCount={Math.ceil(state.itemCount / pageSize)}
