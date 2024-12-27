@@ -1,7 +1,9 @@
 import {
-  IItemModel
+  IItemModel,
+  ItemClient
 } from "../../OMSWebClient.ts";
 import {
+  useEffect,
   useState
 } from "react";
 import {
@@ -39,13 +41,22 @@ interface ItemState {
     holdStarter: number | null;
     isHeld: boolean;
   };
+
+  coverImages: ItemIdCoverImageMapping[];
+}
+
+interface ItemIdCoverImageMapping {
+  itemId: number;
+  coverImageUrl: string;
 }
 
 export function ItemGrid(props: ItemGridProps) {
   const holdDelay = 400;
   const [itemState, setItemState] = useState<ItemState>({
-    touchStart: {}
+    touchStart: {},
+    coverImages: [],
   });
+  const [hasLoadedImages, setHasLoadedImages] = useState(false);
 
   const navigate = useNavigate();
 
@@ -173,6 +184,37 @@ export function ItemGrid(props: ItemGridProps) {
     handleButtonUp(itemId);
   };
 
+  useEffect(() => {
+    async function loadImages() {
+      const client = new ItemClient();
+
+      const coverImageObjectUrls = await Promise.all(props.items.map(async _ => {
+        try {
+          let coverImage = (await client.getItemCoverImage(_.id!)).data
+          return ({
+            itemId: _.id!,
+            coverImageUrl: URL.createObjectURL(coverImage)
+          })
+        } catch {
+          return {
+            itemId: _.id!,
+            coverImageUrl: "/no_cover.jpg"
+          }
+        }
+      }));
+
+      setItemState(prevState => ({
+        ...prevState,
+        coverImages: prevState.coverImages.concat(coverImageObjectUrls),
+      }))
+
+      setHasLoadedImages(true);
+    }
+
+    if (!hasLoadedImages && props.shownFields.includes("cover"))
+      loadImages();
+  }, [props.shownFields]);
+
   return (<>
     <div
       style={{
@@ -188,7 +230,8 @@ export function ItemGrid(props: ItemGridProps) {
           onTouchEnd={itemTouchUp}
           selected={props.selectedItems!.includes(item.id!)}
           key={item.id}
-          item={item}/>)}
+          item={item}
+          coverImageUrl={itemState.coverImages.slice(itemState.coverImages.findIndex(_ => _.itemId == item.id))[0]?.coverImageUrl}/>)}
     </div>
   </>);
 }
