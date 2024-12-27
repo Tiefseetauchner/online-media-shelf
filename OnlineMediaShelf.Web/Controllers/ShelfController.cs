@@ -162,4 +162,33 @@ public class ShelfController(
 
     return Ok();
   }
+
+  [HttpPost("{id:int}/edit")]
+  [Authorize]
+  [ProducesResponseType(200)]
+  public async Task<IActionResult> EditShelf(int id, [FromBody] EditShelfModel shelf)
+  {
+    try
+    {
+      var shelfInDb = await unitOfWork.ShelfRepository.GetByIdAsync(id);
+
+      if (shelfInDb == null)
+        return NotFound();
+
+      var user = await userManager.GetUserAsync(User);
+      if (user?.Id != shelfInDb.User.Id)
+        return Forbid();
+
+      shelfInDb.ShelfName = shelf.Name;
+      shelfInDb.ShelfDescription = shelf.Description;
+
+      await unitOfWork.CommitAsync();
+
+      return Ok();
+    }
+    catch (Exception)
+    {
+      return StatusCode(500, "An error occured while saving changes. Try again later.");
+    }
+  }
 }
