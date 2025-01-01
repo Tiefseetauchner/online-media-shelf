@@ -326,8 +326,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
             </Field>
             <Field
               label="Item Barcode"
-              validationMessage={errorState.barcodeMessage}
-              required={true}>
+              validationMessage={errorState.barcodeMessage}>
               <Input
                 value={state.barcode}
                 appearance={"underline"}
