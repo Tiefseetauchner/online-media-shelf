@@ -27,12 +27,6 @@ import {
   DialogOpenChangeEventHandler
 } from "@fluentui/react-dialog";
 import {
-  useNavigate
-} from "react-router-dom";
-import {
-  routes
-} from "../../utilities/routes.ts";
-import {
   showErrorToast
 } from "../../utilities/toastHelper.tsx";
 import {
@@ -53,6 +47,7 @@ interface AddItemDialogProps {
   open: boolean;
   item?: IItemModel;
   update?: boolean;
+  afterActionComplete: (itemModel?: IItemModel) => void;
 }
 
 interface AddItemDialogState {
@@ -90,8 +85,6 @@ export function CreateItemDialog(props: AddItemDialogProps) {
   })
   const [errorState, setErrorState] = useState<ErrorState>({})
   const [barcodeReaderOpen, setBarcodeReaderOpen] = useState(false);
-
-  const navigate = useNavigate();
 
   const {dispatchToast} = useToastController();
 
@@ -190,7 +183,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           format: state.format,
         }))
 
-        navigate(`${routes.item}/${result.id}`);
+        props.afterActionComplete(result);
 
         props.onOpenChange(undefined!, {
           open: false,
@@ -220,7 +213,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           format: state.format,
         }));
 
-        location.reload();
+        props.afterActionComplete(undefined);
       } catch (e: any) {
         showErrorToast("An error occurred when updating item", dispatchToast);
       }
@@ -326,8 +319,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
             </Field>
             <Field
               label="Item Barcode"
-              validationMessage={errorState.barcodeMessage}
-              required={true}>
+              validationMessage={errorState.barcodeMessage}>
               <Input
                 value={state.barcode}
                 appearance={"underline"}

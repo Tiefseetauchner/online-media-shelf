@@ -113,7 +113,7 @@ public class ItemController(
   [ProducesResponseType<ItemModel>(201)]
   public async Task<ActionResult<ItemModel>> CreateItem([FromBody] CreateItemModel item)
   {
-    if (unitOfWork.ItemRepository.AsQueryable().Any(i => i.Data.Barcode == item.Barcode))
+    if (!string.IsNullOrWhiteSpace(item.Barcode) && unitOfWork.ItemRepository.AsQueryable().Any(i => i.Data.Barcode == item.Barcode))
       return BadRequest("Item with this barcode already exists.");
 
     try

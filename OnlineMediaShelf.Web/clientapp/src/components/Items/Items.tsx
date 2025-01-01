@@ -37,7 +37,8 @@ import {
   PaginationControls
 } from "../PaginationControls.tsx";
 import {
-  navigateToItem
+  navigateToItem,
+  routes
 } from "../../utilities/routes.ts";
 import {
   useNavigate
@@ -178,7 +179,8 @@ export function Items() {
       onOpenChange={(_, data) => setState({
         ...state,
         isDialogOpen: data.open
-      })}/>
+      })}
+      afterActionComplete={(result) => navigate(`${routes.item}/${result!.id}`)}/>
 
     <div
       ref={contextMenuTargetElementRef}

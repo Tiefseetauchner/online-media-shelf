@@ -104,7 +104,8 @@ export function ItemView() {
       onOpenChange={(_, data) => setUpdateDialogOpen(data.open)}
       open={updateDialogOpen}
       update={true}
-      item={item}/>
+      item={item}
+      afterActionComplete={() => location.reload()}/>
 
     <UploadImageDialog
       onOpenChange={(_, data) => setUploadImageDialogOpen(data.open)}
