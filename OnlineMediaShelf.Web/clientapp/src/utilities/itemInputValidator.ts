@@ -20,6 +20,9 @@ export class ItemInputValidator {
   }
 
   static validateBarcode(barcode: string | undefined): string | undefined {
+    if (!barcode)
+      return;
+
     if (!(barcode?.length === 12 || barcode?.length === 13))
       return "The barcode must be valid EAN-13 or UPC-A.";
 
