@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
   Field,
+  Text,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -44,6 +45,7 @@ interface AddItemToShelfDialogProps {
   open: boolean;
   shelfId: number;
   excludedItems: number[];
+  onCreateItem: () => void;
 }
 
 interface AddItemToShelfDialogState {
@@ -205,6 +207,10 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
 
                   getItemFromBarcode();
                 }}/>
+              <Text>Does the item not exist yet? <a
+                onClick={props.onCreateItem}
+                style={{cursor: "pointer"}}
+                className={"link-info"}>Add it now!</a></Text>
             </DialogContent>
             <DialogActions>
               <DialogTrigger
