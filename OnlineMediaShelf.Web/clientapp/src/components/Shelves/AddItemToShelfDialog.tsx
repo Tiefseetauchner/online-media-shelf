@@ -209,6 +209,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
                 }}/>
               <Text>Does the item not exist yet? <a
                 onClick={props.onCreateItem}
+                style={{cursor: "pointer"}}
                 className={"link-info"}>Add it now!</a></Text>
             </DialogContent>
             <DialogActions>
