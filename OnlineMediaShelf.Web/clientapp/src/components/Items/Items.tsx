@@ -37,7 +37,7 @@ import {
   PaginationControls
 } from "../PaginationControls.tsx";
 import {
-  navigateToItem
+  routes
 } from "../../utilities/routes.ts";
 import {
   useNavigate
@@ -314,7 +314,7 @@ export function Items() {
             },
           }));
         }}
-        onItemClick={(itemId) => navigateToItem(itemId, navigate)}
+        onItemClick={(itemId) => navigate(routes.item(itemId.toString()))}
       />
     )}
 

@@ -22,7 +22,6 @@ import {
   faGithub
 } from "@fortawesome/free-brands-svg-icons";
 import {
-  navigateToItem,
   routes
 } from "../utilities/routes.ts";
 import {
@@ -237,7 +236,7 @@ export function HomePage() {
             <Card>
               <CardPreview>
                 <img
-                  onClick={() => navigateToItem(item.id, navigate)}
+                  onClick={() => navigate(routes.item(item.id!.toString()))}
                   style={{
                     height: "200px",
                     objectFit: "cover",
@@ -259,7 +258,7 @@ export function HomePage() {
                   }}
                   header={
                     <Link
-                      to={`${routes.item}/${item.id}`}>
+                      to={routes.item(item.id?.toString()!)}>
                       <Title3
                         style={{
                           overflow: "hidden",

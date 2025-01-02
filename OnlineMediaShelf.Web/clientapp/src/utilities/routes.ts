@@ -34,11 +34,18 @@ import {
 import {
   PrivacyPolicy
 } from "../components/PrivacyPolicy.tsx";
+import {
+  UserView
+} from "../components/Users/UserView.tsx";
 
 export const routes = {
   root: "/",
-  shelf: "/shelves",
-  item: "/items",
+  shelves: "/shelves",
+  shelf: (shelfId: string) => `/shelves/${shelfId}`,
+  items: "/items",
+  item: (itemId: string) => `/items/${itemId}`,
+  users: "/users",
+  user: (userId: string) => `/users/${userId}`,
   login: "/login",
   register: "/register",
   userAccount: "/my-account",
@@ -83,6 +90,14 @@ export const router = createBrowserRouter([
         path: "items/:itemId",
         Component: ItemView,
       },
+      /*{
+        path: "users",
+        Component: Users,
+      },*/
+      {
+        path: "users/:userId",
+        Component: UserView,
+      },
       {
         path: "privacy-policy",
         Component: PrivacyPolicy,
@@ -90,7 +105,3 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
-
-export function navigateToItem(itemId: number | undefined, navigate: (to: string) => void) {
-  navigate(`${routes.item}/${itemId}`);
-}

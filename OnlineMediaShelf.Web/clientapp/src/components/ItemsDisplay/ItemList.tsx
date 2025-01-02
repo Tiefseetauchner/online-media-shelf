@@ -2,7 +2,6 @@ import {
   useNavigate
 } from "react-router-dom";
 import {
-  navigateToItem,
   routes
 } from "../../utilities/routes.ts";
 import {
@@ -71,7 +70,7 @@ export function ItemList(props: ItemListProps) {
   const navigate = useNavigate();
 
   const onItemClick = props.onItemClick == undefined ? (itemId: number) => {
-    navigateToItem(itemId, navigate);
+    navigate(routes.item(itemId.toString()));
   } : props.onItemClick;
 
   const onItemSelect = props.showSelect && props.onItemSelect ? props.onItemSelect : onItemClick;
@@ -152,7 +151,7 @@ export function ItemList(props: ItemListProps) {
         props.onItemsRightClick(e, props.selectedItems && props.selectedItems.includes(itemId) ? props.selectedItems : [itemId]);
 
       if (e.button == 1)
-        window.open(`${routes.item}/${itemId}`, "_blank");
+        window.open(routes.item(itemId.toString()), "_blank");
 
       return;
     }

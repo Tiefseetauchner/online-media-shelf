@@ -81,7 +81,7 @@ export function ShelfCard(props: ShelfCardProps) {
 
       <CardFooter>
         <Link
-          to={`${routes.shelf}/${state.shelf?.id}`}>
+          to={routes.shelf(state.shelf?.id?.toString()!)}>
           <Button>View Shelf</Button>
         </Link>
       </CardFooter>

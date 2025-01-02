@@ -84,7 +84,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
         id: props.itemId,
       }));
 
-      navigate(`${routes.shelf}/${state.selectedShelfId}`);
+      navigate(routes.shelf(state.selectedShelfId.toString()));
     }
 
     addItemToShelf();

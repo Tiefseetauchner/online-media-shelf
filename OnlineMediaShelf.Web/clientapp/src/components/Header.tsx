@@ -162,10 +162,10 @@ function Header() {
           to={routes.root}
           icon={faHouse}>Home</NavBarButton>
         <NavBarButton
-          to={routes.shelf}
+          to={routes.shelves}
           icon={faBookOpen}>Shelves</NavBarButton>
         <NavBarButton
-          to={routes.item}
+          to={routes.items}
           icon={faList}>All Items</NavBarButton>
         {
           user?.currentUser == undefined ?

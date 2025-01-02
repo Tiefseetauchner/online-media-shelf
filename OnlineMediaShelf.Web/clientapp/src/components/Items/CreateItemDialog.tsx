@@ -190,7 +190,7 @@ export function CreateItemDialog(props: AddItemDialogProps) {
           format: state.format,
         }))
 
-        navigate(`${routes.item}/${result.id}`);
+        navigate(routes.item(result.id?.toString()!));
 
         props.onOpenChange(undefined!, {
           open: false,
