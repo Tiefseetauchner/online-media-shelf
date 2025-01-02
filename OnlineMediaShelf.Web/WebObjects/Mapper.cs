@@ -12,7 +12,7 @@ public static class Mapper
   public static ShelfModel ConvertToWebObject(Shelf shelf) =>
     new(shelf.Id, ConvertToWebObject(shelf.User), shelf.ShelfName, shelf.ShelfDescription, shelf.Items.Select(ConvertToWebObject).ToList());
 
-  private static UserModel ConvertToWebObject(ApplicationUser user) =>
+  public static UserModel ConvertToWebObject(ApplicationUser user) =>
     new(user.Id, user.UserName ?? "", user.SignUpDate);
 
   public static ItemModel ConvertToWebObject(Item item) =>

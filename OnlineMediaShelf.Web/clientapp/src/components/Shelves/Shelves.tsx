@@ -1,6 +1,8 @@
 import {
   IShelfModel,
-  ShelfClient
+  IUserModel,
+  ShelfClient,
+  UserClient
 } from "../../OMSWebClient.ts";
 import {
   useContext,
@@ -8,8 +10,12 @@ import {
   useState
 } from "react";
 import {
-  Button,
+  Input,
+  InputOnChangeData,
   Title1,
+  Toolbar,
+  ToolbarButton,
+  ToolbarDivider,
   useToastController
 } from "@fluentui/react-components";
 import {
@@ -33,21 +39,38 @@ import {
 import {
   PaginationControls
 } from "../PaginationControls.tsx";
+import {
+  debounce
+} from "lodash";
+import SearchField, {
+  SuggestionType
+} from "../SearchField.tsx";
 
 interface ShelvesState {
+  userNameSearch: string;
   shelves?: IShelfModel[];
   shelfCount: number;
   page: number;
   isDialogOpen: boolean;
+  shelfNameSearch?: string;
+}
+
+function mapToSuggestionResult(userModel: IUserModel): SuggestionType<IUserModel> {
+  return {
+    name: userModel.userName ?? "",
+    value: userModel
+  };
 }
 
 export function Shelves() {
   const shelfClient = new ShelfClient();
+  const userClient = new UserClient();
 
   const [state, setState] = useState<ShelvesState>({
     isDialogOpen: false,
     shelfCount: 0,
     page: 0,
+    userNameSearch: "",
   });
 
   const pageSize = 50;
@@ -60,20 +83,24 @@ export function Shelves() {
     async function populateShelves() {
       try {
         let shelfCount = await shelfClient.getShelfCount();
-        let shelves = await shelfClient.getAllShelves(null, state.page, pageSize);
+        let shelves;
+        if (state.shelfNameSearch || state.userNameSearch)
+          shelves = await shelfClient.searchShelvesPaged(state.userNameSearch, state.shelfNameSearch, state.page, pageSize)
+        else
+          shelves = await shelfClient.getAllShelves(null, state.page, pageSize);
 
-        setState({
-          ...state,
+        setState(prevState => ({
+          ...prevState,
           shelves: shelves,
           shelfCount: shelfCount
-        })
+        }));
       } catch (e: any) {
         showErrorToast("An error occured while loading the shelves", dispatchToast)
       }
     }
 
     populateShelves();
-  }, [state.page]);
+  }, [state.page, state.shelfNameSearch, state.userNameSearch]);
 
   return (<>
     <AddShelfDialog
@@ -83,9 +110,11 @@ export function Shelves() {
         isDialogOpen: data.open
       })}/>
 
-    <Title1>Shelves
+    <Title1>Shelves</Title1>
+    value
+    <Toolbar>
       {user?.currentUser?.isLoggedIn ?
-        <Button
+        <ToolbarButton
           style={{float: "right"}}
           icon={
             <FontAwesomeIcon
@@ -93,12 +122,34 @@ export function Shelves() {
           onClick={() => setState({
             ...state,
             isDialogOpen: true
-          })}>Create Shelf</Button> :
-        <></>}</Title1>
+          })}>Create Shelf</ToolbarButton> :
+        <></>}
+      <ToolbarDivider/>
+      <Input
+        className={"mx-1"}
+        placeholder={"Shelf name"}
+        onChange={debounce((_, data: InputOnChangeData) => setState(prevState => ({
+          ...prevState,
+          shelfNameSearch: data.value
+        })), 100)}/>
+      <SearchField<IUserModel>
+        placeholder={"User name"}
+        fetchSuggestionsDelegate={(query) =>
+          userClient.findUsers(query).then(result => result.map(mapToSuggestionResult))
+        }
+        selectionPressed={selection => setState(prevState => ({
+          ...prevState,
+          userNameSearch: selection.userName ?? "",
+        }))}
+        value={state.userNameSearch}
+        onInputChange={(value) => setState(prevState => ({
+          ...prevState,
+          userNameSearch: value
+        }))}/>
+    </Toolbar>
 
     <ShelfList
       shelves={state.shelves!}/>
-
 
     <PaginationControls
       pageCount={Math.ceil(state.shelfCount / pageSize)}

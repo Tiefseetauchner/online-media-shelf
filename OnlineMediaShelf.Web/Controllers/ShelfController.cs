@@ -39,20 +39,44 @@ public class ShelfController(
   }
 
   [HttpGet("search")]
-  public async Task<ActionResult<List<ShelfModel>>> SearchShelves([FromQuery] string? userName, [FromQuery] int? limit, [FromQuery] List<int>? filteredItemsId)
+  public async Task<ActionResult<List<ShelfModel>>> SearchShelves([FromQuery] string? userName, [FromQuery] int? limit, [FromQuery] List<int>? filteredItemsId, [FromQuery] string? shelfName)
   {
     IQueryable<Shelf> shelvesFromDbQueryable = unitOfWork.ShelfRepository
       .AsQueryable()
       .OrderByDescending(_ => _.ShelfName);
 
+    if (!string.IsNullOrEmpty(shelfName))
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Where(_ => _.ShelfName.Contains(shelfName));
+
     if (!string.IsNullOrEmpty(userName))
-      shelvesFromDbQueryable = shelvesFromDbQueryable.Where(shelf => shelf.User.UserName == userName);
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Where(shelf => shelf.User.UserName!.Contains(userName));
 
     if (filteredItemsId != null)
       shelvesFromDbQueryable = shelvesFromDbQueryable.Where(shelf => !shelf.Items.Any(item => filteredItemsId.Contains(item.Id)));
 
     if (limit != null)
       shelvesFromDbQueryable = shelvesFromDbQueryable.Take(limit.Value);
+
+    var shelvesFromDb = await shelvesFromDbQueryable.ToListAsync();
+
+    return Ok(shelvesFromDb.Select(Mapper.ConvertToWebObject));
+  }
+
+  [HttpGet("search-paged")]
+  public async Task<ActionResult<List<ShelfModel>>> SearchShelvesPaged([FromQuery] string? userName, [FromQuery] string? shelfName, [FromQuery] int? page, [FromQuery] int? pageSize)
+  {
+    IQueryable<Shelf> shelvesFromDbQueryable = unitOfWork.ShelfRepository
+      .AsQueryable()
+      .OrderByDescending(_ => _.ShelfName);
+
+    if (!string.IsNullOrEmpty(shelfName))
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Where(_ => _.ShelfName.Contains(shelfName));
+
+    if (!string.IsNullOrEmpty(userName))
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Where(shelf => shelf.User.UserName!.Contains(userName));
+
+    if (page != null && pageSize is > 0)
+      shelvesFromDbQueryable = shelvesFromDbQueryable.Skip(page.Value * pageSize.Value).Take(pageSize.Value);
 
     var shelvesFromDb = await shelvesFromDbQueryable.ToListAsync();
 

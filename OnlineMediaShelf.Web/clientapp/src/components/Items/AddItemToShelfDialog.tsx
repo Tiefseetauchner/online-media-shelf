@@ -113,7 +113,7 @@ export function AddItemToShelfDialog(props: AddItemToShelfDialogProps) {
               validationMessage={state.shelfSelectionError}>
               <SearchField<IShelfModel>
                 fetchSuggestionsDelegate={(query) =>
-                  shelfClient.searchShelves(user?.currentUser?.userName, 10, [props.itemId ?? -1])
+                  shelfClient.searchShelves(user?.currentUser?.userName, 10, [props.itemId ?? -1], undefined)
                   .then(shelves =>
                     shelves
                     .filter(_ => _.name?.toLowerCase().includes(query))
