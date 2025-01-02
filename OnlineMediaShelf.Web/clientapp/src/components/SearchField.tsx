@@ -24,6 +24,7 @@ export interface SuggestionType<T> {
 }
 
 interface SearchFieldProps<T> {
+  placeholder?: string;
   fetchSuggestionsDelegate: (query: string) => Promise<SuggestionType<T>[]>;
   selectionPressed: (selection: T) => void;
   value: string;
@@ -91,7 +92,7 @@ function SearchField<T>(props: SearchFieldProps<T>) {
       <Input
         id={inputFieldId}
         autoComplete={"off"}
-        placeholder="Search"
+        placeholder={props.placeholder ?? "Search"}
         onChange={(e) => {
           setState({
             ...state,

@@ -126,12 +126,14 @@ export function Shelves() {
         <></>}
       <ToolbarDivider/>
       <Input
+        className={"mx-1"}
         placeholder={"Shelf name"}
         onChange={debounce((_, data: InputOnChangeData) => setState(prevState => ({
           ...prevState,
           shelfNameSearch: data.value
         })), 100)}/>
       <SearchField<IUserModel>
+        placeholder={"User name"}
         fetchSuggestionsDelegate={(query) =>
           userClient.findUsers(query).then(result => result.map(mapToSuggestionResult))
         }
